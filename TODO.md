@@ -1968,9 +1968,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MOB-008: Replace comments with backend API
+## [x] MOB-008: Replace comments with backend API
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MOB
 - **Behavior:** Given a user views a post detail, when comments load, then they come from the backend; when a user submits a comment, then it is created via API and the list updates.
@@ -1986,20 +1986,34 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MOB-008.1 [AGENT]**: Create comment hooks.
+- [x] **MOB-008.1 [AGENT]**: Create comment hooks.
   - Files: `artifacts/mobile/hooks/useComments.ts` (new), `artifacts/mobile/hooks/useCreateComment.ts` (new)
   - Action: Implement paginated list and create mutation.
   - Validation: `pnpm --filter @workspace/mobile test -- commentHooks`.
 
-- [ ] **MOB-008.2 [AGENT]**: Update post detail screen.
+- [x] **MOB-008.2 [AGENT]**: Update post detail screen.
   - File: `artifacts/mobile/app/post/[id].tsx`
   - Action: Replace `getComments`/`addComment` from context with hooks.
   - Validation: `pnpm --filter @workspace/mobile test -- postDetailScreen`.
 
-- [ ] **MOB-008.3 [AGENT]**: Add post detail tests.
+- [x] **MOB-008.3 [AGENT]**: Add post detail tests.
   - File: `artifacts/mobile/app/post/[id].test.tsx` (new)
   - Action: Test comment loading, submission, and pagination.
   - Validation: `pnpm --filter @workspace/mobile test -- postDetailScreen`.
+
+### Implementation Notes
+
+- Created `useComments` hook with React Query for paginated comment fetching from backend API
+- Created `useCreateComment` hook with React Query mutation for creating comments via API
+- Updated post detail screen to use new hooks instead of SocialDataContext's `getComments`/`addComment`
+- Hooks follow deep module pattern: hide API calls, pagination, cache invalidation behind simple interface
+- Added comprehensive unit tests for both hooks (9 tests passing)
+- Fixed vitest config to resolve `@` alias for test imports
+- Typecheck passes for mobile package
+- All mobile tests pass (39 tests total)
+- Comment hooks invalidate relevant queries (comments, feed, posts) on successful creation
+- Pagination supported with limit/offset parameters (default limit: 20)
+- Error handling for empty text, missing postId, and API failures
 
 ---
 

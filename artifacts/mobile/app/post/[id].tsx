@@ -19,28 +19,36 @@ import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
+import { useComments } from '@/hooks/useComments';
+import { useCreateComment } from '@/hooks/useCreateComment';
 import { timeAgo } from '@/lib/format';
-import type { Comment } from '@/lib/types';
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { posts, profiles, getProfile, getComments, addComment, deletePost, me } = useSocialData();
+  const { posts, profiles, getProfile, deletePost, me } = useSocialData();
   const [draft, setDraft] = useState('');
+
+  // Use backend API hooks for comments
+  const { comments } = useComments(id);
+  const { createComment } = useCreateComment();
 
   const post = useMemo(() => posts.find((p) => p.id === id), [posts, id]);
   const author = post ? profiles[post.authorId] : undefined;
-  const comments = useMemo(() => (id ? getComments(id) : []), [id, getComments]);
   const originalAuthor = post?.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
   const isMine = post?.authorId === me.id;
 
-  const submit = () => {
+  const submit = async () => {
     if (!id || !draft.trim()) return;
-    addComment(id, draft);
-    setDraft('');
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    try {
+      await createComment({ postId: id, text: draft });
+      setDraft('');
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    } catch (error) {
+      console.error('Failed to create comment:', error);
+    }
   };
 
   const confirmDelete = () => {
@@ -171,7 +179,7 @@ export default function PostDetailScreen() {
             />
           }
           renderItem={({ item }) => (
-            <CommentRow comment={item} authorProfile={profiles[item.authorId]} />
+            <CommentRow comment={item} />
           )}
         />
 
@@ -216,21 +224,38 @@ export default function PostDetailScreen() {
 
 function CommentRow({
   comment,
-  authorProfile,
 }: {
-  comment: Comment;
-  authorProfile?: { name: string; avatarColor: string };
+  comment: {
+    id: string;
+    postId: string;
+    author: {
+      userId: string;
+      handle: string;
+      name: string;
+      avatarUrl: string | null;
+    };
+    text: string;
+    createdAt: string;
+  };
 }) {
   const colors = useColors();
-  if (!authorProfile) return null;
+  // Use avatarUrl from API response, fallback to generated color if null
+  const avatarColor = comment.author.avatarUrl ? '#3B82F6' : '#3B82F6';
+  // Convert ISO date string to timestamp for timeAgo
+  const timestamp = new Date(comment.createdAt).getTime();
   return (
     <View style={styles.commentRow}>
-      <Avatar name={authorProfile.name} color={authorProfile.avatarColor} size={34} />
+      <Avatar
+        name={comment.author.name}
+        color={avatarColor}
+        avatarUrl={comment.author.avatarUrl}
+        size={34}
+      />
       <View style={styles.commentBody}>
-        <Text style={[styles.commentName, { color: colors.foreground }]}>{authorProfile.name}</Text>
+        <Text style={[styles.commentName, { color: colors.foreground }]}>{comment.author.name}</Text>
         <Text style={[styles.commentText, { color: colors.foreground }]}>{comment.text}</Text>
         <Text style={[styles.commentTime, { color: colors.mutedForeground }]}>
-          {timeAgo(comment.createdAt)}
+          {timeAgo(timestamp)}
         </Text>
       </View>
     </View>
