@@ -17,6 +17,7 @@ export interface UserProfile {
   handle: string;
   bio: string;
   avatarColor: string;
+  avatarUrl?: string | null;
   wallpaper: string;
   accentColor: string;
   moodLabel: string | null;

@@ -6,6 +6,7 @@ import { Avatar } from '@/components/Avatar';
 import { useSocialData } from '@/context/SocialDataContext';
 import { useMyProfile } from '@/hooks/useProfile';
 import { useUpdateProfile, useUpdateTopFriends } from '@/hooks/useUpdateProfile';
+import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { useColors } from '@/hooks/useColors';
 import { ACCENT_COLORS, MODULE_LABELS, MOOD_OPTIONS, WALLPAPER_PRESETS } from '@/lib/theme';
 import type { ModuleId, Visibility } from '@/lib/types';
@@ -31,6 +32,7 @@ export default function EditProfileScreen() {
   const { friendIds, profiles } = useSocialData();
   const updateProfile = useUpdateProfile();
   const updateTopFriends = useUpdateTopFriends();
+  const { pickAndUploadAvatar, isUploading } = useUploadAvatar();
 
   // Use API data if available, fall back to local data
   const localMe = useSocialData().me;
@@ -120,7 +122,26 @@ export default function EditProfileScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {tab === 'appearance' ? (
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Wallpaper</Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Avatar</Text>
+            <Pressable
+              onPress={pickAndUploadAvatar}
+              disabled={isUploading}
+              style={styles.avatarPicker}
+            >
+              <Avatar
+                name={me.name}
+                color={me.avatarColor}
+                avatarUrl={me.avatarUrl}
+                size={80}
+              />
+              {isUploading ? (
+                <Feather name="loader" size={20} color={colors.mutedForeground} />
+              ) : (
+                <Feather name="camera" size={20} color={colors.mutedForeground} />
+              )}
+            </Pressable>
+
+            <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 22 }]}>Wallpaper</Text>
             <View style={styles.wallpaperGrid}>
               {WALLPAPER_PRESETS.map((preset) => (
                 <Pressable
@@ -377,6 +398,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
     paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  avatarPicker: {
+    alignItems: 'center',
+    gap: 8,
     paddingVertical: 12,
   },
   tabBtn: {

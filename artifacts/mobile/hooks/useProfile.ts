@@ -34,6 +34,7 @@ function backendToMobileProfile(backend: BackendProfile): UserProfile {
     name: backend.name,
     bio: backend.bio ?? '',
     avatarColor: '#6366f1', // Default color since backend doesn't have this
+    avatarUrl: backend.avatarUrl,
     wallpaper: backend.wallpaper ?? 'default',
     accentColor: backend.accentColor,
     moodLabel: backend.moodLabel,
