@@ -122,9 +122,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] TOOL-007: Fix mobile app router type errors
+## [x] TOOL-007: Fix mobile app router type errors
 
-- **Status:** Pending
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** TOOL
 - **Behavior:** Given the mobile app has router type errors, when a developer runs typecheck, then all type errors are resolved.
