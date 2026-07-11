@@ -47,150 +47,11 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - `ACC`: Accessibility and theming
 - `ADM`: Admin and moderation dashboard
 - `WEB`: Web companion and PWA
-
----
-
-## [x] TOOL-004: Fix lint errors and warnings
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given the codebase has lint errors, when a developer runs lint, then all errors and warnings are resolved.
-- **Related Files:** Multiple files across artifacts/api-server, lib/db, lib/api-zod
-- **Definition of Done:** All 17 lint errors and 46 warnings are resolved; `pnpm run lint` passes with no issues.
-- **Out of Scope:** Changing code logic purely to satisfy linter (prefer eslint-disable with justification).
-- **Rules to Follow:** Fix unused imports, unused variables, and explicit any types; add eslint-disable comments only when necessary with justification.
-- **Advanced Coding Pattern:** Deep module: clean code without lint noise improves maintainability.
-- **Anti-Patterns:** Ignoring lint errors; adding blanket eslint-disable.
-- **Imports/Exports:** Fix imports across affected files.
-- **Depends On:** None
-- **Blocks:** None
-
-### Subtasks
-
-- [x] **TOOL-004.1 [AGENT]**: Fix unused imports and variables.
-  - Files: `artifacts/api-server/src/routes/messages.ts`, `lib/api-zod/src/messages.ts`, `lib/db/src/repositories/commentRepository.ts`, `lib/db/src/repositories/engagementRepository.ts`, `lib/db/src/repositories/messageRepository.ts`, `lib/db/src/repositories/postRepository.test.ts`, `lib/db/src/schema/blocks.ts`, `lib/db/src/schema/comments.ts`, `lib/db/src/schema/conversations.ts`, `lib/db/src/schema/friendships.ts`, `lib/db/src/schema/messages.ts`, `lib/db/src/schema/mutes.ts`, `lib/db/src/schema/reports.ts`, `artifacts/api-server/src/websocket/messageSocket.ts`
-  - Action: Remove unused imports and variables; prefix unused args with underscore.
-  - Validation: `pnpm run lint` shows reduced error count.
-
-- [x] **TOOL-004.2 [AGENT]**: Fix explicit any types.
-  - Files: Multiple test files and service files
-  - Action: Replace `any` with proper types or unknown where appropriate.
-  - Validation: `pnpm run lint` shows no any warnings.
-
-### Notes
-- **Discovered during DEP-002 workflow:** Pre-existing lint issues (17 errors, 46 warnings) found when running quality assurance checks.
-- Issues include unused imports, unused variables, and explicit any types across multiple files.
-- These issues should be resolved to maintain code quality standards.
-- **Implementation Notes:** All lint errors and warnings have been resolved. For test files, `any` types were kept with justified eslint-disable comments since they're needed for mocking Express middleware and service methods. For non-test files, `any` types were justified with comments explaining why they're necessary (e.g., ws library server type, JSONB type casts, MessageType enum casts).
-
----
-
-## [x] TOOL-006: Fix mockup-sandbox TypeScript errors
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given the mockup-sandbox has TypeScript errors, when a developer runs typecheck, then all type errors are resolved.
-- **Related Files:** `artifacts/mockup-sandbox/src/components/ui/calendar.tsx`, `artifacts/mockup-sandbox/src/components/ui/chart.tsx`, `artifacts/mockup-sandbox/src/components/ui/spinner.tsx`, `pnpm-workspace.yaml`, `artifacts/mockup-sandbox/package.json`
-- **Definition of Done:** All TypeScript errors in mockup-sandbox are resolved; `pnpm -r run typecheck` passes for all packages.
-- **Out of Scope:** Changing component functionality purely to satisfy typechecker.
-- **Rules to Follow:** Fix Ref type incompatibilities, add proper type annotations, ensure chart component types are correct.
-- **Advanced Coding Pattern:** Deep module: type-safe UI components improve maintainability.
-- **Anti-Patterns:** Using `@ts-ignore` without justification; suppressing type errors.
-- **Imports/Exports:** Fix imports across affected UI components.
-- **Depends On:** None
-- **Blocks:** Full workspace typecheck validation
-
-### Subtasks
-
-- [x] **TOOL-006.1 [AGENT]**: Fix Ref type incompatibilities in calendar and spinner components.
-  - Files: `artifacts/mockup-sandbox/src/components/ui/calendar.tsx`, `artifacts/mockup-sandbox/src/components/ui/spinner.tsx`
-  - Action: Resolve React Ref type conflicts between different @types/react versions.
-  - Validation: `pnpm --filter @workspace/mockup-sandbox typecheck` shows no Ref errors.
-
-- [x] **TOOL-006.2 [AGENT]**: Fix chart component type errors.
-  - File: `artifacts/mockup-sandbox/src/components/ui/chart.tsx`
-  - Action: Add proper type annotations for payload, label, and item parameters; fix property access errors.
-  - Validation: `pnpm --filter @workspace/mockup-sandbox typecheck` shows no chart errors.
-
-### Notes
-- **Discovered during MUS-001 workflow:** Pre-existing TypeScript errors in mockup-sandbox found when running `pnpm -r run typecheck`.
-- Errors include Ref type incompatibilities in calendar.tsx and spinner.tsx, and missing type annotations in chart.tsx.
-- These errors prevent full workspace typecheck from passing but do not affect the main API server or database libraries.
-- **Implementation Notes:** Added pnpm-workspace.yaml override to force catalog @types/react version for mockup-sandbox. Added explicit @types/react version to mockup-sandbox package.json. Used @ts-expect-error comments with justification for Ref type conflicts (documented monorepo issue with multiple @types/react versions). Added type annotations and eslint-disable comments for recharts payload/label types (recharts types are incomplete per research). Mockup-sandbox typecheck now passes. Note: Full workspace typecheck still fails due to pre-existing mobile app router type errors (unrelated to this task).
-
----
-
-## [x] TOOL-007: Fix mobile app router type errors
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given the mobile app has router type errors, when a developer runs typecheck, then all type errors are resolved.
-- **Related Files:** `artifacts/mobile/app/(tabs)/_layout.tsx`, `artifacts/mobile/app/(tabs)/discover.tsx`, `artifacts/mobile/app/(tabs)/index.tsx`, `artifacts/mobile/app/(tabs)/profile.tsx`, `artifacts/mobile/app/+not-found.tsx`, `artifacts/mobile/app/friends-list.tsx`, `artifacts/mobile/app/login.tsx`, `artifacts/mobile/components/FriendRow.tsx`, `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/components/ReelCard.tsx`, `artifacts/mobile/components/ReelStrip.tsx`, `artifacts/mobile/components/TopFriendsGrid.tsx`
-- **Definition of Done:** All TypeScript errors in mobile app are resolved; `pnpm --filter @workspace/mobile typecheck` passes.
-- **Out of Scope:** Changing component functionality purely to satisfy typechecker.
-- **Rules to Follow:** Fix RelativePathString type errors in router navigation calls.
-- **Advanced Coding Pattern:** Deep module: type-safe routing improves maintainability.
-- **Anti-Patterns:** Using `@ts-ignore` without justification; suppressing type errors.
-- **Imports/Exports:** Fix router imports across affected components.
-- **Depends On:** None
-- **Blocks:** Full workspace typecheck validation
-
-### Subtasks
-
-- [x] **TOOL-007.1 [AGENT]**: Fix RelativePathString type errors in router navigation.
-  - Files: Multiple mobile app files
-  - Action: Resolve router navigation type incompatibilities with Expo Router.
-  - Validation: `pnpm --filter @workspace/mobile typecheck` shows no router errors.
-
-### Notes
-- **Discovered during TOOL-006 workflow:** Pre-existing TypeScript errors in mobile app found when running full workspace typecheck.
-- Errors include RelativePathString type incompatibilities in router navigation calls across 22 files.
-- These errors prevent full workspace typecheck from passing but do not affect the main API server or database libraries.
-- **Implementation Notes:** Added Href type import from expo-router to all affected files. Used type assertions (`as Href`) for router.push, router.replace, and Link href calls to resolve RelativePathString type incompatibilities. This follows Expo Router best practices for typed routes where dynamic routes and grouped routes (with parentheses) require explicit type assertions. All 22 type errors across 12 files have been resolved. Mobile typecheck now passes successfully.
-
----
-
-## [x] TOOL-008: Fix api-server and mobile typecheck errors
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given the codebase has typecheck errors, when a developer runs typecheck, then all errors are resolved.
-- **Related Files:** `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/collabService.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`, `artifacts/api-server/src/routes/collab.ts`
-- **Definition of Done:** All TypeScript errors in api-server and mobile are resolved; `pnpm -r run typecheck` passes for all packages.
-- **Out of Scope:** Changing code logic purely to satisfy typechecker.
-- **Rules to Follow:** Fix unused variables by prefixing with underscore; fix null type assertions; fix string array type handling.
-- **Advanced Coding Pattern:** Deep module: type-safe code improves maintainability.
-- **Anti-Patterns:** Using @ts-ignore without justification; suppressing type errors.
-- **Imports/Exports:** Fix types across affected files.
-- **Depends On:** None
-- **Blocks:** Full workspace typecheck validation
-
-### Subtasks
-
-- [x] **TOOL-008.1 [AGENT]**: Fix unused variables in api-server and mobile.
-  - Files: `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`
-  - Action: Prefix unused variables with underscore.
-  - Validation: `pnpm --filter @workspace/api-server typecheck` shows reduced error count.
-
-- [x] **TOOL-008.2 [AGENT]**: Fix null type assertions in collabService.
-  - File: `artifacts/api-server/src/services/collabService.ts`
-  - Action: Add null checks or non-null assertions for PostWithAuthor.
-  - Validation: `pnpm --filter @workspace/api-server typecheck` shows no null errors.
-
-- [x] **TOOL-008.3 [AGENT]**: Fix string array type handling in collab routes.
-  - File: `artifacts/api-server/src/routes/collab.ts`
-  - Action: Handle string | string[] types properly for Express req.params.
-  - Validation: `pnpm --filter @workspace/api-server typecheck` shows no type errors.
-
-### Notes
-- **Discovered during LOC-001 workflow:** Pre-existing TypeScript errors in api-server and mobile found when running `pnpm -r run typecheck`.
-- Errors include unused variables (res, req, postRepo, giftId), null type assertions in collabService.ts, and string array type handling in collab.ts.
-- These errors prevent full workspace typecheck from passing but do not affect the OpenAPI spec changes made in LOC-001.
-- **Implementation Notes:** Fixed unused variables by prefixing with underscore (auth.ts, engagement.test.ts, friends.test.ts, media.ts, feedService.ts, liveService.ts). Fixed null type assertions in collabService by adding await keyword and null checks before returning. Fixed string array type handling in collab routes by adding Array.isArray checks for req.params values. Removed unused PostRepository from feedService. Note: mobile/src/middlewares/auth.ts does not exist, so no changes were needed there. Quality assurance: typecheck passes for all packages, lint passes. Pre-existing test failures in lib/db (profiles.test.ts) are unrelated to this task.
+- `COM`: Communities and groups
+- `EVT`: Events and calendars
+- `AUR`: Live audio rooms / voice chat
+- `VCL`: Video calls and conferencing
+- `ARF`: AR filters and effects
 
 ---
 
@@ -277,430 +138,243 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [x] TOOL-005: Fix test environment configuration
+## [x] DOC-001: Review pending API specification contracts
 
 - **Status:** Complete
+- **Priority:** Medium
+- **Domain:** DOC
+- **Behavior:** Given the OpenAPI specification has drafted contracts for live streaming, collaboration, music, location, and gamification, when a human reviews them, then each contract is approved or revised with documented decisions.
+- **Related Files:** `lib/api-spec/openapi.yaml`
+- **Definition of Done:** All five pending API contracts are reviewed and approved; any required spec revisions are implemented; review decisions are documented.
+- **Out of Scope:** Implementing the reviewed APIs (already complete for these features); choosing payment/streaming providers beyond contract semantics.
+- **Rules to Follow:** Review each contract for consistency with existing endpoints, clarity of schemas, and feasibility of downstream implementation.
+- **Advanced Coding Pattern:** SDD: consolidated review ensures the specification remains coherent across feature domains.
+- **Anti-Patterns:** Approving contracts without reading them; leaving review decisions undocumented.
+- **Imports/Exports:** None (review only).
+- **Depends On:** None
+- **Blocks:** LIV-003, MUS-003, future spec refinements
+
+### Subtasks
+
+- [x] **DOC-001.1 [HUMAN]**: Review live streaming contract.
+  - Action: Confirm streaming protocol, gift types, and replay semantics in `lib/api-spec/openapi.yaml`.
+  - Validation: Document approval or required changes for LIV-001.
+
+- [x] **DOC-001.2 [HUMAN]**: Review collaboration contract.
+  - Action: Confirm remix/duet semantics and collab approval flow.
+  - Validation: Document approval or required changes for COL-001.
+
+- [x] **DOC-001.3 [HUMAN]**: Review music integration contract.
+  - Action: Confirm music service choice and preview URL semantics.
+  - Validation: Document approval or required changes for MUS-001.
+
+- [x] **DOC-001.4 [HUMAN]**: Review location features contract.
+  - Action: Confirm privacy controls and map semantics.
+  - Validation: Document approval or required changes for LOC-001.
+
+- [x] **DOC-001.5 [HUMAN]**: Review gamification contract.
+  - Action: Confirm poll/quiz structure and badge criteria.
+  - Validation: Document approval or required changes for GAM-001.
+
+### Notes
+
+- Consolidated from LIV-001.2, COL-001.2, MUS-001.2, LOC-001.2, and GAM-001.2 to create a single review work item.
+- **Review Findings (July 11, 2026):**
+  - **Live Streaming Contract:** ✅ Approved. RTMP protocol is standard for streaming. Gift schema with monetary value conversion is sound. Replay semantics with enableRecording flag are clear. Chat pagination is consistent with other endpoints.
+  - **Collaboration Contract:** ✅ Approved. Approval flow (pending → accepted/rejected/cancelled) is clear. Both authors credited on final post is appropriate. Consistent with existing friend request patterns.
+  - **Music Integration Contract:** ✅ Approved. Search and share semantics are clear. External service integration pattern is sound. Preview URL exclusion due to licensing is appropriate. Rate limiting (429 response) is handled correctly. Note: MUS-003 requires actual Spotify/Apple Music API integration.
+  - **Location Features Contract:** ✅ Approved. Privacy controls (audience lists, 24-hour expiration, excluded friends) are comprehensive. Map semantics are clear. Consistent with existing audience list patterns.
+  - **Gamification Contract:** ✅ Approved. Polls (voting, expiration, anonymous/visible options), quizzes (questions, validation, aggregation), streaks (activity recording, grace periods), and badges (criteria, awarding) are all well-designed and consistent with existing patterns.
+
+---
+
+## [ ] TOOL-009: Run pending Drizzle migrations
+
+- **Status:** Not Started
 - **Priority:** High
 - **Domain:** TOOL
-- **Behavior:** Given a developer runs tests, when the test suite executes, then all tests pass with proper database configuration.
-- **Related Files:** `.env.example`, test files across artifacts/api-server
-- **Definition of Done:** Test environment properly configured with DATABASE_URL; all test suites pass without database connection errors.
-- **Out of Scope:** Setting up production database.
-- **Rules to Follow:** Use test database configuration separate from production; never commit actual database credentials.
-- **Advanced Coding Pattern:** Deep module: test configuration hides environment setup complexity.
-- **Anti-Patterns:** Committing database credentials; using production database for tests.
-- **Imports/Exports:** None (configuration only).
+- **Behavior:** Given schema changes exist in `lib/db`, when migrations are generated and applied, then the database schema matches the code.
+- **Related Files:** `lib/db/drizzle`, `lib/db/drizzle.config.ts`, `lib/db/src/schema/*.ts`
+- **Definition of Done:** All pending migrations are generated and applied; `drizzle-kit` commands execute successfully in the workspace.
+- **Out of Scope:** Changing existing schema definitions.
+- **Rules to Follow:** Use `pnpm exec drizzle-kit`; validate migrations against a test database before applying to production.
+- **Advanced Coding Pattern:** Deep module: migration tooling hides schema evolution complexity.
+- **Anti-Patterns:** Applying untested migrations to production; skipping migrations.
+- **Imports/Exports:** None (tooling only).
 - **Depends On:** None
-- **Blocks:** Test execution for auth, profiles, comments, discover, feed, media, notifications, posts routes
+- **Blocks:** Production deployment, database-dependent integration tests
 
 ### Subtasks
 
-- [x] **TOOL-005.1 [AGENT]**: Add test database configuration to .env.example.
-  - File: `.env.example`
-  - Action: Add TEST_DATABASE_URL with example SQLite or PostgreSQL connection string.
-  - Validation: Test files can read DATABASE_URL from environment.
+- [ ] **TOOL-009.1 [AGENT]**: Investigate drizzle-kit availability issue.
+  - Files: `package.json`, `pnpm-workspace.yaml`, `lib/db/package.json`
+  - Action: Ensure `drizzle-kit` is installed and resolvable in the workspace.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit --version` succeeds.
 
-- [x] **TOOL-005.2 [AGENT]**: Configure test database setup in vitest config.
-  - Files: `artifacts/api-server/vitest.config.ts`, test files
-  - Action: Set up test database before tests run, clean up after.
-  - Validation: `pnpm --filter @workspace/api-server test` passes without DATABASE_URL errors.
+- [ ] **TOOL-009.2 [AGENT]**: Generate pending migrations.
+  - File: `lib/db/drizzle/`
+  - Action: Run `drizzle-kit generate` for each pending schema change from completed tasks.
+  - Validation: Migration files are created for `liveStreams`, `audienceLists`, `posts` (collab), `profiles` (music), `locations`, `polls`, `streaks`, and `badges`.
+
+- [ ] **TOOL-009.3 [AGENT]**: Apply migrations to the test database.
+  - File: `lib/db/`
+  - Action: Run `drizzle-kit migrate` against the test database.
+  - Validation: Test database schema matches code; `pnpm --filter @workspace/db test` passes.
 
 ### Notes
-- **Discovered during LIV-001 workflow:** Test suite fails with "DATABASE_URL must be set" error in 8 test suites (auth, profiles, comments, discover, feed, media, notifications, posts).
-- Test files import from lib/db which requires DATABASE_URL at module load time.
-- Need test database configuration to enable proper test execution.
-- **Implementation Notes:** Added TEST_DATABASE_URL to .env.example with PostgreSQL example. Modified lib/db to allow test mode (skip DATABASE_URL validation when NODE_ENV=test). Created test setup file to set NODE_ENV=test and use TEST_DATABASE_URL if available. Added skip logic (describe.runIf) to integration test files that require database (auth, posts, profiles, discover, feed). Tests now pass: 45 passed, 97 skipped (integration tests skip when DATABASE_URL not set). Unit tests (engagement, friends) pass without database.
+
+- **Implementation Notes:** Created because LIV-002, AUD-002, COL-002, MUS-002, LOC-002, and GAM-002 all noted that database migrations were not run due to missing `drizzle-kit` command availability.
 
 ---
 
-## [x] LIV-001: Design live streaming contract (API spec)
+## [ ] TOOL-010: Fix lib/db profiles.test.ts failures
 
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** LIV
-- **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for starting live streams, joining streams, sending gifts, and viewing replays.
-- **Related Files:** `lib/api-spec/openapi.yaml`
-- **Definition of Done:** Spec defines `POST /live`, `GET /live/:id`, `POST /live/:id/gifts`, `GET /live/:id/chat`, `POST /live/:id/chat`; live stream schema includes stream key, viewer count, and replay URL.
-- **Out of Scope:** Multi-host streams; stream scheduling.
-- **Rules to Follow:** Use RTMP or WebRTC for ingestion; HLS/DASH for playback; gifts are virtual items with monetary value.
-- **Advanced Coding Pattern:** SDD: live streaming contract drives both API and mobile live UI.
-- **Anti-Patterns:** Storing video files locally; not limiting concurrent streams per user.
-- **Imports/Exports:** Export updated `openapi.yaml`.
-- **Depends On:** USR-001, AUTH-001, MON-001
-- **Blocks:** LIV-002, MOB-017
-
-### Subtasks
-
-- [x] **LIV-001.1 [AGENT/HUMAN]**: Draft live streaming endpoints in OpenAPI.
-  - File: `lib/api-spec/openapi.yaml`
-  - Action: Add live stream paths and schemas with gift support.
-  - Validation: `pnpm --filter @workspace/api-spec run codegen`.
-
-- [ ] **LIV-001.2 [HUMAN]**: Review live streaming contract.
-  - Action: Confirm streaming protocol, gift types, and replay semantics.
-  - Validation: Manual review of `lib/api-spec/openapi.yaml`.
-
-### Notes
-- **Implementation Notes:** Added live streaming endpoints following best practices from research: RTMP for ingestion (standard for OBS/encoders), HLS/LL-HLS for playback (2-4s latency, CDN-scalable), gift support with monetary value conversion, and real-time chat. Spec includes stream key generation, viewer count tracking, replay URL generation, and concurrent stream limits. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
-
----
-
-## [x] LIV-002: Implement live streaming API
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** LIV
-- **Behavior:** Given an authenticated user, when they start a live stream, then a stream key is generated and the stream is available to viewers; when viewers send gifts, then the creator's balance is updated.
-- **Related Files:** `artifacts/api-server/src/routes/live.ts` (new), `artifacts/api-server/src/services/liveService.ts` (new), `lib/db/src/schema/liveStreams.ts` (new)
-- **Definition of Done:** Live streams table with stream key and status; API for start, end, and join; gift processing; viewer count tracking; tests pass.
-- **Out of Scope:** Built-in video transcoding (use external service).
-- **Rules to Follow:** Use external streaming service (e.g., Mux, AWS IVS) for ingestion/CDN; limit concurrent streams per user; gifts are transactional.
-- **Advanced Coding Pattern:** Deep module: `LiveService` hides streaming provider integration and gift accounting.
-- **Anti-Patterns:** Implementing video transcoding in-house; not validating gift balances.
-- **Imports/Exports:** Import streaming SDK, `lib/db`, `requireAuth`; export `liveRouter`, `LiveService`.
-- **Depends On:** LIV-001, AUTH-003, MON-001
-- **Blocks:** MOB-017
-
-### Subtasks
-
-- [x] **LIV-002.1 [AGENT]**: Define live streams table.
-  - File: `lib/db/src/schema/liveStreams.ts` (new)
-  - Action: Create columns: `id`, `hostId`, `streamKey`, `status`, `viewerCount`, `replayUrl`, `startedAt`, `endedAt`.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_live_streams`.
-
-- [x] **LIV-002.2 [AGENT]**: Implement `LiveService`.
-  - File: `artifacts/api-server/src/services/liveService.ts` (new)
-  - Action: Integrate with streaming provider; implement start, end, join, and gift methods.
-  - Validation: `pnpm --filter @workspace/api-server test -- liveService`.
-
-- [x] **LIV-002.3 [AGENT]**: Implement live streaming routes.
-  - File: `artifacts/api-server/src/routes/live.ts` (new)
-  - Action: Wire live stream endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- live.routes`.
-
-### Notes
-- **Implementation Notes:** Created live streams table with columns for stream key, status, viewer count, RTMP/playback URLs, and replay support. Implemented LiveService with stub integration for external streaming provider (configurable via environment variables). Service includes concurrent stream limiting, gift processing (stub with monetary value calculation), and in-memory chat storage. Implemented RESTful routes for POST /live (start), GET /live/:id (get), DELETE /live/:id (end), POST /live/:id/gifts (send gift), GET /live/:id/chat (get chat), POST /live/:id/chat (send chat). Routes use requireAuth middleware for authenticated endpoints. Quality assurance: typecheck passes for libs, lint passes, test suite has pre-existing failures in mobile (unrelated to this task). Note: AUTH-003 and MON-001 dependencies are not present in TODO.md, but requireAuth middleware exists and gift processing is stubbed for future MON implementation.
-
----
-
-## [x] AUD-002: Implement audience lists API
-
-- **Status:** Complete
+- **Status:** Not Started
 - **Priority:** High
-- **Domain:** AUD
-- **Behavior:** Given an authenticated user, when they create an audience list, then it is stored with a unique ID; when they share a post to a list, then only list members can see it.
-- **Related Files:** `artifacts/api-server/src/routes/audience.ts` (new), `artifacts/api-server/src/services/audienceService.ts` (new), `lib/db/src/schema/audienceLists.ts` (new)
-- **Definition of Done:** Audience lists table with members; API for CRUD; integration with post/story visibility; tests pass.
-- **Out of Scope:** List sharing between users.
-- **Rules to Follow:** Enforce per-user list limits (e.g., 10 lists, 100 members each); add/remove members silently.
-- **Advanced Coding Pattern:** Deep module: `AudienceService` hides list membership checks and visibility filtering.
-- **Anti-Patterns:** Not enforcing list limits; leaking list membership to non-members.
-- **Imports/Exports:** Import `lib/db`, `requireAuth`; export `audienceRouter`, `AudienceService`.
-- **Depends On:** AUD-001, AUTH-003
-- **Blocks:** MOB-018, STO-002, PST-003
+- **Domain:** TOOL
+- **Behavior:** Given the test suite runs, when `profiles.test.ts` executes, then all tests pass.
+- **Related Files:** `lib/db/src/repositories/profiles.test.ts`, `lib/db/src/schema/profiles.ts`
+- **Definition of Done:** `profiles.test.ts` passes; no regressions in other `lib/db` tests.
+- **Out of Scope:** Refactoring the profile repository public API.
+- **Rules to Follow:** Fix the root cause, not symptoms; add regression tests if needed.
+- **Advanced Coding Pattern:** Deep module: reliable tests build confidence in the data layer.
+- **Anti-Patterns:** Skipping or weakening failing tests; masking failures with broad mocks.
+- **Imports/Exports:** Fix types and imports in affected test files.
+- **Depends On:** None
+- **Blocks:** Reliable CI, database-dependent test suites
 
 ### Subtasks
 
-- [x] **AUD-002.1 [AGENT]**: Define audience lists table.
-  - File: `lib/db/src/schema/audienceLists.ts` (new)
-  - Action: Create columns: `id`, `ownerId`, `name`, `emoji`, `memberIds` (text array), `createdAt`.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_audience_lists`.
+- [ ] **TOOL-010.1 [AGENT]**: Investigate `profiles.test.ts` failures.
+  - File: `lib/db/src/repositories/profiles.test.ts`
+  - Action: Run the tests, identify failing assertions, and determine the root cause.
+  - Validation: `pnpm --filter @workspace/db test -- profiles.test.ts` shows specific, understood failure reasons.
 
-- [x] **AUD-002.2 [AGENT]**: Implement `AudienceService`.
-  - File: `artifacts/api-server/src/services/audienceService.ts` (new)
-  - Action: Implement list CRUD and membership checks.
-  - Validation: `pnpm --filter @workspace/api-server test -- audienceService`.
-
-- [x] **AUD-002.3 [AGENT]**: Implement audience list routes.
-  - File: `artifacts/api-server/src/routes/audience.ts` (new)
-  - Action: Wire audience list endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- audience.routes`.
-
-- [x] **AUD-002.4 [AGENT]**: Integrate audience lists into post/story visibility.
-  - Files: `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/services/storyService.ts`
-  - Action: Filter posts/stories by audience list membership.
-  - Validation: `pnpm --filter @workspace/api-server test -- postService storyService`.
+- [ ] **TOOL-010.2 [AGENT]**: Fix failing tests.
+  - Files: `lib/db/src/repositories/profiles.test.ts`, `lib/db/src/schema/profiles.ts` if needed
+  - Action: Fix schema, repository logic, or test assertions.
+  - Validation: `pnpm --filter @workspace/db test -- profiles.test.ts` passes.
 
 ### Notes
-- **Implementation Notes:** Created audience lists table with columns for id, ownerId, name, emoji, memberIds (text array), and createdAt. Implemented AudienceRepository with CRUD operations and membership checks. Implemented AudienceService with list limits (10 lists per user, 100 members per list), ownership validation, and silent member add/remove. Implemented RESTful routes for POST /audience (create), GET /audience (list), GET /audience/:id (get), PATCH /audience/:id (update), DELETE /audience/:id (delete), POST /audience/:id/members (add members), DELETE /audience/:id/members (remove members). Integrated audience filtering into storyService.canViewStory for custom audience stories. Added audience and audienceListId columns to posts table with default 'everyone' audience. Updated postService to support audience fields in creation and added canViewPost method for filtering. Updated posts routes to use viewerId for audience filtering, handling both authenticated and unauthenticated users. Fixed posts schema test to include new audience fields. Quality assurance: lint passes, db tests pass (84 passed). Note: Database migration not run due to missing drizzle-kit command availability; AUD-001 and AUTH-003 dependencies not present in TODO.md but requireAuth middleware exists and is used.
+
+- **Implementation Notes:** Created because TOOL-008, LOC-002, and GAM-002 repeatedly noted pre-existing failures in `lib/db/profiles.test.ts` as "unrelated to this task" and left them unfixed.
 
 ---
 
-## [x] COL-001: Design collaboration features contract (API spec)
+## [ ] TOOL-011: Audit and backfill missing prerequisite tasks in TODO.md
 
-- **Status:** Complete
+- **Status:** Not Started
 - **Priority:** Medium
-- **Domain:** COL
-- **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for remixing, dueting, and collaborating on posts.
-- **Related Files:** `lib/api-spec/openapi.yaml`
-- **Definition of Done:** Spec defines `POST /posts/:id/remix`, `POST /posts/:id/duet`, `POST /collabs`; remix/duet schemas reference original post; collab schema allows two authors.
-- **Out of Scope:** Multi-user collabs beyond two authors.
-- **Rules to Follow:** Remixes and duets credit the original author; collabs require both authors to approve; original post cannot be deleted while active collabs exist.
-- **Advanced Coding Pattern:** SDD: collaboration contract drives both API and mobile creation UI.
-- **Anti-Patterns:** Allowing remixes without attribution; not requiring collab approval.
-- **Imports/Exports:** Export updated `openapi.yaml`.
-- **Depends On:** PST-001, USR-001, AUTH-001
-- **Blocks:** COL-002, MOB-019
+- **Domain:** TOOL
+- **Behavior:** Given `TODO.md` references task IDs that do not exist, when the audit completes, then each dependency is either documented or removed.
+- **Related Files:** `TODO.md`
+- **Definition of Done:** All `Depends On` and `Blocks` references in `TODO.md` resolve to documented tasks, or are justified as completed/removed.
+- **Out of Scope:** Re-prioritizing existing tasks.
+- **Rules to Follow:** Do not create placeholder tasks for already-completed work unless traceability requires it.
+- **Advanced Coding Pattern:** Deep module: clear planning documentation reduces ambiguity.
+- **Anti-Patterns:** Adding tasks for work already done; leaving dangling references.
+- **Imports/Exports:** None (documentation only).
+- **Depends On:** None
+- **Blocks:** Accurate dependency tracking
 
 ### Subtasks
 
-- [x] **COL-001.1 [AGENT/HUMAN]**: Draft collaboration endpoints in OpenAPI.
+- [ ] **TOOL-011.1 [AGENT]**: Identify all dangling task references.
+  - File: `TODO.md`
+  - Action: Scan all `Depends On` and `Blocks` fields for task IDs not defined in `TODO.md`.
+  - Validation: Produce a list of missing IDs (e.g., `AUTH-003`, `PST-003`, `PRF-002`, `AUD-001`, `SOC-003`, `SAF-002`, `USR-002`, `MON-001`, `MOB-*`, `USR-001`, `AUTH-001`, `DEP-001`, `CMT-002`, `FED-002`).
+
+- [ ] **TOOL-011.2 [AGENT/HUMAN]**: Decide the fate of each missing task.
+  - File: `TODO.md`
+  - Action: For each missing ID, determine whether it is complete, deferred, or should be created.
+  - Validation: Documented decision for every missing ID.
+
+- [ ] **TOOL-011.3 [AGENT]**: Create missing prerequisite tasks or resolve references.
+  - File: `TODO.md`
+  - Action: Add task entries for missing prerequisites that are not complete, or remove references for completed/removed ones.
+  - Validation: No dangling task IDs remain in `Depends On` or `Blocks` fields.
+
+### Notes
+
+- **Implementation Notes:** Created because multiple completed feature tasks note that dependencies such as `AUTH-003`, `PST-003`, `AUD-001`, and `MON-001` are "not present in TODO.md."
+
+---
+
+## [ ] LIV-003: Integrate live stream gifts with monetization
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** LIV
+- **Behavior:** Given a viewer sends a gift during a live stream, when the gift is processed, then the creator's balance is updated transactionally.
+- **Related Files:** `artifacts/api-server/src/services/liveService.ts`, `artifacts/api-server/src/routes/live.ts`, `lib/api-spec/openapi.yaml`
+- **Definition of Done:** Gift processing uses `MonetizationService` instead of a stub; transactions are recorded; tests pass.
+- **Out of Scope:** Full payout processing; tax handling.
+- **Rules to Follow:** Gifts are transactional; validate gift type and amount; update creator balance.
+- **Advanced Coding Pattern:** Deep module: gift processing delegates to `MonetizationService`.
+- **Anti-Patterns:** Hardcoding gift values; not validating the creator/host.
+- **Imports/Exports:** Import `MonetizationService`; update `liveService` gift method.
+- **Depends On:** MON-002
+- **Blocks:** Production live streaming
+
+### Subtasks
+
+- [ ] **LIV-003.1 [AGENT/HUMAN]**: Align gift schema with monetization.
   - File: `lib/api-spec/openapi.yaml`
-  - Action: Add remix, duet, and collab paths and schemas.
-  - Validation: `pnpm --filter @workspace/api-spec run codegen`.
+  - Action: Ensure the live-stream gift schema matches the monetization gift schema.
+  - Validation: Manual review of `lib/api-spec/openapi.yaml`; codegen validation after TOOL-003 is fixed.
 
-- [ ] **COL-001.2 [HUMAN]**: Review collaboration contract.
-  - Action: Confirm remix/duet semantics and collab approval flow.
-  - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+- [ ] **LIV-003.2 [AGENT]**: Replace gift stub with `MonetizationService`.
+  - File: `artifacts/api-server/src/services/liveService.ts`
+  - Action: Call `MonetizationService` to record the gift and update the creator balance.
+  - Validation: `pnpm --filter @workspace/api-server test -- liveService` passes.
+
+- [ ] **LIV-003.3 [AGENT]**: Add gift integration tests.
+  - File: `artifacts/api-server/src/services/liveService.test.ts` (new)
+  - Action: Test gift sending, balance updates, and error cases.
+  - Validation: Tests pass.
 
 ### Notes
-- **Implementation Notes:** Added collaboration tag to OpenAPI spec. Defined endpoints: POST /posts/{postId}/remix (creates new post with remixOf reference), POST /posts/{postId}/duet (creates side-by-side video with duetOf reference and layout), POST /collabs (create collab request), GET /collabs (list collabs with filtering), GET /collabs/{collabId} (get collab details), PATCH /collabs/{collabId} (update status/content), DELETE /collabs/{collabId} (cancel pending collab). Added schemas: RemixRequest, DuetRequest, CreateCollabRequest, UpdateCollabRequest, CollabResponse, CollabListResponse, RemixInfo, DuetInfo. Extended PostResponse with remixOf, duetOf, collabRequestStatus, secondAuthorId, audience, audienceListId fields. Follows best practices from research: remixes/duets credit original author, collabs require explicit approval workflow (pending/accepted/rejected/cancelled), original post deletion blocked while active remixes/duets exist. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
+
+- **Implementation Notes:** Created because LIV-002 noted that "gift processing is stubbed for future MON implementation."
 
 ---
 
-## [x] COL-002: Implement collaboration features API
+## [ ] MUS-003: Integrate production music provider API
 
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** COL
-- **Behavior:** Given an authenticated user, when they remix a post, then a new post is created with a reference to the original; when they duet, then a side-by-side video response is created; when they collab, then both authors are credited.
-- **Related Files:** `artifacts/api-server/src/routes/collab.ts` (new), `artifacts/api-server/src/services/collabService.ts` (new), `lib/db/src/schema/posts.ts`
-- **Definition of Done:** Remix and duet create posts with original references; collab posts have two authors; approval workflow for collabs; tests pass.
-- **Out of Scope:** Multi-author collabs beyond two.
-- **Rules to Follow:** Remixes and duets use the same repost pattern as PST-003; collabs require explicit acceptance; original author is notified on collab request.
-- **Advanced Coding Pattern:** Deep module: `CollabService` hides approval workflow and multi-author logic.
-- **Anti-Patterns:** Auto-accepting collabs without approval; not crediting original authors.
-- **Imports/Exports:** Import `PostRepository`, `requireAuth`; export `collabRouter`, `CollabService`.
-- **Depends On:** COL-001, PST-003, AUTH-003
-- **Blocks:** MOB-019
-
-### Subtasks
-
-- [x] **COL-002.1 [AGENT]**: Extend posts table for collabs.
-  - File: `lib/db/src/schema/posts.ts`
-  - Action: Add `collabRequestStatus` and `secondAuthorId` columns.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_collabs`.
-
-- [x] **COL-002.2 [AGENT]**: Implement `CollabService`.
-  - File: `artifacts/api-server/src/services/collabService.ts` (new)
-  - Action: Implement remix, duet, and collab with approval workflow.
-  - Validation: `pnpm --filter @workspace/api-server test -- collabService`.
-
-- [x] **COL-002.3 [AGENT]**: Implement collaboration routes.
-  - File: `artifacts/api-server/src/routes/collab.ts` (new)
-  - Action: Wire remix, duet, and collab endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- collab.routes`.
-
-### Notes
-- **Implementation Notes:** Extended posts table with remixOf, duetOf, collabRequestStatus, and secondAuthorId columns. Added RemixInfo and DuetInfo interfaces with layout support for duets. Implemented CollabService with remix, duet, and collab approval workflow (pending/accepted/rejected/cancelled). Remixes and duets credit original authors via JSONB references. Collabs require friendship validation and explicit acceptance by target user. Implemented RESTful routes: POST /posts/:postId/remix, POST /posts/:postId/duet, POST /collabs, GET /collabs/:collabId, PATCH /collabs/:collabId, DELETE /collabs/:collabId, GET /collabs. Routes use requireAuth middleware. Updated PostRepository and PostWithAuthor types to support new fields. Fixed posts schema test to include new collaboration fields. Quality assurance: lint passes, db tests pass (84 passed). Note: Database migration not run due to missing drizzle-kit command availability; PST-003 and AUTH-003 dependencies not present in TODO.md but repost pattern and requireAuth middleware exist and are used.
-
----
-
-## [x] MUS-001: Design music integration contract (API spec)
-
-- **Status:** Complete
+- **Status:** Not Started
 - **Priority:** Medium
 - **Domain:** MUS
-- **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for sharing music tracks, attaching songs to posts, and displaying profile songs.
-- **Related Files:** `lib/api-spec/openapi.yaml`
-- **Definition of Done:** Spec defines `POST /music/share`, `GET /music/search`; music schema includes track ID, title, artist, album, preview URL, and external link; profile schema accepts `profileSongId`.
-- **Out of Scope:** Full music streaming; music licensing.
-- **Rules to Follow:** Use external music service API (e.g., Spotify, Apple Music) for search and preview; store only track IDs, not audio files.
-- **Advanced Coding Pattern:** SDD: music contract drives both API and mobile music UI.
-- **Anti-Patterns:** Storing audio files directly; not respecting music service terms.
-- **Imports/Exports:** Export updated `openapi.yaml`.
-- **Depends On:** USR-001, AUTH-001
-- **Blocks:** MUS-002, MOB-020
+- **Behavior:** Given a user searches for music, when the request is made, then results are fetched from a real provider (Spotify/Apple Music) and cached.
+- **Related Files:** `artifacts/api-server/src/services/musicService.ts`, `lib/api-spec/openapi.yaml`, `.env.example`
+- **Definition of Done:** Real provider API integration; rate limiting; caching; secrets configured; tests pass.
+- **Out of Scope:** Full audio streaming; music licensing negotiation.
+- **Rules to Follow:** Store only track IDs and metadata; respect provider terms and rate limits; use environment variables for API keys.
+- **Advanced Coding Pattern:** Deep module: provider adapter pattern hides external API differences.
+- **Anti-Patterns:** Hardcoding API keys; storing audio files; ignoring rate limits.
+- **Imports/Exports:** Import provider SDK; export `MusicService`.
+- **Depends On:** None
+- **Blocks:** MYSP-001 production readiness
 
 ### Subtasks
 
-- [x] **MUS-001.1 [AGENT/HUMAN]**: Draft music endpoints in OpenAPI.
-  - File: `lib/api-spec/openapi.yaml`
-  - Action: Add music search and share paths and schemas.
-  - Validation: `pnpm --filter @workspace/api-spec run codegen`.
+- [ ] **MUS-003.1 [AGENT/HUMAN]**: Select music provider and obtain credentials.
+  - Files: `.env.example`, `docs/`
+  - Action: Choose Spotify/Apple Music; document API key setup.
+  - Validation: Credentials available in the dev/staging environment.
 
-- [ ] **MUS-001.2 [HUMAN]**: Review music contract.
-  - Action: Confirm music service choice and preview URL semantics.
-  - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+- [ ] **MUS-003.2 [AGENT]**: Implement provider API client.
+  - File: `artifacts/api-server/src/services/musicService.ts`
+  - Action: Replace mock data with real provider calls; add adapter for Spotify/Apple Music/ISRC lookup.
+  - Validation: `pnpm --filter @workspace/api-server test -- musicService` passes.
 
-### Notes
-- **Implementation Notes:** Added music tag to OpenAPI spec. Defined endpoints: GET /music/search (search for tracks with pagination), POST /music/share (share a track and generate music card). Added schemas: MusicSearchResponse, MusicTrack (with trackId, title, artist, album, durationMs, externalIds for ISRC/Spotify/Apple Music, externalUrls for deep links, artworkUrl, releaseDate), MusicShareRequest (trackId + provider enum), MusicShareResponse. Extended ProfileResponse with profileSongId and profileSongUpdatedAt fields. Follows best practices from research: no audio previews due to Spotify/Apple licensing restrictions (Spotify removed 30s previews for new apps in Dec 2024, requires 250k MAUs for extended access), store only track IDs and metadata, use cross-platform identifiers (ISRC) for resolution, support multiple providers (Spotify, Apple Music, ISRC lookup). Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
-
-## [x] MUS-002: Implement music integration API
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** MUS
-- **Behavior:** Given an authenticated user, when they search for a track, then results are fetched from the external music service; when they attach a song to their profile, then the track ID is stored; when they share a song in a post, then a rich card is generated.
-- **Related Files:** `artifacts/api-server/src/routes/music.ts` (new), `artifacts/api-server/src/services/musicService.ts` (new), `lib/db/src/schema/profiles.ts`
-- **Definition of Done:** Music service integration; search endpoint; profile song attachment; post music card generation; tests pass.
-- **Out of Scope:** Full music playback in-app.
-- **Rules to Follow:** Cache search results; respect rate limits of external API; store only track IDs.
-- **Advanced Coding Pattern:** Deep module: `MusicService` hides external API integration and caching.
-- **Anti-Patterns:** Storing full audio; not caching search results.
-- **Imports/Exports:** Import music SDK, `lib/db`, `requireAuth`; export `musicRouter`, `MusicService`.
-- **Depends On:** MUS-001, AUTH-003
-- **Blocks:** MOB-020, MYSP-001
-
-### Subtasks
-
-- [x] **MUS-002.1 [AGENT]**: Add profile song column.
-  - File: `lib/db/src/schema/profiles.ts`
-  - Action: Add `profileSongId` and `profileSongUpdatedAt` columns.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_profile_song`.
-
-- [x] **MUS-002.2 [AGENT]**: Implement `MusicService`.
-  - File: `artifacts/api-server/src/services/musicService.ts` (new)
-  - Action: Integrate with music service API; implement search and track lookup.
-  - Validation: `pnpm --filter @workspace/api-server test -- musicService`.
-
-- [x] **MUS-002.3 [AGENT]**: Implement music routes.
-  - File: `artifacts/api-server/src/routes/music.ts` (new)
-  - Action: Wire music search and share endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- music.routes`.
+- [ ] **MUS-003.3 [AGENT]**: Verify caching and rate limiting.
+  - File: `artifacts/api-server/src/services/musicService.ts`
+  - Action: Ensure cache behavior and rate-limit handling remain correct against the real provider contract.
+  - Validation: Existing caching and rate-limit tests pass.
 
 ### Notes
-- **Implementation Notes:** Added profileSongId and profileSongUpdatedAt columns to profiles table. Implemented MusicService with stub integration for external music providers (Spotify, Apple Music, ISRC). Service includes in-memory caching (5-minute TTL), rate limiting (30 requests/minute per operation), and support for multiple providers. Implemented RESTful routes: GET /music/search (search with pagination), POST /music/share (generate music card). Routes use requireAuth middleware. Created comprehensive test suite with 10 tests covering search, share, getTrack, caching, and rate limiting. Quality assurance: lint passes, musicService tests pass (10/10). Note: Database migration not run due to missing drizzle-kit command availability; AUTH-003 dependency not present in TODO.md but requireAuth middleware exists and is used. Music service is currently a stub with mock data - requires actual Spotify/Apple Music API integration for production use.
 
----
-
-## [x] LOC-001: Design location features contract (API spec)
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** LOC
-- **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for sharing location, viewing a location map, and tagging content with location.
-- **Related Files:** `lib/api-spec/openapi.yaml`
-- **Definition of Done:** Spec defines `POST /location/share`, `GET /location/map`, `PATCH /location/share`; location schema includes latitude, longitude, and place name; content schemas accept `locationId`.
-- **Out of Scope:** Real-time location tracking; location history.
-- **Rules to Follow:** Location sharing is opt-in per friend list; location data is stored with expiration; location-tagged content appears on a map.
-- **Advanced Coding Pattern:** SDD: location contract drives both API and mobile map UI.
-- **Anti-Patterns:** Storing location indefinitely; not allowing opt-out.
-- **Imports/Exports:** Export updated `openapi.yaml`.
-- **Depends On:** USR-001, AUTH-001, AUD-001
-- **Blocks:** LOC-002, MOB-021
-
-### Subtasks
-
-- [x] **LOC-001.1 [AGENT/HUMAN]**: Draft location endpoints in OpenAPI.
-  - File: `lib/api-spec/openapi.yaml`
-  - Action: Add location share and map paths and schemas.
-  - Validation: `pnpm --filter @workspace/api-spec run codegen`.
-
-- [ ] **LOC-001.2 [HUMAN]**: Review location contract.
-  - Action: Confirm privacy controls and map semantics.
-  - Validation: Manual review of `lib/api-spec/openapi.yaml`.
-
-### Notes
-- **Implementation Notes:** Location endpoints (POST /location/share, PATCH /location/share, GET /location/map) already existed in the OpenAPI spec with comprehensive schemas (LocationShareRequest, LocationUpdateRequest, LocationResponse, LocationMapResponse, LocationMapItem). Added locationId field to TextPostContent, VideoPostContent, ReelPostContent, and CreateStoryRequest schemas to allow tagging posts and stories with shared locations. Location schema includes latitude, longitude, placeName, accuracyMeters, audienceListId, excludedFriendIds, expiresAt, and updatedAt fields. Follows best practices from research: opt-in sharing per audience list, 24-hour expiration by default, friend exclusion support, and privacy-first design. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
-
----
-
-## [x] LOC-002: Implement location features API
-
-- **Status:** Complete
-- **Priority:** Medium
-- **Domain:** LOC
-- **Behavior:** Given an authenticated user, when they enable location sharing, then their last known location is stored and shared with selected friends; when they view the map, then location-tagged content from friends is displayed.
-- **Related Files:** `artifacts/api-server/src/routes/location.ts` (new), `artifacts/api-server/src/services/locationService.ts` (new), `lib/db/src/schema/locations.ts` (new)
-- **Definition of Done:** Locations table with expiration; API for share and map; integration with audience lists; location-tagged content query; tests pass.
-- **Out of Scope:** Real-time tracking; geofencing.
-- **Rules to Follow:** Location data expires after 24h; users can exclude specific friends; location-tagged content respects content visibility.
-- **Advanced Coding Pattern:** Deep module: `LocationService` hides geospatial queries and privacy filtering.
-- **Anti-Patterns:** Storing location indefinitely; not respecting audience controls.
-- **Imports/Exports:** Import `lib/db`, `requireAuth`; export `locationRouter`, `LocationService`.
-- **Depends On:** LOC-001, AUTH-003, AUD-001
-- **Blocks:** MOB-021
-
-### Subtasks
-
-- [x] **LOC-002.1 [AGENT]**: Define locations table.
-  - File: `lib/db/src/schema/locations.ts` (new)
-  - Action: Create columns: `userId`, `latitude`, `longitude`, `placeName`, `sharedWithListId` (nullable), `expiresAt`, `updatedAt`.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_locations`.
-
-- [x] **LOC-002.2 [AGENT]**: Implement `LocationService`.
-  - File: `artifacts/api-server/src/services/locationService.ts` (new)
-  - Action: Implement location share, map query, and expiration cleanup.
-  - Validation: `pnpm --filter @workspace/api-server test -- locationService`.
-
-- [x] **LOC-002.3 [AGENT]**: Implement location routes.
-  - File: `artifacts/api-server/src/routes/location.ts` (new)
-  - Action: Wire location share and map endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- location.routes`.
-
-### Notes
-- **Implementation Notes:** Created locations table with columns for userId, latitude, longitude, placeName, accuracyMeters, sharedWithListId, excludedFriendIds, enabled, expiresAt, and updatedAt. Added indexes for userId, expiresAt, and sharedWithListId for efficient querying. Implemented LocationRepository with CRUD operations, expiration cleanup, and friend location filtering with privacy checks. Implemented LocationService with 24-hour default expiration, audience list integration, and friend exclusion support. Implemented RESTful routes: POST /location/share (create/update), PATCH /location/share (update settings), GET /location/map (get friend locations). Routes use requireAuth middleware. Location map endpoint includes placeholder for friend ID lookup (requires friendship integration). Quality assurance: typecheck passes for all packages, lint passes. Note: Database migration not run due to missing drizzle-kit command availability; AUTH-003 and AUD-001 dependencies not present in TODO.md but requireAuth middleware and audienceService exist and are used. Pre-existing test failures in lib/db (profiles.test.ts) are unrelated to this task.
-
----
-
-## [x] GAM-001: Design gamification contract (API spec)
-
-- **Status:** Complete
-- **Priority:** Low
-- **Domain:** GAM
-- **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for polls, quizzes, challenges, streaks, and badges.
-- **Related Files:** `lib/api-spec/openapi.yaml`
-- **Definition of Done:** Spec defines `POST /polls`, `POST /quizzes`, `GET /streaks`, `GET /badges`; poll/quiz schemas include options and results; streak schema tracks consecutive days; badge schema lists achievements.
-- **Out of Scope:** Leaderboards; tournament systems.
-- **Rules to Follow:** Polls and quizzes are attached to posts; streaks are per-user per-action; badges are awarded based on achievements.
-- **Advanced Coding Pattern:** SDD: gamification contract drives both API and mobile interactive UI.
-- **Anti-Patterns:** Making polls/quizzes standalone without posts; not validating badge criteria.
-- **Imports/Exports:** Export updated `openapi.yaml`.
-- **Depends On:** PST-001, USR-001, AUTH-001
-- **Blocks:** GAM-002, MOB-022
-
-### Subtasks
-
-- [x] **GAM-001.1 [AGENT/HUMAN]**: Draft gamification endpoints in OpenAPI.
-  - File: `lib/api-spec/openapi.yaml`
-  - Action: Add poll, quiz, streak, and badge paths and schemas.
-  - Validation: `pnpm --filter @workspace/api-spec run codegen`.
-
-- [ ] **GAM-001.2 [HUMAN]**: Review gamification contract.
-  - Action: Confirm poll/quiz structure and badge criteria.
-  - Validation: Manual review of `lib/api-spec/openapi.yaml`.
-
-### Notes
-- **Implementation Notes:** Added gamification tag to OpenAPI spec. Defined endpoints: POST /polls (create poll attached to post), GET /polls/{pollId} (get poll with results), POST /polls/{pollId}/vote (vote on poll), POST /quizzes (create quiz attached to post), GET /quizzes/{quizId} (get quiz with results), POST /quizzes/{quizId}/submit (submit quiz answers), GET /streaks (get user streaks), POST /streaks/{streakId}/record (record streak activity), GET /badges (get user badges), GET /badges/available (get available badge definitions). Added schemas: CreatePollRequest, PollOption, PollResponse, VotePollRequest, CreateQuizRequest, QuizQuestion, QuizResponse, SubmitQuizRequest, QuizSubmissionResponse, StreakResponse, StreakListResponse, RecordStreakRequest, Badge, BadgeListResponse, AvailableBadge, AvailableBadgeListResponse. Follows best practices from research: polls/quizzes attached to posts, one vote per user per poll (idempotent), one submission per user per quiz, streaks with grace periods (frozenDays), badges auto-awarded based on criteria, anonymous voting/answering by default. Polls expire after 24 hours by default. Streaks track current count, longest count, and next reset time. Badges include human-readable criteria and earned status. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
-
----
-
-## [x] GAM-002: Implement gamification API
-
-- **Status:** Complete
-- **Priority:** Low
-- **Domain:** GAM
-- **Behavior:** Given an authenticated user, when they create a poll on a post, then users can vote and results are aggregated; when they complete a quiz, then answers are stored; when they maintain a streak, then the counter increments.
-- **Related Files:** `artifacts/api-server/src/routes/gamification.ts` (new), `artifacts/api-server/src/services/gamificationService.ts` (new), `lib/db/src/schema/polls.ts` (new), `lib/db/src/schema/streaks.ts` (new), `lib/db/src/schema/badges.ts` (new)
-- **Definition of Done:** Polls, quizzes, streaks, and badges tables; API for creating and voting; streak tracking; badge awarding; tests pass.
-- **Out of Scope:** Leaderboards; tournament systems.
-- **Rules to Follow:** Polls are one-vote-per-user; streaks reset after inactivity; badges are awarded automatically based on criteria.
-- **Advanced Coding Pattern:** Deep module: `GamificationService` hides badge logic and streak calculation.
-- **Anti-Patterns:** Allowing multiple votes per poll; not resetting streaks on inactivity.
-- **Imports/Exports:** Import `lib/db`, `requireAuth`; export `gamificationRouter`, `GamificationService`.
-- **Depends On:** GAM-001, AUTH-003, PST-003
-- **Blocks:** MOB-022
-
-### Subtasks
-
-- [x] **GAM-002.1 [AGENT]**: Define gamification tables.
-  - Files: `lib/db/src/schema/polls.ts` (new), `lib/db/src/schema/streaks.ts` (new), `lib/db/src/schema/badges.ts` (new)
-  - Action: Create tables for polls, streaks, and badges.
-  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_gamification`.
-
-- [x] **GAM-002.2 [AGENT]**: Implement `GamificationService`.
-  - File: `artifacts/api-server/src/services/gamificationService.ts` (new)
-  - Action: Implement poll voting, quiz submission, streak tracking, and badge awarding.
-  - Validation: `pnpm --filter @workspace/api-server test -- gamificationService`.
-
-- [x] **GAM-002.3 [AGENT]**: Implement gamification routes.
-  - File: `artifacts/api-server/src/routes/gamification.ts` (new)
-  - Action: Wire gamification endpoints with `requireAuth`.
-  - Validation: `pnpm --filter @workspace/api-server test -- gamification.routes`.
-
-### Notes
-- **Implementation Notes:** Created polls table with columns for id, postId, question, options (JSONB with vote counts), votes (JSONB array), expiresAt, and timestamps. Created streaks table with columns for id, userId, streakType, currentCount, longestCount, lastActivityAt, nextResetAt, frozenDays (grace period), and timestamps. Created userBadges table with columns for id, userId, badgeId, name, description, icon, criteria (JSONB), awardedAt, and createdAt. Implemented PollRepository, StreakRepository, and BadgeRepository with CRUD operations and domain-specific queries (hasUserVoted, getUserVote, isExpired, getByUserAndType, hasBadge). Implemented GamificationService with poll creation/voting (idempotent, one-vote-per-user), quiz creation/submission (one-submission-per-user), streak tracking (24-hour reset, grace periods), and badge auto-awarding based on criteria. Implemented RESTful routes: POST /polls, GET /polls/:pollId, POST /polls/:pollId/vote, POST /quizzes, GET /quizzes/:quizId, POST /quizzes/:quizId/submit, GET /streaks, POST /streaks/:streakId/record, GET /badges, GET /badges/available. Routes use requireAuth middleware for authenticated endpoints. Registered gamificationRouter in routes/index.ts. Quality assurance: typecheck passes for all packages, lint passes. Note: Database migration not run due to missing drizzle-kit command availability; AUTH-003 and PST-003 dependencies not present in TODO.md but requireAuth middleware exists and is used. Pre-existing test failures in lib/db (profiles.test.ts) are unrelated to this task.
+- **Implementation Notes:** Created because MUS-002 noted that the "Music service is currently a stub with mock data - requires actual Spotify/Apple Music API integration for production use."
 
 ---
 
@@ -718,7 +392,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Handling payments directly; not validating subscription tiers.
 - **Imports/Exports:** Export updated `openapi.yaml`.
 - **Depends On:** USR-001, AUTH-001
-- **Blocks:** MON-002, MOB-023
+- **Blocks:** MON-002
 
 ### Subtasks
 
@@ -747,7 +421,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Storing card details; not validating payment success.
 - **Imports/Exports:** Import Stripe SDK, `lib/db`, `requireAuth`; export `monetizationRouter`, `MonetizationService`.
 - **Depends On:** MON-001, AUTH-003
-- **Blocks:** MOB-023, LIV-002
+- **Blocks:** None
 
 ### Subtasks
 
@@ -781,8 +455,8 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Advanced Coding Pattern:** Deep module: `ProfileMusicPlayer` hides audio player state and preference persistence.
 - **Anti-Patterns:** Auto-playing without user consent; not respecting mute preference.
 - **Imports/Exports:** Import `expo-av`, `useSocialData`; export `ProfileMusicPlayer`.
-- **Depends On:** MUS-002, MOB-003
-- **Blocks:** MOB-024
+- **Depends On:** MOB-003
+- **Blocks:** None
 
 ### Subtasks
 
@@ -817,7 +491,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Allowing unlimited Top Friends; not tracking history.
 - **Imports/Exports:** Import `lib/db`, `requireAuth`; export `topFriendsRouter`, `TopFriendsService`.
 - **Depends On:** SOC-003, AUTH-003
-- **Blocks:** MOB-025
+- **Blocks:** None
 
 ### Subtasks
 
@@ -856,8 +530,8 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Advanced Coding Pattern:** Deep module: `MoodBadge` hides icon rendering and music card integration.
 - **Anti-Patterns:** Hardcoding mood icons; not linking now playing to music service.
 - **Imports/Exports:** Import `useSocialData`, music SDK; export `MoodBadge`.
-- **Depends On:** MUS-002, MOB-003
-- **Blocks:** MOB-026
+- **Depends On:** MOB-003
+- **Blocks:** None
 
 ### Subtasks
 
@@ -887,7 +561,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Allowing arbitrary CSS without sanitization; not providing presets.
 - **Imports/Exports:** Import CSS sanitizer library; export `ThemeManager`, `ThemePreview`.
 - **Depends On:** MOB-003
-- **Blocks:** MOB-027
+- **Blocks:** None
 
 ### Subtasks
 
@@ -922,7 +596,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Treating bulletins as regular posts; not respecting module visibility.
 - **Imports/Exports:** Import `lib/db`, `requireAuth`; export `bulletinRouter`, `BulletinService`.
 - **Depends On:** CMT-002, AUTH-003, PRF-002
-- **Blocks:** MOB-028
+- **Blocks:** None
 
 ### Subtasks
 
@@ -962,7 +636,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Storing PII in quiz answers; not validating question types.
 - **Imports/Exports:** Import `lib/db`, `requireAuth`; export `quizRouter`, `QuizService`.
 - **Depends On:** AUTH-003, PRF-002
-- **Blocks:** MOB-029
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1002,7 +676,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Hardcoding field labels; not supporting rich text.
 - **Imports/Exports:** Import `useSocialData`; export `ProfileAboutCard`.
 - **Depends On:** PRF-002, MOB-003
-- **Blocks:** MOB-030
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1037,7 +711,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Making categories global; not allowing multiple categories per friend.
 - **Imports/Exports:** Import `lib/db`, `requireAuth`; export `friendCategoryRouter`, `FriendCategoryService`.
 - **Depends On:** SOC-003, AUTH-003, PRF-002
-- **Blocks:** MOB-031
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1077,7 +751,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Not confirming block action; not persisting mute preference.
 - **Imports/Exports:** Import `api-client-react`, `useSocialData`; export `BlockSheet`.
 - **Depends On:** SAF-002, MOB-002
-- **Blocks:** MOB-032
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1112,7 +786,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Not respecting dismissed warnings; not enforcing age gates.
 - **Imports/Exports:** Import `api-client-react`, `useSocialData`; export `ContentWarning`.
 - **Depends On:** PST-003, AUTH-003
-- **Blocks:** MOB-033
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1147,7 +821,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Deleting data immediately without confirmation; not offering data export.
 - **Imports/Exports:** Import `api-client-react`, `useSocialData`; export `SettingsService`.
 - **Depends On:** AUTH-003, USR-002
-- **Blocks:** MOB-034
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1182,7 +856,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Anti-Patterns:** Hardcoding font sizes; not providing alt text.
 - **Imports/Exports:** Import `react-native-accessibility`, `useColorScheme`; export `ThemeManager`.
 - **Depends On:** MOB-003
-- **Blocks:** MOB-035
+- **Blocks:** None
 
 ### Subtasks
 
@@ -1278,6 +952,1775 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
+## [ ] FED-003: Add user-controlled feed preferences
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** FED
+- **Behavior:** Given an authenticated user, when they choose a feed mode or tune topic preferences, then the feed is rebuilt according to those preferences and persisted.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/feed.ts`, `lib/db/src/schema/profiles.ts`, `artifacts/mobile/hooks/useFeed.ts`, `artifacts/mobile/app/(tabs)/index.tsx`
+- **Definition of Done:** Feed supports modes `chronological`, `algorithmic`, `friendsOnly`, and `topicFocused`; topic weights are persisted on the profile; mobile feed has a mode/topic selector; tests pass.
+- **Out of Scope:** Full ML recommendation engine; feed preference UI theming.
+- **Rules to Follow:** Preferences are user-owned and exportable with the profile; default mode is chronological to align with research on user fatigue.
+- **Advanced Coding Pattern:** Deep module: `FeedService` hides ranking strategy selection behind a single `getFeed(input)` interface.
+- **Anti-Patterns:** Hard-coding algorithm weights without user control; mixing preference persistence with engagement logic.
+- **Imports/Exports:** Export `FeedPreferenceService` and feed-mode enums from `feedService.ts`; update `ProfileUpdateRequest` schema.
+- **Depends On:** FED-002, PRF-002
+- **Blocks:** FED-004
+
+### Initial File Analysis and Research
+
+- [ ] **FED-003.R [AGENT]**: Analyze current feed ranking and profile schema.
+  - Files: `artifacts/api-server/src/services/feedService.ts`, `lib/db/src/schema/profiles.ts`
+  - Action: Confirm feed is chronological, document where to inject ranking strategies, and verify profile JSONB module settings can hold feed preferences.
+  - Validation: Written summary of current ranking logic and proposed preference schema.
+
+### Subtasks
+
+- [ ] **FED-003.1 [AGENT]**: Add feed preference columns to profiles.
+  - File: `lib/db/src/schema/profiles.ts`
+  - Action: Add `feedMode` and `feedTopicWeights` columns or extend module settings; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_feed_preferences` succeeds.
+
+- [ ] **FED-003.2 [AGENT]**: Implement feed ranking strategies.
+  - File: `artifacts/api-server/src/services/feedService.ts`
+  - Action: Add strategy functions for `chronological`, `algorithmic`, `friendsOnly`, `topicFocused`; route selects strategy from user preference.
+  - Validation: `pnpm --filter @workspace/api-server test -- feedService` passes.
+
+- [ ] **FED-003.3 [AGENT]**: Expose preference endpoints.
+  - File: `artifacts/api-server/src/routes/feed.ts`
+  - Action: Add `GET /feed/preferences` and `PATCH /feed/preferences`.
+  - Validation: `pnpm --filter @workspace/api-server test -- feed.routes` passes.
+
+- [ ] **FED-003.4 [AGENT]**: Add feed mode selector to mobile.
+  - Files: `artifacts/mobile/hooks/useFeed.ts`, `artifacts/mobile/app/(tabs)/index.tsx`
+  - Action: Add UI for mode selection and topic sliders; persist via preference endpoints.
+  - Validation: `pnpm --filter @workspace/mobile test -- useFeed` passes.
+
+---
+
+## [ ] FED-004: Add "Why am I seeing this?" transparency
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** FED
+- **Behavior:** Given a user views a recommended post, when they open the explanation menu, then they see a human-readable reason for the recommendation.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/feed.ts`, `artifacts/mobile/components/PostCard.tsx`
+- **Definition of Done:** Each feed post includes a `recommendationReason` field; mobile shows an explanation affordance; tests pass.
+- **Out of Scope:** Full algorithm explainability dashboard; legal compliance copy.
+- **Rules to Follow:** Reasons are short and non-technical; do not leak private signals about other users.
+- **Advanced Coding Pattern:** Deep module: ranking strategy returns opaque reason tokens that the presentation layer maps to copy.
+- **Anti-Patterns:** Exposing raw recommendation scores or other users' behavior.
+- **Imports/Exports:** Export `RecommendationReason` type from `feedService.ts`.
+- **Depends On:** FED-003
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **FED-004.R [AGENT]**: Survey how ranking reasons can be captured.
+  - File: `artifacts/api-server/src/services/feedService.ts`
+  - Action: Identify ranking signals already available (friendship, topic, engagement, recency) and design reason tokens.
+  - Validation: Documented list of reason tokens and mapping rules.
+
+### Subtasks
+
+- [ ] **FED-004.1 [AGENT]**: Generate recommendation reasons in feed service.
+  - File: `artifacts/api-server/src/services/feedService.ts`
+  - Action: Augment `FeedPost` with `recommendationReason`; set reason based on ranking strategy.
+  - Validation: `pnpm --filter @workspace/api-server test -- feedService` passes.
+
+- [ ] **FED-004.2 [AGENT]**: Add explanation affordance in mobile post card.
+  - File: `artifacts/mobile/components/PostCard.tsx`
+  - Action: Add an info icon/menu that displays the reason string.
+  - Validation: `pnpm --filter @workspace/mobile test -- PostCard` passes.
+
+---
+
+## [ ] FED-005: Add chronological feed guarantee
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** FED
+- **Behavior:** Given a user selects the chronological feed mode, when they view the feed, then posts are strictly ordered by creation time with no algorithmic reordering.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/feed.ts`
+- **Definition of Done:** `chronological` mode returns friend/self posts ordered by `createdAt` descending; covered by tests.
+- **Out of Scope:** Changing default feed behavior unless user opts in.
+- **Rules to Follow:** Chronological mode must ignore engagement scores; blocked/muted users still filtered.
+- **Advanced Coding Pattern:** Strategy pattern: chronological ranking is a pure function of `createdAt`.
+- **Anti-Patterns:** Applying hidden boosting in chronological mode.
+- **Imports/Exports:** Export `chronologicalFeed` strategy from `feedService.ts`.
+- **Depends On:** FED-003
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **FED-005.R [AGENT]**: Verify current feed ordering.
+  - File: `artifacts/api-server/src/services/feedService.ts`
+  - Action: Confirm `getFeed` sorts by `createdAt` and document any ranking leakage.
+  - Validation: Test output shows strict chronological ordering today.
+
+### Subtasks
+
+- [ ] **FED-005.1 [AGENT]**: Extract chronological strategy.
+  - File: `artifacts/api-server/src/services/feedService.ts`
+  - Action: Refactor into a dedicated strategy and add tests proving no hidden ranking.
+  - Validation: `pnpm --filter @workspace/api-server test -- feedService` passes.
+
+---
+
+## [ ] FED-006: Add unified search
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** FED
+- **Behavior:** Given a user enters a query, when search executes, then results include matching users, posts, topics, and hashtags ranked by relevance.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/discover.ts`, `lib/db/src/schema/posts.ts`, `lib/db/src/schema/profiles.ts`, `artifacts/mobile/app/(tabs)/discover.tsx`
+- **Definition of Done:** `GET /search` returns typed results by category; discover screen has a search tab; tests pass.
+- **Out of Scope:** Full-text search engine migration; federated search.
+- **Rules to Follow:** Search respects block/mute filters; public-only posts are searchable unless author is friend.
+- **Advanced Coding Pattern:** Deep module: `SearchService` hides category-specific SQL and ranking.
+- **Anti-Patterns:** Returning blocked users in results; leaking private content.
+- **Imports/Exports:** Export `SearchService` and `SearchResponse` types.
+- **Depends On:** FED-002, SOC-003
+- **Blocks:** FED-007, PST-007
+
+### Initial File Analysis and Research
+
+- [ ] **FED-006.R [AGENT]**: Audit current discover search.
+  - Files: `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/discover.ts`
+  - Action: Document existing search capabilities and gaps for users/hashtags.
+  - Validation: Written findings with SQL examples.
+
+### Subtasks
+
+- [ ] **FED-006.1 [AGENT]**: Add search endpoint and service.
+  - Files: `artifacts/api-server/src/services/searchService.ts` (new), `artifacts/api-server/src/routes/search.ts` (new)
+  - Action: Implement search across users, posts, topics; rank results.
+  - Validation: `pnpm --filter @workspace/api-server test -- searchService` passes.
+
+- [ ] **FED-006.2 [AGENT]**: Add mobile search UI.
+  - Files: `artifacts/mobile/app/(tabs)/discover.tsx` or `artifacts/mobile/app/search.tsx` (new)
+  - Action: Add query input and category-filtered results.
+  - Validation: Manual test of user and post search.
+
+---
+
+## [ ] FED-007: Add trending topics and hashtags
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** FED
+- **Behavior:** Given posts contain topics and hashtags, when trending is computed, then a ranked list of trending topics is returned with usage counts.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/discover.ts`, `lib/db/src/schema/posts.ts`
+- **Definition of Done:** `GET /discover/trending-topics` returns topics ranked by recent usage; mobile discover screen shows trending chips.
+- **Out of Scope:** Trending personalized to each user; paid promotion of trends.
+- **Rules to Follow:** Trends are computed from public posts only; exclude spam/botted topics via rate limits.
+- **Advanced Coding Pattern:** Deep module: `TrendingService` hides aggregation window and scoring.
+- **Anti-Patterns:** Computing trends over all-time data; not filtering deleted posts.
+- **Imports/Exports:** Export `TrendingService` and topic ranking types.
+- **Depends On:** FED-006, PST-007
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **FED-007.R [AGENT]**: Inspect topic storage and trending logic.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/feedService.ts`
+  - Action: Document how topics are stored and whether trending can be aggregated from existing columns.
+  - Validation: Proposed aggregation query and time window.
+
+### Subtasks
+
+- [ ] **FED-007.1 [AGENT]**: Implement trending topics service.
+  - File: `artifacts/api-server/src/services/trendingService.ts` (new)
+  - Action: Aggregate topic/hashtag usage over a rolling window; return ranked list.
+  - Validation: `pnpm --filter @workspace/api-server test -- trendingService` passes.
+
+- [ ] **FED-007.2 [AGENT]**: Add trending topics route and mobile UI.
+  - Files: `artifacts/api-server/src/routes/discover.ts`, `artifacts/mobile/app/(tabs)/discover.tsx`
+  - Action: Wire endpoint and display trending chips.
+  - Validation: Manual test of trending topics view.
+
+---
+
+## [ ] MON-003: Add creator analytics
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** MON
+- **Behavior:** Given a creator views their analytics, when the dashboard loads, then they see metrics for posts, engagement, audience, and earnings.
+- **Related Files:** `artifacts/api-server/src/services/analyticsService.ts` (new), `artifacts/api-server/src/routes/analytics.ts` (new), `lib/db/src/schema/engagement.ts`, `artifacts/mobile/app/(tabs)/profile.tsx`
+- **Definition of Done:** `GET /creator/analytics` returns views, likes, saves, reposts, follower growth, top posts, revenue; mobile has an analytics section; tests pass.
+- **Out of Scope:** Real-time analytics streaming; third-party analytics integrations.
+- **Rules to Follow:** Analytics respect privacy (no individual viewer identities); aggregate only.
+- **Advanced Coding Pattern:** Deep module: `AnalyticsService` encapsulates SQL aggregations and time windows.
+- **Anti-Patterns:** Exposing who viewed what; computing analytics on every request without caching.
+- **Imports/Exports:** Export `AnalyticsService`, `CreatorAnalyticsResponse`.
+- **Depends On:** MON-002, ENG-002, PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MON-003.R [AGENT]**: Survey data available for analytics.
+  - Files: `lib/db/src/schema/engagement.ts`, `lib/db/src/schema/posts.ts`, `lib/db/src/schema/friendships.ts`
+  - Action: Document which metrics can be computed today and which require new counters.
+  - Validation: Analytics metric inventory document.
+
+### Subtasks
+
+- [ ] **MON-003.1 [AGENT]**: Create analytics tables and service.
+  - Files: `lib/db/src/schema/analytics.ts` (new), `artifacts/api-server/src/services/analyticsService.ts` (new)
+  - Action: Add aggregated metrics tables or computed views; implement analytics queries.
+  - Validation: `pnpm --filter @workspace/api-server test -- analyticsService` passes.
+
+- [ ] **MON-003.2 [AGENT]**: Add analytics API routes.
+  - File: `artifacts/api-server/src/routes/analytics.ts` (new)
+  - Action: Wire `GET /creator/analytics` and `/creator/analytics/posts` with `requireAuth`.
+  - Validation: `pnpm --filter @workspace/api-server test -- analytics.routes` passes.
+
+- [ ] **MON-003.3 [AGENT]**: Add creator analytics UI.
+  - Files: `artifacts/mobile/app/(tabs)/profile.tsx`, `artifacts/mobile/components/CreatorAnalytics.tsx` (new)
+  - Action: Add analytics tab/section with charts and summary cards.
+  - Validation: Manual test of analytics display.
+
+---
+
+## [ ] MON-004: Add content scheduling and drafts
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MON
+- **Behavior:** Given a user creates a post, when they save it as a draft or schedule it, then it is persisted and published at the appropriate time or kept private until published.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/routes/posts.ts`, `artifacts/mobile/app/compose.tsx`
+- **Definition of Done:** Drafts table or status on posts; scheduled posts publish via background job; mobile compose supports save/schedule; tests pass.
+- **Out of Scope:** Recurring scheduled posts; cross-platform scheduling.
+- **Rules to Follow:** Drafts are private to author; scheduled posts are visible only after publish time.
+- **Advanced Coding Pattern:** Deep module: `PostSchedulingService` hides cron logic and publish state machine.
+- **Anti-Patterns:** Treating scheduled posts as published in feeds; missing publish job failure handling.
+- **Imports/Exports:** Export `SchedulingService`; update post schemas with `status` enum.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MON-004.R [AGENT]**: Inspect post lifecycle and job infrastructure.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/jobs/cleanupStories.ts`
+  - Action: Confirm how background jobs are run and whether posts need a `status` column.
+  - Validation: Proposed post status enum and job design.
+
+### Subtasks
+
+- [ ] **MON-004.1 [AGENT]**: Add post status and scheduledAt columns.
+  - File: `lib/db/src/schema/posts.ts`
+  - Action: Add `status` (`draft`, `scheduled`, `published`, `archived`) and `scheduledAt`; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_post_status` succeeds.
+
+- [ ] **MON-004.2 [AGENT]**: Implement scheduling service and publish job.
+  - Files: `artifacts/api-server/src/services/schedulingService.ts` (new), `artifacts/api-server/src/jobs/publishScheduledPosts.ts` (new)
+  - Action: Publish scheduled posts when due; list drafts and scheduled posts.
+  - Validation: `pnpm --filter @workspace/api-server test -- schedulingService` passes.
+
+- [ ] **MON-004.3 [AGENT]**: Update post routes and mobile compose.
+  - Files: `artifacts/api-server/src/routes/posts.ts`, `artifacts/mobile/app/compose.tsx`
+  - Action: Add draft/schedule endpoints and UI affordances.
+  - Validation: `pnpm --filter @workspace/api-server test -- posts.routes` passes.
+
+---
+
+## [ ] MON-005: Add pinned posts and profile highlights
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MON
+- **Behavior:** Given a user pins a post to their profile, when visitors view the profile, then pinned posts appear first in a dedicated highlights section.
+- **Related Files:** `lib/db/src/schema/profiles.ts`, `artifacts/api-server/src/services/profileService.ts`, `artifacts/mobile/components/ProfileHeader.tsx`
+- **Definition of Done:** Profile supports a pinned post ID list; API to pin/unpin; mobile profile shows highlights; tests pass.
+- **Out of Scope:** Story highlights; paid profile promotion.
+- **Rules to Follow:** Maximum pin limit enforced server-side; only author can pin.
+- **Advanced Coding Pattern:** Deep module: `ProfileService` validates pin limits and ordering.
+- **Anti-Patterns:** Allowing unlimited pins; exposing pin data to non-visible posts.
+- **Imports/Exports:** Update `ProfileUpdateRequest` schema; export pin helpers.
+- **Depends On:** PRF-002, PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MON-005.R [AGENT]**: Verify profile and post visibility integration.
+  - Files: `lib/db/src/schema/profiles.ts`, `artifacts/api-server/src/services/profileService.ts`
+  - Action: Determine where pinned post IDs should live and how they interact with module visibility.
+  - Validation: Proposed schema change and visibility rules.
+
+### Subtasks
+
+- [ ] **MON-005.1 [AGENT]**: Add pinned post support to profiles.
+  - File: `lib/db/src/schema/profiles.ts`
+  - Action: Add `pinnedPostIds` JSONB array; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_pinned_posts` succeeds.
+
+- [ ] **MON-005.2 [AGENT]**: Implement pin/unpin service and routes.
+  - Files: `artifacts/api-server/src/services/profileService.ts`, `artifacts/api-server/src/routes/profiles.ts`
+  - Action: Add `POST /profiles/me/pinned-posts` and removal endpoint with limit validation.
+  - Validation: `pnpm --filter @workspace/api-server test -- profileService` passes.
+
+- [ ] **MON-005.3 [AGENT]**: Display pinned highlights on mobile profile.
+  - Files: `artifacts/mobile/components/ProfileHeader.tsx`, `artifacts/mobile/app/(tabs)/profile.tsx`
+  - Action: Render pinned posts at top of profile posts list.
+  - Validation: Manual test of pin/unpin flow.
+
+---
+
+## [ ] MON-006: Add live shopping and product tagging
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** MON
+- **Behavior:** Given a creator tags a product in a post or live stream, when viewers see the tag, then they can view product details and initiate purchase through an affiliate link.
+- **Related Files:** `lib/api-spec/openapi.yaml`, `artifacts/api-server/src/services/liveService.ts`, `lib/db/src/schema/posts.ts`
+- **Definition of Done:** Product tags schema; API to add/remove tags; mobile product card; tests pass.
+- **Out of Scope:** Checkout processing; inventory management.
+- **Rules to Follow:** Product data stored as tags with external URLs; disclose affiliate relationships.
+- **Advanced Coding Pattern:** Deep module: `ProductTagService` isolates tagging logic from posts and streams.
+- **Anti-Patterns:** Storing full product catalog; hard-coding affiliate networks.
+- **Imports/Exports:** Export `ProductTagService` and tag types.
+- **Depends On:** MON-002, LIV-003
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MON-006.R [AGENT/HUMAN]**: Define product tag contract.
+  - Files: `lib/api-spec/openapi.yaml`, `artifacts/api-server/src/services/liveService.ts`
+  - Action: Decide whether product tags live on posts, streams, or a separate table; document schema.
+  - Validation: Approved product tag schema design.
+
+### Subtasks
+
+- [ ] **MON-006.1 [AGENT]**: Add product tags schema.
+  - File: `lib/db/src/schema/productTags.ts` (new)
+  - Action: Create columns for target type, target ID, product name, URL, metadata.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_product_tags` succeeds.
+
+- [ ] **MON-006.2 [AGENT]**: Implement product tag service and routes.
+  - Files: `artifacts/api-server/src/services/productTagService.ts` (new), `artifacts/api-server/src/routes/productTags.ts` (new)
+  - Action: CRUD for product tags; authorization by content owner.
+  - Validation: `pnpm --filter @workspace/api-server test -- productTagService` passes.
+
+- [ ] **MON-006.3 [AGENT]**: Add product tag UI.
+  - Files: `artifacts/mobile/components/ProductTagCard.tsx` (new), `artifacts/mobile/app/compose-media.tsx`
+  - Action: Render product tags and open external URL.
+  - Validation: Manual test of product tag creation and display.
+
+---
+
+## [ ] MON-007: Add tipping on posts and live streams
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MON
+- **Behavior:** Given a viewer appreciates a post or live stream, when they send a tip, then the creator's balance increases and a notification is sent.
+- **Related Files:** `artifacts/api-server/src/services/monetizationService.ts` (after MON-002), `artifacts/api-server/src/routes/posts.ts`, `artifacts/api-server/src/routes/live.ts`
+- **Definition of Done:** `POST /posts/{postId}/tip` and `POST /live/{streamId}/tip` endpoints; balance update; mobile tip sheet; tests pass.
+- **Out of Scope:** Refund flow; tax handling.
+- **Rules to Follow:** Tips are non-refundable; use `MonetizationService` for balance tracking.
+- **Advanced Coding Pattern:** Deep module: tip endpoints delegate to `MonetizationService`.
+- **Anti-Patterns:** Hard-coding tip amounts; bypassing monetization ledger.
+- **Imports/Exports:** Import `MonetizationService`; export tip route handlers.
+- **Depends On:** MON-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MON-007.R [AGENT]**: Review monetization API design.
+  - File: `lib/api-spec/openapi.yaml` (after MON-001)
+  - Action: Confirm tip schema exists and align post/live tip payloads.
+  - Validation: Documented tip payload design.
+
+### Subtasks
+
+- [ ] **MON-007.1 [AGENT]**: Add post tip endpoint.
+  - File: `artifacts/api-server/src/routes/posts.ts`
+  - Action: Implement `POST /posts/{postId}/tip` using `MonetizationService`.
+  - Validation: `pnpm --filter @workspace/api-server test -- posts.routes` passes.
+
+- [ ] **MON-007.2 [AGENT]**: Add live stream tip endpoint.
+  - File: `artifacts/api-server/src/routes/live.ts`
+  - Action: Implement `POST /live/{streamId}/tip` using `MonetizationService`.
+  - Validation: `pnpm --filter @workspace/api-server test -- live.routes` passes.
+
+- [ ] **MON-007.3 [AGENT]**: Add mobile tip sheet.
+  - File: `artifacts/mobile/components/TipSheet.tsx` (new)
+  - Action: Bottom sheet with preset amounts and confirmation.
+  - Validation: Manual test of tipping flow.
+
+---
+
+## [ ] USR-003: Add account verification
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** USR
+- **Behavior:** Given a user meets verification criteria, when an admin approves their request, then a verified badge is displayed on their profile.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/profileService.ts`, `artifacts/api-server/src/routes/profiles.ts`, `artifacts/mobile/components/ProfileHeader.tsx`
+- **Definition of Done:** Verification request table; admin approval flow; verified badge on profile; tests pass.
+- **Out of Scope:** Identity document upload; government ID verification; paid verification badges.
+- **Rules to Follow:** Criteria are transparent; approval is human-reviewed; badge is non-transferable.
+- **Advanced Coding Pattern:** Deep module: `VerificationService` hides approval state machine.
+- **Anti-Patterns:** Auto-approving based on follower count; selling verification.
+- **Imports/Exports:** Export `VerificationService`, `VerificationStatus`.
+- **Depends On:** USR-001, ADM-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **USR-003.R [AGENT/HUMAN]**: Define verification criteria and badge design.
+  - Files: `lib/db/src/schema/users.ts`, `docs/architecture.md`
+  - Action: Choose criteria (e.g., email + notable identity or admin invitation); document badge UI placement.
+  - Validation: Approved verification policy document.
+
+### Subtasks
+
+- [ ] **USR-003.1 [AGENT]**: Add verification table and user column.
+  - Files: `lib/db/src/schema/verificationRequests.ts` (new), `lib/db/src/schema/users.ts`
+  - Action: Create verification request table; add `verifiedAt` to users; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_verification` succeeds.
+
+- [ ] **USR-003.2 [AGENT]**: Implement verification service and routes.
+  - Files: `artifacts/api-server/src/services/verificationService.ts` (new), `artifacts/api-server/src/routes/verification.ts` (new)
+  - Action: Request, review, approve, revoke endpoints; admin-only actions.
+  - Validation: `pnpm --filter @workspace/api-server test -- verificationService` passes.
+
+- [ ] **USR-003.3 [AGENT]**: Show verified badge in mobile.
+  - File: `artifacts/mobile/components/ProfileHeader.tsx`
+  - Action: Render badge next to name when `verifiedAt` is present.
+  - Validation: `pnpm --filter @workspace/mobile test -- ProfileHeader` passes.
+
+---
+
+## [ ] USR-004: Add AI-generated content labeling
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** USR
+- **Behavior:** Given a post or message is created with AI assistance, when it is published, then it carries a visible label disclosing AI generation.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `lib/db/src/schema/messages.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/mobile/components/PostCard.tsx`
+- **Definition of Done:** `isAiGenerated` flag on posts/messages; composer toggle; visible label; tests pass.
+- **Out of Scope:** Automated AI detection; content moderation for unlabeled AI.
+- **Rules to Follow:** Label is set by creator at compose time; default to false; label text is concise.
+- **Advanced Coding Pattern:** Deep module: label rendering is centralized in `PostCard` and message bubbles.
+- **Anti-Patterns:** Hiding AI labels behind menus; auto-flagging without creator consent.
+- **Imports/Exports:** Update `PostCreateRequest` schema; export `AiLabel` component.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **USR-004.R [AGENT]**: Survey content schemas for AI flag placement.
+  - Files: `lib/db/src/schema/posts.ts`, `lib/db/src/schema/messages.ts`
+  - Action: Confirm whether a new column or JSONB extension is appropriate.
+  - Validation: Proposed schema diff.
+
+### Subtasks
+
+- [ ] **USR-004.1 [AGENT]**: Add AI flag to posts and messages.
+  - Files: `lib/db/src/schema/posts.ts`, `lib/db/src/schema/messages.ts`
+  - Action: Add `isAiGenerated` boolean; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_ai_generated_flag` succeeds.
+
+- [ ] **USR-004.2 [AGENT]**: Add composer toggle and labels.
+  - Files: `artifacts/mobile/app/compose.tsx`, `artifacts/mobile/components/PostCard.tsx`
+  - Action: Add toggle and render label.
+  - Validation: `pnpm --filter @workspace/mobile test -- compose` passes.
+
+---
+
+## [ ] PRIV-004: Add screen time and wellbeing tools
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** PRIV
+- **Behavior:** Given a user enables wellbeing settings, when they exceed limits, then they receive a reminder and can pause the app.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/routes/account.ts` (new), `artifacts/mobile/app/settings.tsx`
+- **Definition of Done:** `wellbeingSettings` JSONB on users; daily time limit and break reminders; settings UI; tests pass.
+- **Out of Scope:** Full parental controls; content time quotas.
+- **Rules to Follow:** Reminders are gentle, not blocking by default; user can opt into hard breaks.
+- **Advanced Coding Pattern:** Deep module: `WellbeingService` stores settings; UI enforces local timers without server round-trips.
+- **Anti-Patterns:** Forcing hard limits without user consent; storing detailed session logs.
+- **Imports/Exports:** Export `WellbeingSettings` type and validation schema.
+- **Depends On:** PRIV-003
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PRIV-004.R [AGENT]**: Review user settings storage options.
+  - File: `lib/db/src/schema/users.ts`
+  - Action: Decide whether wellbeing settings live on users table or separate settings table.
+  - Validation: Proposed settings schema.
+
+### Subtasks
+
+- [ ] **PRIV-004.1 [AGENT]**: Add wellbeing settings schema and API.
+  - Files: `lib/db/src/schema/users.ts`, `artifacts/api-server/src/routes/account.ts`
+  - Action: Add settings columns/endpoints; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_wellbeing_settings` succeeds.
+
+- [ ] **PRIV-004.2 [AGENT]**: Add wellbeing UI and local timers.
+  - Files: `artifacts/mobile/app/settings.tsx`, `artifacts/mobile/context/WellbeingContext.tsx` (new)
+  - Action: Add limit inputs and break reminder overlays.
+  - Validation: Manual test of timer and reminder flow.
+
+---
+
+## [ ] PRIV-005: Add close friends / exclusive sharing
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** PRIV
+- **Behavior:** Given a user adds friends to a Close Friends list, when they share a story or post, then they can restrict visibility to only that list.
+- **Related Files:** `lib/db/src/schema/audienceLists.ts`, `artifacts/api-server/src/services/audienceService.ts`, `artifacts/api-server/src/routes/audience.ts`, `artifacts/mobile/components/StoryComposer.tsx` (new)
+- **Definition of Done:** Reserved `closeFriends` audience list type; composer supports Close Friends; visibility enforced server-side; tests pass.
+- **Out of Scope:** Auto-suggesting close friends based on engagement.
+- **Rules to Follow:** Close Friends lists are private; members are not notified when added/removed unless opted in.
+- **Advanced Coding Pattern:** Deep module: `AudienceService` treats close friends as a first-class audience list.
+- **Anti-Patterns:** Exposing list membership to non-owners; ignoring audience filters in feed.
+- **Imports/Exports:** Update audience enums; export `CloseFriendsManager`.
+- **Depends On:** AUD-001, SOC-003
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PRIV-005.R [AGENT]**: Inspect audience list implementation.
+  - Files: `lib/db/src/schema/audienceLists.ts`, `artifacts/api-server/src/services/audienceService.ts`
+  - Action: Verify audience lists can represent close friends and are enforced in feed/stories.
+  - Validation: Documented gap list and integration points.
+
+### Subtasks
+
+- [ ] **PRIV-005.1 [AGENT]**: Reserve close friends audience type.
+  - Files: `lib/db/src/schema/audienceLists.ts`, `artifacts/api-server/src/services/audienceService.ts`
+  - Action: Add `closeFriends` special list handling; ensure list cannot be deleted accidentally.
+  - Validation: `pnpm --filter @workspace/api-server test -- audienceService` passes.
+
+- [ ] **PRIV-005.2 [AGENT]**: Add close friends composer UI.
+  - Files: `artifacts/mobile/app/friends-list.tsx`, `artifacts/mobile/components/StoryComposer.tsx`
+  - Action: Add management UI and composer toggle.
+  - Validation: Manual test of close friends story sharing.
+
+---
+
+## [ ] PRIV-006: Add content collections / saved bookmarks
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PRIV
+- **Behavior:** Given a user saves a post, when they organize saves into collections, then collections are persisted and browsable.
+- **Related Files:** `lib/db/src/schema/engagement.ts`, `artifacts/api-server/src/services/engagementService.ts`, `artifacts/mobile/app/(tabs)/profile.tsx`
+- **Definition of Done:** Collections table; CRUD API; mobile collection list and add-to-collection UI; tests pass.
+- **Out of Scope:** Public collections; collaborative collections.
+- **Rules to Follow:** Collections are private to owner; saved posts remain tied to original visibility.
+- **Advanced Coding Pattern:** Deep module: `CollectionService` hides save-to-collection mapping.
+- **Anti-Patterns:** Duplicating post content into collections; ignoring deleted posts.
+- **Imports/Exports:** Export `CollectionService` and collection schemas.
+- **Depends On:** ENG-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PRIV-006.R [AGENT]**: Verify save engagement schema.
+  - Files: `lib/db/src/schema/engagement.ts`, `artifacts/api-server/src/services/engagementService.ts`
+  - Action: Confirm saves are stored separately and can be grouped.
+  - Validation: Proposed collections schema.
+
+### Subtasks
+
+- [ ] **PRIV-006.1 [AGENT]**: Add collections schema and service.
+  - Files: `lib/db/src/schema/collections.ts` (new), `artifacts/api-server/src/services/collectionService.ts` (new)
+  - Action: Create tables and CRUD logic.
+  - Validation: `pnpm --filter @workspace/api-server test -- collectionService` passes.
+
+- [ ] **PRIV-006.2 [AGENT]**: Add collections routes and mobile UI.
+  - Files: `artifacts/api-server/src/routes/engagement.ts` (or new), `artifacts/mobile/app/(tabs)/profile.tsx`
+  - Action: Wire endpoints and add saved/collections tab.
+  - Validation: Manual test of save-to-collection flow.
+
+---
+
+## [ ] PRIV-007: Add notification preferences
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PRIV
+- **Behavior:** Given a user opens notification settings, when they toggle event types, then only selected notifications are delivered.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/notificationService.ts`, `artifacts/mobile/app/notifications.tsx`, `artifacts/mobile/app/settings.tsx`
+- **Definition of Done:** Per-event-type preferences stored; notification service filters before creating/delivering; mobile settings UI; tests pass.
+- **Out of Scope:** Third-party notification channel management (email/SMS specifics).
+- **Rules to Follow:** Preferences apply to push, in-app, and email uniformly unless explicitly split.
+- **Advanced Coding Pattern:** Deep module: `NotificationService` checks preferences before emitting notifications.
+- **Anti-Patterns:** Sending notifications after user disabled the category; requiring server restart to apply changes.
+- **Imports/Exports:** Export `NotificationPreferences` schema from user/profile package.
+- **Depends On:** NTF-001, PRIV-003
+- **Blocks:** NTF-003, NTF-004
+
+### Initial File Analysis and Research
+
+- [ ] **PRIV-007.R [AGENT]**: Audit notification types and delivery path.
+  - File: `artifacts/api-server/src/services/notificationService.ts`
+  - Action: List all notification event types and where they are emitted.
+  - Validation: Notification event inventory.
+
+### Subtasks
+
+- [ ] **PRIV-007.1 [AGENT]**: Add notification preferences to users.
+  - File: `lib/db/src/schema/users.ts`
+  - Action: Add `notificationPreferences` JSONB; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_notification_preferences` succeeds.
+
+- [ ] **PRIV-007.2 [AGENT]**: Filter notifications by preference.
+  - File: `artifacts/api-server/src/services/notificationService.ts`
+  - Action: Skip creation/delivery when category is disabled.
+  - Validation: `pnpm --filter @workspace/api-server test -- notificationService` passes.
+
+- [ ] **PRIV-007.3 [AGENT]**: Add notification settings UI.
+  - Files: `artifacts/mobile/app/settings.tsx`, `artifacts/mobile/app/notifications.tsx`
+  - Action: Add toggles per notification category.
+  - Validation: Manual test of disabling a category.
+
+---
+
+## [ ] SAF-003: Add restrict mode
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** SAF
+- **Behavior:** Given a user restricts another user, when the restricted user comments, then their comments are only visible to themselves and the profile owner.
+- **Related Files:** `lib/db/src/schema/profiles.ts`, `artifacts/api-server/src/services/safetyService.ts`, `artifacts/api-server/src/routes/safety.ts`, `artifacts/mobile/components/BlockSheet.tsx`
+- **Definition of Done:** Restrict table or status; comment visibility filter; mobile restrict action; tests pass.
+- **Out of Scope:** Restrict mode beyond comments.
+- **Rules to Follow:** Restrict is silent; restricted user is not notified.
+- **Advanced Coding Pattern:** Deep module: `SafetyService` adds `isRestricted` checks to content visibility queries.
+- **Anti-Patterns:** Allowing restricted users to see they are restricted via UI hints.
+- **Imports/Exports:** Export `restrictUser`, `unrestrictUser`, `isRestricted` methods.
+- **Depends On:** SAF-002, PRIV-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **SAF-003.R [AGENT]**: Review block/mute implementation for extension.
+  - Files: `lib/db/src/schema/blocks.ts`, `lib/db/src/schema/mutes.ts`, `artifacts/api-server/src/services/safetyService.ts`
+  - Action: Determine whether restrict uses a new table or extends mutes with a mode.
+  - Validation: Proposed restrict data model.
+
+### Subtasks
+
+- [ ] **SAF-003.1 [AGENT]**: Add restrict schema.
+  - File: `lib/db/src/schema/restricts.ts` (new)
+  - Action: Create restrict relationship table; generate migration.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_restricts` succeeds.
+
+- [ ] **SAF-003.2 [AGENT]**: Implement restrict service and routes.
+  - Files: `artifacts/api-server/src/services/safetyService.ts`, `artifacts/api-server/src/routes/safety.ts`
+  - Action: Add restrict CRUD and apply to comment visibility.
+  - Validation: `pnpm --filter @workspace/api-server test -- safetyService` passes.
+
+- [ ] **SAF-003.3 [AGENT]**: Add restrict action to mobile.
+  - File: `artifacts/mobile/components/BlockSheet.tsx`
+  - Action: Add restrict option alongside block/mute.
+  - Validation: Manual test of restrict/unrestrict.
+
+---
+
+## [ ] MSG-003: Add voice notes to messages
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** MSG
+- **Behavior:** Given a user records a voice message, when it is sent, then recipients can play it back in the conversation.
+- **Related Files:** `lib/db/src/schema/messages.ts`, `artifacts/api-server/src/services/messageService.ts`, `artifacts/mobile/components/MessageComposer.tsx` (new)
+- **Definition of Done:** Audio message type fully supported end-to-end; recording UI; playback with progress; tests pass.
+- **Out of Scope:** Voice-to-text transcription; voice messages in stories/posts.
+- **Rules to Follow:** Audio is uploaded via existing media flow; schema already supports `audio` type.
+- **Advanced Coding Pattern:** Deep module: `VoiceMessagePlayer` hides recording, upload, and playback state.
+- **Anti-Patterns:** Storing raw audio in database; not handling playback interruptions.
+- **Imports/Exports:** Export `VoiceMessagePlayer` component.
+- **Depends On:** MSG-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MSG-003.R [AGENT]**: Verify audio support in messaging stack.
+  - Files: `lib/db/src/schema/messages.ts`, `artifacts/api-server/src/services/messageService.ts`
+  - Action: Confirm `audio` type is accepted end-to-end and identify missing UI.
+  - Validation: Test sending an audio message via API.
+
+### Subtasks
+
+- [ ] **MSG-003.1 [AGENT]**: Add audio upload to message service.
+  - File: `artifacts/api-server/src/services/messageService.ts`
+  - Action: Accept `audio` messages, validate media URL, set duration metadata.
+  - Validation: `pnpm --filter @workspace/api-server test -- messageService` passes.
+
+- [ ] **MSG-003.2 [AGENT]**: Add voice note composer and player.
+  - Files: `artifacts/mobile/components/MessageComposer.tsx` (new), `artifacts/mobile/components/VoiceMessagePlayer.tsx` (new)
+  - Action: Add record button, waveform/progress display, and playback controls.
+  - Validation: Manual test of send and playback.
+
+---
+
+## [ ] MSG-004: Add message replies and threading
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MSG
+- **Behavior:** Given a user replies to a specific message, when the reply is sent, then it is linked to the original message and displayed inline.
+- **Related Files:** `lib/db/src/schema/messages.ts`, `artifacts/api-server/src/services/messageService.ts`, `artifacts/api-server/src/routes/messages.ts`, `artifacts/mobile/components/MessageThread.tsx` (new)
+- **Definition of Done:** `replyToMessageId` populated and rendered; reply affordance in UI; tests pass.
+- **Out of Scope:** Full nested threading UI; forwarded message chains.
+- **Rules to Follow:** Replies reference existing messages in the same conversation; deleted original messages show placeholder.
+- **Advanced Coding Pattern:** Deep module: `MessageService` validates reply references and enforces conversation scope.
+- **Anti-Patterns:** Allowing replies to messages in other conversations; losing reply context on deletion.
+- **Imports/Exports:** Update message request schemas; export reply helpers.
+- **Depends On:** MSG-002
+- **Blocks:** MSG-005
+
+### Initial File Analysis and Research
+
+- [ ] **MSG-004.R [AGENT]**: Verify reply column migration.
+  - File: `lib/db/src/schema/messages.ts`
+  - Action: Confirm `replyToMessageId` is present and has self-reference.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate` shows existing migration state.
+
+### Subtasks
+
+- [ ] **MSG-004.1 [AGENT]**: Implement reply logic in message service.
+  - File: `artifacts/api-server/src/services/messageService.ts`
+  - Action: Validate and persist reply references.
+  - Validation: `pnpm --filter @workspace/api-server test -- messageService` passes.
+
+- [ ] **MSG-004.2 [AGENT]**: Render replies in mobile conversation UI.
+  - Files: `artifacts/mobile/components/MessageThread.tsx`, conversation screen
+  - Action: Show quoted message and reply indicator.
+  - Validation: Manual test of reply flow.
+
+---
+
+## [ ] MSG-005: Add group conversations
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MSG
+- **Behavior:** Given multiple participants, when a group conversation is created, then all members can send and receive messages.
+- **Related Files:** `lib/db/src/schema/conversations.ts`, `artifacts/api-server/src/services/messageService.ts`, `artifacts/api-server/src/routes/messages.ts`, `artifacts/mobile/app/conversations/` (new)
+- **Definition of Done:** Group creation API; member add/remove; group metadata (title, avatar); mobile group UI; tests pass.
+- **Out of Scope:** Admin roles and permissions; group discovery.
+- **Rules to Follow:** Only existing friends can be added unless setting allows all; group metadata editable by members.
+- **Advanced Coding Pattern:** Deep module: `ConversationService` handles participant validation and group lifecycle.
+- **Anti-Patterns:** Allowing non-friends to be added silently; not validating participant count.
+- **Imports/Exports:** Export group management methods.
+- **Depends On:** MSG-004
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MSG-005.R [AGENT]**: Verify conversation schema supports groups.
+  - File: `lib/db/src/schema/conversations.ts`
+  - Action: Confirm `participants` array and check for group title/avatar fields.
+  - Validation: Proposed schema changes if missing.
+
+### Subtasks
+
+- [ ] **MSG-005.1 [AGENT]**: Add group metadata and member management.
+  - Files: `lib/db/src/schema/conversations.ts`, `artifacts/api-server/src/services/messageService.ts`
+  - Action: Add title/avatar fields; implement member add/remove.
+  - Validation: `pnpm --filter @workspace/api-server test -- messageService` passes.
+
+- [ ] **MSG-005.2 [AGENT]**: Add group conversation UI.
+  - Files: `artifacts/mobile/app/conversations/new.tsx` (new), existing conversation screen
+  - Action: Group creation flow and participant selection.
+  - Validation: Manual test of group chat.
+
+---
+
+## [ ] PST-004: Add in-post polls
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** PST
+- **Behavior:** Given a user composes a post, when they add a poll, then viewers can vote and see aggregated results.
+- **Related Files:** `lib/db/src/schema/polls.ts`, `artifacts/api-server/src/services/gamificationService.ts`, `artifacts/api-server/src/routes/gamification.ts`, `artifacts/mobile/app/compose.tsx`
+- **Definition of Done:** Polls can be attached to posts at creation; voting endpoint; results rendered in `PostCard`; tests pass.
+- **Out of Scope:** Advanced poll types (ranked choice, quizzes in posts).
+- **Rules to Follow:** One vote per user; poll options are immutable after first vote; expiration optional.
+- **Advanced Coding Pattern:** Deep module: `PollService` handles vote aggregation and expiration.
+- **Anti-Patterns:** Allowing vote changes after seeing results; editing options after votes exist.
+- **Imports/Exports:** Update `PostCreateRequest` schema; export `PollCard` component.
+- **Depends On:** PST-002, GAM-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PST-004.R [AGENT]**: Verify poll schema and existing gamification endpoints.
+  - Files: `lib/db/src/schema/polls.ts`, `artifacts/api-server/src/services/gamificationService.ts`
+  - Action: Confirm polls are stored separately and can be linked by `postId`.
+  - Validation: Proposed post-poll integration design.
+
+### Subtasks
+
+- [ ] **PST-004.1 [AGENT]**: Link polls to post creation.
+  - Files: `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/routes/posts.ts`
+  - Action: Accept optional poll in create post request and create poll atomically.
+  - Validation: `pnpm --filter @workspace/api-server test -- postService` passes.
+
+- [ ] **PST-004.2 [AGENT]**: Render polls in mobile posts.
+  - Files: `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/components/PollCard.tsx` (new)
+  - Action: Show poll options, vote button, and results after voting.
+  - Validation: `pnpm --filter @workspace/mobile test -- PostCard` passes.
+
+---
+
+## [ ] PST-005: Add post edit history
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PST
+- **Behavior:** Given a user edits a post, when viewers inspect it, then they can see that the post was edited and view prior versions.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/mobile/components/PostCard.tsx`
+- **Definition of Done:** Edit history table; history endpoint; mobile edit indicator and history view; tests pass.
+- **Out of Scope:** Restoring previous versions; diff highlighting.
+- **Rules to Follow:** History is immutable; only author and admins can view.
+- **Advanced Coding Pattern:** Deep module: `PostHistoryService` hides version persistence.
+- **Anti-Patterns:** Overwriting original content without history; exposing history to non-authors.
+- **Imports/Exports:** Export `PostHistoryService` and history types.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PST-005.R [AGENT]**: Inspect post update behavior.
+  - Files: `artifacts/api-server/src/services/postService.ts`, `lib/db/src/schema/posts.ts`
+  - Action: Confirm `PATCH` updates in place and determine how to snapshot versions.
+  - Validation: Proposed history table schema.
+
+### Subtasks
+
+- [ ] **PST-005.1 [AGENT]**: Add post history table and service.
+  - Files: `lib/db/src/schema/postHistory.ts` (new), `artifacts/api-server/src/services/postService.ts`
+  - Action: Snapshot content on each edit; store editor and timestamp.
+  - Validation: `pnpm --filter @workspace/api-server test -- postService` passes.
+
+- [ ] **PST-005.2 [AGENT]**: Add edit indicator and history UI.
+  - File: `artifacts/mobile/components/PostCard.tsx`
+  - Action: Show "Edited" label with tap to view history.
+  - Validation: Manual test of edit history flow.
+
+---
+
+## [ ] PST-006: Add post archive
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PST
+- **Behavior:** Given a user archives a post, when visitors view the profile, then the archived post is hidden but the owner can still see it.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/routes/posts.ts`, `artifacts/mobile/app/(tabs)/profile.tsx`
+- **Definition of Done:** `archivedAt` column and archive action; archived posts filtered from public feeds/profile; owner archive tab; tests pass.
+- **Out of Scope:** Auto-archiving by age; bulk archive tools.
+- **Rules to Follow:** Archive is reversible; archived posts still count in analytics.
+- **Advanced Coding Pattern:** Deep module: `PostService` applies archive filter consistently.
+- **Anti-Patterns:** Deleting engagement when archiving; showing archived posts in search.
+- **Imports/Exports:** Update post schemas; export archive helpers.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **PST-006.R [AGENT]**: Verify soft delete vs archive needs.
+  - File: `lib/db/src/schema/posts.ts`
+  - Action: Confirm `deletedAt` exists; decide if archive uses same column with status or separate `archivedAt`.
+  - Validation: Proposed archive state design.
+
+### Subtasks
+
+- [ ] **PST-006.1 [AGENT]**: Add archive support to posts.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`
+  - Action: Add `archivedAt` and archive/unarchive endpoints.
+  - Validation: `pnpm --filter @workspace/api-server test -- postService` passes.
+
+- [ ] **PST-006.2 [AGENT]**: Add archive UI to mobile profile.
+  - Files: `artifacts/mobile/app/(tabs)/profile.tsx`, `artifacts/mobile/components/PostCard.tsx`
+  - Action: Add archive action and owner-only archive tab.
+  - Validation: Manual test of archive/unarchive.
+
+---
+
+## [ ] PST-007: Add hashtags and mentions
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PST
+- **Behavior:** Given a post contains `@handle` or `#topic`, when rendered, then mentions link to profiles and hashtags link to search/trending.
+- **Related Files:** `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/app/post/[id].tsx`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/mobile/lib/topics.ts`
+- **Definition of Done:** Composer highlights and parses mentions/hashtags; rendered text is interactive; tests pass.
+- **Out of Scope:** Mention notifications (covered by NTF); hashtag following.
+- **Rules to Follow:** Mention parsing is case-insensitive for handles; hashtags map to existing topics.
+- **Advanced Coding Pattern:** Deep module: `ContentParser` extracts entities without coupling to rendering.
+- **Anti-Patterns:** Regex-only parsing without boundary checks; broken links for invalid handles.
+- **Imports/Exports:** Export `ContentParser` and `RichText` component.
+- **Depends On:** PST-002, FED-006
+- **Blocks:** FED-007
+
+### Initial File Analysis and Research
+
+- [ ] **PST-007.R [AGENT]**: Inspect topic inference and post text handling.
+  - Files: `artifacts/mobile/lib/topics.ts`, `artifacts/api-server/src/services/postService.ts`
+  - Action: Determine how hashtags can integrate with topics and how mentions link to profiles.
+  - Validation: Proposed entity parsing rules.
+
+### Subtasks
+
+- [ ] **PST-007.1 [AGENT]**: Parse and store mentions/hashtags.
+  - Files: `artifacts/api-server/src/services/postService.ts`, `lib/db/src/schema/posts.ts` (optional columns)
+  - Action: Extract entities on create/edit; store hashtags in topics array.
+  - Validation: `pnpm --filter @workspace/api-server test -- postService` passes.
+
+- [ ] **PST-007.2 [AGENT]**: Render interactive text in mobile.
+  - Files: `artifacts/mobile/components/RichText.tsx` (new), `artifacts/mobile/components/PostCard.tsx`
+  - Action: Link mentions to profiles and hashtags to discover search.
+  - Validation: `pnpm --filter @workspace/mobile test -- PostCard` passes.
+
+---
+
+## [ ] AUTH-004: Add email verification workflow
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** AUTH
+- **Behavior:** Given a user registers, when they verify their email, then the `emailVerified` timestamp is set and verified-only features are unlocked.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/authService.ts`, `artifacts/api-server/src/routes/auth.ts`, `.env.example`
+- **Definition of Done:** Verification token table; email sending endpoint; token verification route; mobile verification screen; tests pass.
+- **Out of Scope:** Full email deliverability infrastructure; password reset via email.
+- **Rules to Follow:** Tokens are single-use and expire; use environment variables for email provider credentials.
+- **Advanced Coding Pattern:** Deep module: `EmailVerificationService` hides token generation and provider integration.
+- **Anti-Patterns:** Storing plaintext tokens; allowing unlimited token resends without rate limit.
+- **Imports/Exports:** Export `EmailVerificationService`; update auth routes.
+- **Depends On:** AUTH-001
+- **Blocks:** USR-003
+
+### Initial File Analysis and Research
+
+- [ ] **AUTH-004.R [AGENT]**: Verify email verification state.
+  - Files: `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/authService.ts`
+  - Action: Confirm `emailVerified` column is unused; document email provider options.
+  - Validation: Proposed verification token schema and flow.
+
+### Subtasks
+
+- [ ] **AUTH-004.1 [AGENT]**: Add verification token schema and service.
+  - Files: `lib/db/src/schema/verificationTokens.ts` (new), `artifacts/api-server/src/services/emailVerificationService.ts` (new)
+  - Action: Generate tokens, send email via provider, verify tokens.
+  - Validation: `pnpm --filter @workspace/api-server test -- emailVerificationService` passes.
+
+- [ ] **AUTH-004.2 [AGENT]**: Add verification routes and mobile UI.
+  - Files: `artifacts/api-server/src/routes/auth.ts`, `artifacts/mobile/app/verify-email.tsx` (new)
+  - Action: Wire endpoints and add verification pending screen.
+  - Validation: Manual test of email verification flow.
+
+---
+
+## [ ] AUTH-005: Add passkey / WebAuthn login
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** AUTH
+- **Behavior:** Given a user registers a passkey, when they authenticate, then they can log in without a password using device biometrics.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/authService.ts`, `artifacts/api-server/src/routes/auth.ts`, `artifacts/mobile/app/login.tsx`
+- **Definition of Done:** Passkey credential table; registration and authentication challenge endpoints; mobile passkey support via Expo; tests pass.
+- **Out of Scope:** Removing password login entirely; cross-device passkey sync management.
+- **Rules to Follow:** Store credential IDs and public keys only; never store private keys.
+- **Advanced Coding Pattern:** Deep module: `PasskeyService` wraps WebAuthn challenge/response flow.
+- **Anti-Patterns:** Storing private keys; not verifying challenge origin.
+- **Imports/Exports:** Export `PasskeyService`; update auth routes.
+- **Depends On:** AUTH-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **AUTH-005.R [AGENT]**: Evaluate WebAuthn support in Expo/React Native.
+  - Files: `artifacts/mobile/package.json`, `artifacts/mobile/app/login.tsx`
+  - Action: Identify passkey library and platform limitations.
+  - Validation: Documented library choice and supported platforms.
+
+### Subtasks
+
+- [ ] **AUTH-005.1 [AGENT]**: Add passkey credential schema and backend service.
+  - Files: `lib/db/src/schema/passkeyCredentials.ts` (new), `artifacts/api-server/src/services/passkeyService.ts` (new)
+  - Action: Implement WebAuthn registration and authentication.
+  - Validation: `pnpm --filter @workspace/api-server test -- passkeyService` passes.
+
+- [ ] **AUTH-005.2 [AGENT]**: Add passkey routes and mobile UI.
+  - Files: `artifacts/api-server/src/routes/auth.ts`, `artifacts/mobile/app/login.tsx`
+  - Action: Add passkey registration/login buttons.
+  - Validation: Manual test on a supported device/simulator.
+
+---
+
+## [ ] AUTH-006: Add OAuth / social login
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** AUTH
+- **Behavior:** Given a user chooses to sign in with a social provider, when they complete the OAuth flow, then an account is created or linked and a session is established.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/authService.ts`, `artifacts/api-server/src/routes/auth.ts`, `artifacts/mobile/app/login.tsx`
+- **Definition of Done:** OAuth provider config (Google/Apple); account linking; mobile OAuth button; tests pass.
+- **Out of Scope:** Niche OAuth providers; business/enterprise SSO.
+- **Rules to Follow:** Link OAuth to existing account by verified email; do not create duplicate accounts.
+- **Advanced Coding Pattern:** Deep module: `OAuthService` normalizes provider-specific flows.
+- **Anti-Patterns:** Trusting unverified email from OAuth; leaking provider tokens to client.
+- **Imports/Exports:** Export `OAuthService`; update auth routes and `.env.example`.
+- **Depends On:** AUTH-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **AUTH-006.R [AGENT/HUMAN]**: Choose OAuth providers and libraries.
+  - Files: `artifacts/mobile/package.json`, `.env.example`
+  - Action: Decide on Google/Apple; document client ID setup.
+  - Validation: Approved provider list and environment variable plan.
+
+### Subtasks
+
+- [ ] **AUTH-006.1 [AGENT]**: Implement OAuth backend flow.
+  - Files: `artifacts/api-server/src/services/oauthService.ts` (new), `artifacts/api-server/src/routes/auth.ts`
+  - Action: Exchange codes, normalize profile info, link/create users.
+  - Validation: `pnpm --filter @workspace/api-server test -- oauthService` passes.
+
+- [ ] **AUTH-006.2 [AGENT]**: Add OAuth login to mobile.
+  - Files: `artifacts/mobile/app/login.tsx`
+  - Action: Add provider buttons and handle redirect.
+  - Validation: Manual test of sign-in with Google/Apple.
+
+---
+
+## [ ] AUTH-007: Add two-factor authentication (2FA)
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** AUTH
+- **Behavior:** Given a user enables 2FA, when they log in, then they must provide a time-based one-time password in addition to their password.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/authService.ts`, `artifacts/api-server/src/routes/auth.ts`, `artifacts/mobile/app/settings.tsx`
+- **Definition of Done:** TOTP secret storage; QR code setup; verification on login; backup codes; mobile settings UI; tests pass.
+- **Out of Scope:** SMS 2FA; hardware security keys beyond passkeys.
+- **Rules to Follow:** Secrets are encrypted at rest; backup codes are hashed; 2FA cannot be bypassed.
+- **Advanced Coding Pattern:** Deep module: `TwoFactorService` hides TOTP generation and verification.
+- **Anti-Patterns:** Storing TOTP secrets plaintext; emailing backup codes.
+- **Imports/Exports:** Export `TwoFactorService` and 2FA DTOs.
+- **Depends On:** AUTH-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **AUTH-007.R [AGENT]**: Evaluate TOTP libraries for Node.js and Expo.
+  - Files: `artifacts/api-server/package.json`, `artifacts/mobile/package.json`
+  - Action: Choose `speakeasy` or similar backend library and a QR renderer.
+  - Validation: Documented library choices.
+
+### Subtasks
+
+- [ ] **AUTH-007.1 [AGENT]**: Add 2FA backend service and routes.
+  - Files: `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/twoFactorService.ts` (new)
+  - Action: Generate/verify TOTP and backup codes; protect login flow.
+  - Validation: `pnpm --filter @workspace/api-server test -- twoFactorService` passes.
+
+- [ ] **AUTH-007.2 [AGENT]**: Add 2FA setup UI.
+  - Files: `artifacts/mobile/app/settings.tsx`
+  - Action: QR display, enrollment, and backup code view.
+  - Validation: Manual test of 2FA enrollment and login.
+
+---
+
+## [ ] NTF-003: Add push notifications
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** NTF
+- **Behavior:** Given an event triggers a notification, when push is enabled, then the user receives a native push notification on their device.
+- **Related Files:** `artifacts/api-server/src/services/notificationService.ts`, `artifacts/mobile/context/NotificationsContext.tsx`, `artifacts/api-server/src/websocket/` (if used)
+- **Definition of Done:** Expo push token registration; push dispatch from backend; foreground/background handling; tests pass.
+- **Out of Scope:** Rich media push; A/B notification copy testing.
+- **Rules to Follow:** Respect notification preferences (PRIV-007); do not send push for muted categories.
+- **Advanced Coding Pattern:** Deep module: `PushNotificationService` abstracts Expo/FCM/APNs providers.
+- **Anti-Patterns:** Sending push without user consent; leaking sensitive content in push payloads.
+- **Imports/Exports:** Export `PushNotificationService`; update `.env.example`.
+- **Depends On:** PRIV-007
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **NTF-003.R [AGENT]**: Inspect current notification delivery.
+  - Files: `artifacts/api-server/src/services/notificationService.ts`, `artifacts/mobile/context/NotificationsContext.tsx`
+  - Action: Document whether only in-app notifications exist and where push should hook in.
+  - Validation: Push notification integration plan.
+
+### Subtasks
+
+- [ ] **NTF-003.1 [AGENT]**: Add push token registration.
+  - Files: `artifacts/api-server/src/services/notificationService.ts`, `artifacts/mobile/context/NotificationsContext.tsx`
+  - Action: Store Expo push tokens per user/device.
+  - Validation: `pnpm --filter @workspace/api-server test -- notificationService` passes.
+
+- [ ] **NTF-003.2 [AGENT]**: Dispatch push notifications.
+  - File: `artifacts/api-server/src/services/notificationService.ts`
+  - Action: Send push via Expo SDK when notifications are created and enabled.
+  - Validation: Manual test of receiving a push notification.
+
+---
+
+## [ ] NTF-004: Add email notifications
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** NTF
+- **Behavior:** Given a user enables email notifications, when a qualifying event occurs, then an email is sent with a digest or alert.
+- **Related Files:** `artifacts/api-server/src/services/notificationService.ts`, `lib/db/src/schema/users.ts`, `.env.example`
+- **Definition of Done:** Email notification preferences; transactional email sending; digest logic; tests pass.
+- **Out of Scope:** Marketing emails; full email deliverability service.
+- **Rules to Follow:** Only send when explicitly enabled; respect frequency/digest settings.
+- **Advanced Coding Pattern:** Deep module: `EmailNotificationService` queues and batches emails.
+- **Anti-Patterns:** Sending email to unverified addresses; including full post content in plaintext.
+- **Imports/Exports:** Export `EmailNotificationService`; update notification preferences schema.
+- **Depends On:** PRIV-007, AUTH-004
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **NTF-004.R [AGENT]**: Audit notification events suitable for email.
+  - File: `artifacts/api-server/src/services/notificationService.ts`
+  - Action: Classify events as immediate or digest-worthy.
+  - Validation: Email notification matrix document.
+
+### Subtasks
+
+- [ ] **NTF-004.1 [AGENT]**: Implement email notification service.
+  - File: `artifacts/api-server/src/services/emailNotificationService.ts` (new)
+  - Action: Queue emails, apply digest preferences, send via provider.
+  - Validation: `pnpm --filter @workspace/api-server test -- emailNotificationService` passes.
+
+- [ ] **NTF-004.2 [AGENT]**: Add email preference toggles.
+  - Files: `artifacts/mobile/app/settings.tsx`
+  - Action: Add email frequency and category toggles.
+  - Validation: Manual test of digest preference change.
+
+---
+
+## [ ] MYSP-009: Add Memories / lookback feature
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** MYSP
+- **Behavior:** Given a user has posts from prior years, when a memory is triggered, then they see a "On This Day" recap and optionally reshare it.
+- **Related Files:** `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/routes/posts.ts`, `artifacts/mobile/app/(tabs)/profile.tsx`
+- **Definition of Done:** `GET /posts/memories` returns posts from same day in previous years; mobile memory card; tests pass.
+- **Out of Scope:** Complex anniversary collages; automated highlight reels.
+- **Rules to Follow:** Memories only include public or friend-visible posts authored by the user.
+- **Advanced Coding Pattern:** Deep module: `MemoryService` computes lookback windows without exposing raw dates.
+- **Anti-Patterns:** Showing deleted or archived posts in memories; surprising users with unwanted recaps.
+- **Imports/Exports:** Export `MemoryService` and `MemoryResponse` types.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MYSP-009.R [AGENT]**: Inspect post date querying.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`
+  - Action: Confirm date extraction from timestamps and propose lookback query.
+  - Validation: Proposed SQL/query for memories.
+
+### Subtasks
+
+- [ ] **MYSP-009.1 [AGENT]**: Implement memory service and route.
+  - Files: `artifacts/api-server/src/services/memoryService.ts` (new), `artifacts/api-server/src/routes/posts.ts`
+  - Action: Query posts from same month/day in previous years.
+  - Validation: `pnpm --filter @workspace/api-server test -- memoryService` passes.
+
+- [ ] **MYSP-009.2 [AGENT]**: Add mobile memory card.
+  - Files: `artifacts/mobile/app/(tabs)/profile.tsx`, `artifacts/mobile/components/MemoryCard.tsx` (new)
+  - Action: Display memories and allow resharing.
+  - Validation: Manual test of memory display.
+
+---
+
+## [ ] MYSP-010: Add profile visitors log
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** MYSP
+- **Behavior:** Given a user enables visitor logging, when another user visits their profile, then the visit is recorded and shown to the owner according to privacy settings.
+- **Related Files:** `lib/db/src/schema/profiles.ts`, `artifacts/api-server/src/services/profileService.ts`, `artifacts/mobile/components/ProfileHeader.tsx`
+- **Definition of Done:** Visitor log table; opt-in setting; recent visitors list; tests pass.
+- **Out of Scope:** Real-time visitor notifications; anonymous visitor counts.
+- **Rules to Follow:** Visitors are only logged when both users have opted in; blocked users excluded.
+- **Advanced Coding Pattern:** Deep module: `ProfileVisitService` handles logging and privacy checks.
+- **Anti-Patterns:** Logging visits without consent; exposing visit timestamps publicly.
+- **Imports/Exports:** Export `ProfileVisitService` and visitor types.
+- **Depends On:** PRF-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **MYSP-010.R [AGENT/HUMAN]**: Define visitor log privacy rules.
+  - Files: `docs/architecture.md`, `lib/db/src/schema/profiles.ts`
+  - Action: Decide opt-in default, retention window, and visibility.
+  - Validation: Approved visitor log policy.
+
+### Subtasks
+
+- [ ] **MYSP-010.1 [AGENT]**: Add visitor log schema and service.
+  - Files: `lib/db/src/schema/profileVisits.ts` (new), `artifacts/api-server/src/services/profileService.ts`
+  - Action: Log visits with privacy checks and retention.
+  - Validation: `pnpm --filter @workspace/api-server test -- profileService` passes.
+
+- [ ] **MYSP-010.2 [AGENT]**: Add visitor log UI and setting.
+  - Files: `artifacts/mobile/app/(tabs)/profile.tsx`, `artifacts/mobile/app/edit-profile.tsx`
+  - Action: Toggle and list recent visitors.
+  - Validation: Manual test of visitor log flow.
+
+---
+
+## [ ] ADM-002: Add automated moderation / content queue
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** ADM
+- **Behavior:** Given a user submits a report, when automated signals match patterns, then the content is queued for admin review with priority scoring.
+- **Related Files:** `artifacts/api-server/src/services/safetyService.ts`, `lib/db/src/schema/reports.ts`, `artifacts/admin/` (new)
+- **Definition of Done:** Report priority scoring; content queue API; admin dashboard review UI; tests pass.
+- **Out of Scope:** Automated content removal without human review; legal takedown workflows.
+- **Rules to Follow:** Human review remains required for action; audit log all admin decisions.
+- **Advanced Coding Pattern:** Deep module: `ModerationQueueService` combines signals into a review score.
+- **Anti-Patterns:** Auto-banning based solely on keyword matching; not logging decisions.
+- **Imports/Exports:** Export `ModerationQueueService` and priority types.
+- **Depends On:** SAF-002, ADM-001
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **ADM-002.R [AGENT]**: Inspect report schema and admin dashboard plan.
+  - Files: `lib/db/src/schema/reports.ts`, `artifacts/api-server/src/services/safetyService.ts`
+  - Action: Document report fields and design priority scoring.
+  - Validation: Proposed moderation queue schema and scoring rules.
+
+### Subtasks
+
+- [ ] **ADM-002.1 [AGENT]**: Add moderation queue service.
+  - File: `artifacts/api-server/src/services/moderationQueueService.ts` (new)
+  - Action: Score reports; queue content; expose queue endpoints.
+  - Validation: `pnpm --filter @workspace/api-server test -- moderationQueueService` passes.
+
+- [ ] **ADM-002.2 [AGENT]**: Add admin review dashboard UI.
+  - Files: `artifacts/admin/src/moderation.tsx` (new)
+  - Action: List queued reports, approve/reject actions, audit log view.
+  - Validation: Manual test of review workflow.
+
+---
+
+## [ ] WEB-002: Add web post creation
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** WEB
+- **Behavior:** Given a user visits the web app, when they create a post, then it is published and visible in the feed.
+- **Related Files:** `artifacts/web/src/app/feed/page.tsx` (new), `artifacts/web/src/app/compose/page.tsx` (new), `lib/api-spec/openapi.yaml`
+- **Definition of Done:** Web compose page with text/media posts; authentication via API client; tests pass.
+- **Out of Scope:** Full mobile feature parity; offline post creation.
+- **Rules to Follow:** Reuse generated API client; session cookies handled automatically.
+- **Advanced Coding Pattern:** Deep module: `WebComposer` component abstracts media upload and post submission.
+- **Anti-Patterns:** Duplicating post validation logic; bypassing generated API client.
+- **Imports/Exports:** Export `WebComposer` from web app.
+- **Depends On:** WEB-001, PST-002
+- **Blocks:** None
+
+### Initial File Analysis and Research
+
+- [ ] **WEB-002.R [AGENT]**: Verify web app framework and API client setup.
+  - Files: `artifacts/web/` (after WEB-001), `lib/api-client-react/`
+  - Action: Confirm generated client is usable in Next.js and auth cookies work cross-domain.
+  - Validation: Proposed web compose page structure.
+
+### Subtasks
+
+- [ ] **WEB-002.1 [AGENT]**: Add web compose page.
+  - Files: `artifacts/web/src/app/compose/page.tsx` (new), related components
+  - Action: Implement text post creation with topic tagging.
+  - Validation: Manual test of web post creation.
+
+- [ ] **WEB-002.2 [AGENT]**: Add media upload to web composer.
+  - Files: `artifacts/web/src/components/WebMediaUploader.tsx` (new)
+  - Action: Upload media via `/media/upload` and attach to post.
+  - Validation: Manual test of web media post.
+
+---
+
+## [ ] PST-008: Add in-app media editor
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** PST
+- **Behavior:** Given a user selects or records media for a post, when they use the editor, then they can trim, add captions, apply filters, select a thumbnail, and sync sound before uploading.
+- **Related Files:** `artifacts/mobile/app/compose-media.tsx`, `artifacts/mobile/components/MediaEditor.tsx` (new), `artifacts/api-server/src/services/mediaService.ts`
+- **Definition of Done:** Mobile media editor component with trim, captions, filters, thumbnail picker, and sound selection; edited output is uploaded via `/media/upload`; tests pass.
+- **Out of Scope:** Full multi-track timeline; professional color grading.
+- **Rules to Follow:** Editor is client-side for responsiveness; final upload uses existing media flow; preserve original quality.
+- **Advanced Coding Pattern:** Deep module: `MediaEditor` hides trimming, filter application, and thumbnail extraction behind a simple `exportMedia()` interface.
+- **Anti-Patterns:** Uploading raw unedited media silently; duplicating upload logic outside `mediaService`.
+- **Imports/Exports:** Import `expo-av`, `expo-image-manipulator`; export `MediaEditor` component.
+- **Depends On:** PST-002, MDA-001
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **PST-008.1 [AGENT]**: Add video trimming and playback UI.
+  - File: `artifacts/mobile/components/MediaEditor.tsx` (new)
+  - Action: Implement trim start/end sliders with preview.
+  - Validation: Manual test of trimming a video.
+
+- [ ] **PST-008.2 [AGENT]**: Add caption, filter, and thumbnail tools.
+  - File: `artifacts/mobile/components/MediaEditor.tsx`
+  - Action: Add text overlay, preset filters, and thumbnail frame selector.
+  - Validation: `pnpm --filter @workspace/mobile test -- MediaEditor` passes.
+
+- [ ] **PST-008.3 [AGENT]**: Integrate editor into media compose flow.
+  - File: `artifacts/mobile/app/compose-media.tsx`
+  - Action: Open editor after media selection and upload edited result.
+  - Validation: Manual test of full compose flow.
+
+---
+
+## [ ] FED-008: Add "Not Interested" and negative feedback
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** FED
+- **Behavior:** Given a user sees a post or reel, when they select "Not Interested," then similar content is suppressed and the signal is persisted for future ranking.
+- **Related Files:** `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/routes/feed.ts`, `lib/db/src/schema/profiles.ts`, `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/components/ReelCard.tsx`
+- **Definition of Done:** Users can mark posts/reels as "Not Interested"; topics/authors are down-weighted; preference is persisted; tests pass.
+- **Out of Scope:** Full ML re-ranking; permanent blocking of topics.
+- **Rules to Follow:** Negative feedback is user-owned and reversible; do not leak that another user was blocked.
+- **Advanced Coding Pattern:** Deep module: `FeedPreferenceService` stores negative signals alongside positive ones and exposes a single `shouldSuppress(post, user)` check.
+- **Anti-Patterns:** Ignoring the signal after one session; exposing suppression reasons publicly.
+- **Imports/Exports:** Export `NegativeFeedbackService`; update feed preference schema.
+- **Depends On:** FED-003
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **FED-008.1 [AGENT]**: Add negative feedback schema and service.
+  - Files: `lib/db/src/schema/profiles.ts`, `artifacts/api-server/src/services/feedService.ts`
+  - Action: Store disliked topics, authors, and post IDs; apply suppression in ranking.
+  - Validation: `pnpm --filter @workspace/api-server test -- feedService` passes.
+
+- [ ] **FED-008.2 [AGENT]**: Add "Not Interested" affordance to mobile cards.
+  - Files: `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/components/ReelCard.tsx`
+  - Action: Add overflow menu item and optimistic UI update.
+  - Validation: Manual test of marking content as not interested.
+
+---
+
+## [ ] NTF-005: Implement real-time event transport
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** NTF
+- **Behavior:** Given the backend emits events, when a client connects, then notifications, messages, and live chat messages are delivered in real time.
+- **Related Files:** `artifacts/api-server/src/websocket/`, `artifacts/api-server/src/services/notificationService.ts`, `artifacts/mobile/context/NotificationsContext.tsx`, `artifacts/mobile/context/MessagesContext.tsx` (new)
+- **Definition of Done:** WebSocket or SSE transport implemented; authenticated connections; events for notifications, messages, and live chat; reconnection handling; tests pass.
+- **Out of Scope:** Video/audio streaming transport; presence/typing indicators (separate task).
+- **Rules to Follow:** Authenticate transport connection; do not broadcast sensitive content; respect notification preferences.
+- **Advanced Coding Pattern:** Deep module: `RealtimeTransport` hides SSE/WebSocket choice, auth, and reconnection logic.
+- **Anti-Patterns:** Broadcasting events to unauthenticated clients; leaking notification payloads.
+- **Imports/Exports:** Export `RealtimeTransport`, `RealtimeProvider`; update `.env.example`.
+- **Depends On:** MSG-002, NTF-001
+- **Blocks:** MSG-005, LIV-004
+
+### Subtasks
+
+- [ ] **NTF-005.1 [AGENT]**: Choose transport and implement backend emitter.
+  - File: `artifacts/api-server/src/websocket/transport.ts` (new)
+  - Action: Implement SSE or WebSocket endpoint with auth and per-user channels.
+  - Validation: `pnpm --filter @workspace/api-server test -- transport` passes.
+
+- [ ] **NTF-005.2 [AGENT]**: Wire notification and message events.
+  - Files: `artifacts/api-server/src/services/notificationService.ts`, `artifacts/api-server/src/services/messageService.ts`
+  - Action: Emit events through transport when notifications/messages are created.
+  - Validation: Manual test of real-time delivery.
+
+- [ ] **NTF-005.3 [AGENT]**: Add mobile real-time provider.
+  - Files: `artifacts/mobile/context/NotificationsContext.tsx`, `artifacts/mobile/context/MessagesContext.tsx` (new)
+  - Action: Connect to transport and update local state on events.
+  - Validation: Manual test of receiving a notification/message in real time.
+
+---
+
+## [ ] PRIV-008: Add data export and portability
+
+- **Status:** Not Started
+- **Priority:** High
+- **Domain:** PRIV
+- **Behavior:** Given a user requests their data, when export is complete, then they receive a structured archive containing posts, media, messages, friends, settings, and engagement history.
+- **Related Files:** `artifacts/api-server/src/routes/account.ts` (new), `artifacts/api-server/src/services/exportService.ts` (new), `lib/db/src/schema/users.ts`
+- **Definition of Done:** `/account/export` endpoint; async export job; ZIP with JSON/structured data; download link; tests pass.
+- **Out of Scope:** Cross-platform federation; importing data from other networks.
+- **Rules to Follow:** Export includes only data the user owns or has rights to; archive expires after a configurable window.
+- **Advanced Coding Pattern:** Deep module: `DataExportService` orchestrates per-domain repositories into a single archive.
+- **Anti-Patterns:** Blocking the request until export is complete; exposing other users' private data.
+- **Imports/Exports:** Export `DataExportService`, `ExportRequest` schema.
+- **Depends On:** PRIV-003
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **PRIV-008.1 [AGENT]**: Define export schema and job.
+  - File: `artifacts/api-server/src/services/exportService.ts` (new)
+  - Action: Collect posts, comments, messages, friends, settings; generate ZIP.
+  - Validation: `pnpm --filter @workspace/api-server test -- exportService` passes.
+
+- [ ] **PRIV-008.2 [AGENT]**: Add export endpoint and mobile UI.
+  - Files: `artifacts/api-server/src/routes/account.ts`, `artifacts/mobile/app/settings.tsx`
+  - Action: Trigger export and notify user when ready.
+  - Validation: Manual test of requesting and downloading export.
+
+---
+
+## [ ] STO-002: Add story highlights
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** STO
+- **Behavior:** Given a user has expired stories, when they select stories to highlight, then those stories appear as pinned rings on their profile.
+- **Related Files:** `lib/db/src/schema/stories.ts`, `artifacts/api-server/src/services/storyService.ts`, `artifacts/api-server/src/routes/stories.ts`, `artifacts/mobile/components/StoryHighlights.tsx` (new), `artifacts/mobile/app/(tabs)/profile.tsx`
+- **Definition of Done:** Highlights table or `isHighlight` flag; CRUD API; mobile highlight grid on profile; tests pass.
+- **Out of Scope:** Highlight covers beyond first frame; highlight categories.
+- **Rules to Follow:** Only story author can create highlights; highlight preserves original audience visibility.
+- **Advanced Coding Pattern:** Deep module: `HighlightService` extends story lifecycle with archival selection.
+- **Anti-Patterns:** Letting non-owners create highlights; duplicating media files.
+- **Imports/Exports:** Export `HighlightService`, `HighlightResponse` types.
+- **Depends On:** STO-001
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **STO-002.1 [AGENT]**: Add highlights schema and service.
+  - Files: `lib/db/src/schema/stories.ts` (or new `lib/db/src/schema/highlights.ts`), `artifacts/api-server/src/services/storyService.ts`
+  - Action: Store highlight metadata and linked story IDs.
+  - Validation: `pnpm --filter @workspace/api-server test -- storyService` passes.
+
+- [ ] **STO-002.2 [AGENT]**: Add highlights UI to profile.
+  - Files: `artifacts/mobile/components/StoryHighlights.tsx` (new), `artifacts/mobile/app/(tabs)/profile.tsx`
+  - Action: Render horizontal highlight rings; allow creation from expired stories.
+  - Validation: Manual test of highlight creation and viewing.
+
+---
+
+## [ ] MSG-006: Add disappearing messages
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MSG
+- **Behavior:** Given a user enables disappearing mode in a conversation, when messages are sent, then they are automatically deleted after a configurable time once viewed.
+- **Related Files:** `lib/db/src/schema/messages.ts`, `lib/db/src/schema/conversations.ts`, `artifacts/api-server/src/services/messageService.ts`, `artifacts/api-server/src/jobs/cleanupExpiredMessages.ts` (new)
+- **Definition of Done:** Disappearing TTL on messages/conversations; viewed-at tracking; cleanup job; mobile toggle; tests pass.
+- **Out of Scope:** Screenshot detection; self-destructing media beyond text/image.
+- **Rules to Follow:** Sender chooses TTL per message or per conversation; deletion is best-effort with audit logging.
+- **Advanced Coding Pattern:** Deep module: `DisappearingMessageService` handles TTL, read receipts, and cleanup.
+- **Anti-Patterns:** Deleting messages before they are viewed; not handling unviewed expired messages.
+- **Imports/Exports:** Export `DisappearingMessageService`, TTL constants.
+- **Depends On:** MSG-002
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **MSG-006.1 [AGENT]**: Add disappearing message schema.
+  - Files: `lib/db/src/schema/messages.ts`, `lib/db/src/schema/conversations.ts`
+  - Action: Add `disappearingTtlSeconds`, `viewedAt`, and `expiresAt` columns.
+  - Validation: `pnpm --filter @workspace/db exec drizzle-kit generate --name add_disappearing_messages` succeeds.
+
+- [ ] **MSG-006.2 [AGENT]**: Implement cleanup job and mobile toggle.
+  - Files: `artifacts/api-server/src/services/messageService.ts`, `artifacts/api-server/src/jobs/cleanupExpiredMessages.ts` (new), mobile conversation screen
+  - Action: Delete expired messages; add per-conversation disappearing toggle.
+  - Validation: `pnpm --filter @workspace/api-server test -- messageService` passes.
+
+---
+
+## [ ] SOC-004: Add people discovery and friend suggestions
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** SOC
+- **Behavior:** Given a user opens the discovery screen, when suggestions load, then they see potential friends ranked by mutual connections, shared interests, and proximity if location sharing is enabled.
+- **Related Files:** `artifacts/api-server/src/services/peopleDiscoveryService.ts`, `artifacts/api-server/src/services/friendshipService.ts`, `artifacts/mobile/app/(tabs)/discover.tsx`, `artifacts/mobile/hooks/usePeopleDiscovery.ts`
+- **Definition of Done:** Suggestion endpoint; ranking by mutual friends and topics; respect block/mute/privacy; mobile UI; tests pass.
+- **Out of Scope:** Phone/email contact import (separate task); paid promotion of accounts.
+- **Rules to Follow:** Do not suggest blocked/muted users; do not leak private profile data.
+- **Advanced Coding Pattern:** Deep module: `PeopleDiscoveryService` hides ranking signals behind a `getSuggestions(userId)` interface.
+- **Anti-Patterns:** Suggesting strangers with no mutual signals; ignoring privacy settings.
+- **Imports/Exports:** Export `PeopleDiscoveryService`, suggestion types.
+- **Depends On:** SOC-003, SAF-002
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **SOC-004.1 [AGENT]**: Implement suggestion ranking service.
+  - File: `artifacts/api-server/src/services/peopleDiscoveryService.ts`
+  - Action: Rank users by mutual friends, shared topics, and optional location; filter by safety/privacy.
+  - Validation: `pnpm --filter @workspace/api-server test -- peopleDiscoveryService` passes.
+
+- [ ] **SOC-004.2 [AGENT]**: Add suggestions UI to discover screen.
+  - Files: `artifacts/mobile/app/(tabs)/discover.tsx`, `artifacts/mobile/hooks/usePeopleDiscovery.ts`
+  - Action: Render suggestion cards with add-friend action.
+  - Validation: Manual test of sending requests from suggestions.
+
+---
+
+## [ ] PST-009: Add long-form articles and author subscriptions
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PST
+- **Behavior:** Given a creator writes a long-form article, when published, then it appears as a rich post with a subscribe-to-author option and is surfaced in followers' feeds.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/mobile/components/ArticleCard.tsx` (new), `artifacts/mobile/app/compose.tsx`
+- **Definition of Done:** New `article` post kind; rich text content; subscribe CTA; article detail view; tests pass.
+- **Out of Scope:** Newsletter email delivery; paywalled articles (handled by MON).
+- **Rules to Follow:** Articles support markdown/rich text; render summary in feeds; respect audience settings.
+- **Advanced Coding Pattern:** Deep module: `ArticleService` handles rich text validation, summary generation, and subscription gating.
+- **Anti-Patterns:** Storing raw HTML without sanitization; treating articles identically to short posts in feeds.
+- **Imports/Exports:** Export `ArticleCard`, `ArticleService`; update `PostCreateRequest` schema.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **PST-009.1 [AGENT]**: Add article post kind and service.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`
+  - Action: Support `article` kind with title, rich content, and summary.
+  - Validation: `pnpm --filter @workspace/api-server test -- postService` passes.
+
+- [ ] **PST-009.2 [AGENT]**: Add article composer and reader UI.
+  - Files: `artifacts/mobile/components/ArticleCard.tsx` (new), `artifacts/mobile/app/compose.tsx`
+  - Action: Add article composer with rich text and article detail screen.
+  - Validation: Manual test of publishing and viewing an article.
+
+---
+
+## [ ] PST-010: Add post translation
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** PST
+- **Behavior:** Given a post is in a different language, when a user requests translation, then the text is translated inline and the result is cached.
+- **Related Files:** `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/services/translationService.ts` (new), `artifacts/mobile/components/PostCard.tsx`, `lib/api-spec/openapi.yaml`
+- **Definition of Done:** Translation endpoint using a provider or lightweight local model; per-user target language; mobile inline translation; tests pass.
+- **Out of Scope:** Translating media/audio; automatic translation without user action.
+- **Rules to Follow:** Detect source language; cache results; respect user target language preference.
+- **Advanced Coding Pattern:** Deep module: `TranslationService` hides provider choice and caching.
+- **Anti-Patterns:** Translating every post automatically; leaking content to unapproved translators.
+- **Imports/Exports:** Export `TranslationService`; update `.env.example`.
+- **Depends On:** PST-002, ACC-002
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **PST-010.1 [AGENT]**: Implement translation service and endpoint.
+  - Files: `artifacts/api-server/src/services/translationService.ts` (new), `artifacts/api-server/src/routes/posts.ts`
+  - Action: Translate post text with caching.
+  - Validation: `pnpm --filter @workspace/api-server test -- translationService` passes.
+
+- [ ] **PST-010.2 [AGENT]**: Add translate affordance to mobile post cards.
+  - File: `artifacts/mobile/components/PostCard.tsx`
+  - Action: Show "Translate" link and inline translated text.
+  - Validation: Manual test of translating a post.
+
+---
+
+## [ ] ACC-002: Add localization and internationalization
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** ACC
+- **Behavior:** Given a user changes language, when they navigate the app, then all UI strings are rendered in the selected language.
+- **Related Files:** `artifacts/mobile/lib/i18n.ts` (new), `artifacts/mobile/app/settings.tsx`, `artifacts/mobile/locales/` (new)
+- **Definition of Done:** i18n framework integrated; English strings extracted; at least one additional language; language selector in settings; tests pass.
+- **Out of Scope:** RTL layout overhaul in V1; machine-translated content.
+- **Rules to Follow:** Use ICU message format; keep keys semantic; allow community contributions.
+- **Advanced Coding Pattern:** Deep module: `I18nProvider` wraps `expo-localization` and translation catalogs.
+- **Anti-Patterns:** Hardcoding strings after i18n is added; concatenating translated strings.
+- **Imports/Exports:** Export `I18nProvider`, `t()` helper, locale types.
+- **Depends On:** ACC-001
+- **Blocks:** PST-010
+
+### Subtasks
+
+- [ ] **ACC-002.1 [AGENT]**: Set up i18n framework and English catalog.
+  - Files: `artifacts/mobile/lib/i18n.ts` (new), `artifacts/mobile/locales/en.json` (new)
+  - Action: Extract all UI strings into catalog; wire provider.
+  - Validation: `pnpm --filter @workspace/mobile test -- i18n` passes.
+
+- [ ] **ACC-002.2 [AGENT]**: Add language selector.
+  - File: `artifacts/mobile/app/settings.tsx`
+  - Action: Add language picker and persist preference.
+  - Validation: Manual test of switching languages.
+
+---
+
+## [ ] MON-008: Add brand partnerships and paid partnership labels
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** MON
+- **Behavior:** Given a creator partners with a brand, when they publish a sponsored post, then a "Paid partnership" label is displayed and compliance metadata is stored.
+- **Related Files:** `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/postService.ts`, `artifacts/api-server/src/services/partnershipService.ts` (new), `artifacts/mobile/components/PaidPartnershipLabel.tsx` (new), `artifacts/mobile/app/compose.tsx`
+- **Definition of Done:** Partnership metadata on posts; paid partnership label in feed and detail; API for creators to mark partners; tests pass.
+- **Out of Scope:** Brand marketplace matching; automated ad approval.
+- **Rules to Follow:** Label is mandatory for paid content; metadata is visible to moderators and users.
+- **Advanced Coding Pattern:** Deep module: `PartnershipService` handles partner validation and labeling.
+- **Anti-Patterns:** Allowing undisclosed paid content; hardcoding brand names.
+- **Imports/Exports:** Export `PartnershipService`, `PaidPartnershipLabel`.
+- **Depends On:** PST-002
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **MON-008.1 [AGENT]**: Add partnership metadata and service.
+  - Files: `lib/db/src/schema/posts.ts`, `artifacts/api-server/src/services/partnershipService.ts` (new)
+  - Action: Store partner brand and paid flag; validate partner relationships.
+  - Validation: `pnpm --filter @workspace/api-server test -- partnershipService` passes.
+
+- [ ] **MON-008.2 [AGENT]**: Add label to composer and post cards.
+  - Files: `artifacts/mobile/components/PaidPartnershipLabel.tsx` (new), `artifacts/mobile/app/compose.tsx`, `artifacts/mobile/components/PostCard.tsx`
+  - Action: Add partner selector in composer and render label in feeds.
+  - Validation: Manual test of marking and viewing a paid partnership post.
+
+---
+
+## [ ] PRIV-009: Add supervised / family accounts
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** PRIV
+- **Behavior:** Given a parent links a teen account, when safety settings are configured, then screen time, content sensitivity, and messaging limits are enforced for the supervised account.
+- **Related Files:** `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/supervisionService.ts` (new), `artifacts/api-server/src/routes/account.ts`, `artifacts/mobile/app/settings.tsx`
+- **Definition of Done:** Supervisor link table; configurable limits; enforcement in feed/messages/live; mobile supervisor dashboard; tests pass.
+- **Out of Scope:** Government age verification; full parental remote monitoring.
+- **Rules to Follow:** Both parent and teen must consent; limits are transparent to the teen; audit log changes.
+- **Advanced Coding Pattern:** Deep module: `SupervisionService` encapsulates policy evaluation across content domains.
+- **Anti-Patterns:** Covert monitoring; overriding privacy settings silently.
+- **Imports/Exports:** Export `SupervisionService`, supervision policy types.
+- **Depends On:** PRIV-004
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **PRIV-009.1 [AGENT]**: Add supervision schema and policy engine.
+  - Files: `lib/db/src/schema/users.ts`, `artifacts/api-server/src/services/supervisionService.ts` (new)
+  - Action: Store supervisor link and policy rules; evaluate before serving content.
+  - Validation: `pnpm --filter @workspace/api-server test -- supervisionService` passes.
+
+- [ ] **PRIV-009.2 [AGENT]**: Add supervisor and teen settings UI.
+  - File: `artifacts/mobile/app/settings.tsx`
+  - Action: Add link-account flow, limit configuration, and status display.
+  - Validation: Manual test of supervision setup.
+
+---
+
+## [ ] MDA-002: Add media transcoding and adaptive delivery
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** MDA
+- **Behavior:** Given a video is uploaded, when processing completes, then multiple resolutions and HLS manifests are generated for adaptive playback.
+- **Related Files:** `artifacts/api-server/src/services/mediaService.ts`, `artifacts/api-server/src/jobs/transcodeMedia.ts` (new), `lib/db/src/schema/media.ts` (new)
+- **Definition of Done:** Background transcode job; multiple resolutions; thumbnail extraction; HLS manifest; playback uses adaptive URL; tests pass.
+- **Out of Scope:** Live stream transcoding; DRM.
+- **Rules to Follow:** Process asynchronously; store original; expose progress status.
+- **Advanced Coding Pattern:** Deep module: `TranscodeService` hides encoder choice, queue, and manifest generation.
+- **Anti-Patterns:** Synchronous transcoding on upload; losing original file.
+- **Imports/Exports:** Export `TranscodeService`, media status types.
+- **Depends On:** MDA-001
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **MDA-002.1 [AGENT]**: Add media table and transcode job.
+  - Files: `lib/db/src/schema/media.ts` (new), `artifacts/api-server/src/jobs/transcodeMedia.ts` (new)
+  - Action: Track upload and transcode status; generate variants and HLS manifest.
+  - Validation: `pnpm --filter @workspace/api-server test -- transcodeMedia` passes.
+
+- [ ] **MDA-002.2 [AGENT]**: Use adaptive playback URLs in mobile.
+  - Files: `artifacts/mobile/components/ReelCard.tsx`, `artifacts/mobile/components/PostCard.tsx`
+  - Action: Prefer HLS manifest URL when available.
+  - Validation: Manual test of adaptive playback.
+
+---
+
+## [ ] LIV-004: Add mobile live streaming composer and viewer
+
+- **Status:** Not Started
+- **Priority:** Low
+- **Domain:** LIV
+- **Behavior:** Given a user starts a live stream from mobile, when viewers join, then they see the stream and can chat and send gifts.
+- **Related Files:** `artifacts/api-server/src/services/liveService.ts`, `artifacts/mobile/app/live/` (new), `artifacts/mobile/components/LiveChat.tsx` (new)
+- **Definition of Done:** Mobile live composer (title/permissions/go live); viewer screen with chat; gift sending UI; tests pass.
+- **Out of Scope:** In-app broadcaster SDK (can open RTMP via external encoder initially); monetization beyond gifts.
+- **Rules to Follow:** Reuse existing live API endpoints and real-time transport; respect safety filters.
+- **Advanced Coding Pattern:** Deep module: `LiveViewer` and `LiveComposer` hide stream playback and chat state.
+- **Anti-Patterns:** Bypassing live service API; leaking stream keys in UI.
+- **Imports/Exports:** Export `LiveComposer`, `LiveViewer`, `LiveChat`.
+- **Depends On:** LIV-003, NTF-005
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **LIV-004.1 [AGENT]**: Add live composer screen.
+  - File: `artifacts/mobile/app/live/start.tsx` (new)
+  - Action: Title input, audience selection, start stream via `/live`, display stream key/RTMP URL.
+  - Validation: Manual test of starting a stream.
+
+- [ ] **LIV-004.2 [AGENT]**: Add live viewer with chat and gifts.
+  - Files: `artifacts/mobile/app/live/[streamId].tsx` (new), `artifacts/mobile/components/LiveChat.tsx` (new)
+  - Action: Playback via HLS URL; chat using real-time transport; gift sheet.
+  - Validation: Manual test of viewing and gifting.
+
+---
+
+## Research-driven feature additions (2026-07)
+
+The following capabilities were identified through up-to-date consumer research and a complete audit of the repository. They are not yet represented in the task list above (or are only referenced as missing prerequisites). Expand each row into a full task entry when it is scheduled.
+
+| Task ID | Capability | Priority | Domain | Depends On | Notes |
+|---|---|---|---|---|---|
+| STO-001 | Implement stories and ephemeral composer/viewer | High | STO | MDA-001, PST-002 | Prerequisite for STO-002; backend API exists, mobile UI is missing. |
+| AUD-001 | Implement audience lists (close friends, custom) | High | AUD | PRIV-003, SOC-003 | Prerequisite for PRIV-005; backend `audience.ts` exists. |
+| GAM-001 | Implement gamification engine (polls, quizzes, streaks, badges) | Medium | GAM | PST-002, AUTH-003 | Prerequisite for PST-004; backend `gamification.ts` exists. |
+| MUS-002 | Add music search and attachment in composer | Medium | MUS | AUTH-003 | Prerequisite for MUS-003; `musicService` is a stub. |
+| LOC-001 | Add location tagging and check-ins | Medium | LOC | PST-002 | Prerequisite for LOC-002; backend `location.ts` exists. |
+| COL-001 | Add collaboration, remix, and duet workflows | Medium | COL | PST-002 | Prerequisite for COL-002; backend `collab.ts` exists. |
+| FED-009 | Add custom feed lists and user-curated feeds | High | FED | FED-003 | Bluesky-like user-curated feeds. |
+| FED-010 | Add topic following and interest lists | Medium | FED | FED-002, PST-002 | Follow topics/hashtags as first-class interests. |
+| FED-011 | Add social graph discovery and mutual-friend feeds | Medium | FED | SOC-003 | Friend-of-friend and shared-interest discovery. |
+| SAF-004 | Add community notes / crowdsourced context | Medium | SAF | PST-002, SAF-002 | Trust & safety / misinformation transparency. |
+| SOC-005 | Add contact import and friend finder | Medium | SOC | SOC-003, PRIV-003 | Explicitly out-of-scope for SOC-004. |
+| COM-001 | Add interest-based communities / groups | High | COM | SOC-003, PRIV-003 | Discord/Reddit-like community spaces. |
+| COM-002 | Add community feeds and member posting | High | COM | COM-001, PST-002 | Posts scoped to a community. |
+| COM-003 | Add community events and calendar | Medium | COM | COM-001, EVT-001 | Events inside communities. |
+| EVT-001 | Add platform-wide events (create, discover, RSVP) | Medium | EVT | PRIV-003 | Event lifecycle, reminders, and discovery. |
+| AUR-001 | Add live audio rooms / voice chat | Low | AUR | NTF-005, MSG-005 | Voice-first social rooms (like Twitter Spaces/Discord). |
+| AUR-002 | Add audio room roles and moderation | Low | AUR | AUR-001 | Speaker, listener, co-host, requests. |
+| VCL-001 | Add one-to-one and group video calls | Low | VCL | MSG-005, NTF-005 | Calls inside the messaging experience. |
+| VCL-002 | Add call controls, screen sharing, and recording | Low | VCL | VCL-001 | Advanced video-call features. |
+| ARF-001 | Add AR filters and effects for stories/posts | Low | ARF | STO-001, PST-002 | Face filters, visual effects, stickers. |
+| ARF-002 | Add face tracking and sticker anchoring | Low | ARF | ARF-001 | Advanced AR experiences. |
+| CMT-003 | Add threaded comments, likes, and @mentions | Medium | CMT | CMT-002, PST-002 | Rich comment features. |
+| ENG-003 | Add emoji reactions and post view counts | Medium | ENG | ENG-002, PST-002 | Reactions beyond like; creator insight. |
+| PRIV-010 | Add read receipt and activity status controls | Medium | PRIV | PRIV-003, MSG-002 | Privacy controls for presence. |
+| PRIV-011 | Add screenshot detection and ephemeral privacy | Low | PRIV | PRIV-002, STO-001, MSG-006 | Screenshot alerts for stories and messages. |
+| ACC-003 | Add alt-text, captions, and subtitle support | Medium | ACC | ACC-001, MDA-002 | Media accessibility. |
+| ACC-004 | Add keyboard navigation and focus management | Medium | ACC | ACC-001 | Keyboard/focus accessibility. |
+
+---
+
 ## Appendix: Dependency graph summary
 
 Use this summary to find the critical path and unblockers. Each task above lists its own `Depends On` and `Blocks`; the sections below are a quick reference.
@@ -1285,14 +2728,12 @@ Use this summary to find the critical path and unblockers. Each task above lists
 ### Critical path to remaining backend features
 
 1. TOOL-003 (fix orval codegen)
-2. DEP-002 (configure production secrets)
-3. AUD-002 (audience lists API)
-4. LIV-001 -> LIV-002 (live streaming)
-5. COL-001 -> COL-002 (collaboration)
-6. MUS-001 -> MUS-002 (music integration)
-7. LOC-001 -> LOC-002 (location features)
-8. GAM-001 -> GAM-002 (gamification)
-9. MON-001 -> MON-002 (monetization)
+2. TOOL-009 (run pending Drizzle migrations)
+3. TOOL-010 (fix lib/db profiles.test.ts failures)
+4. TOOL-011 (audit and backfill missing prerequisite tasks)
+5. DEP-002 (configure production secrets)
+6. MON-001 -> MON-002 (monetization)
+7. LIV-003 (live stream gift monetization)
 
 ### Critical path to remaining mobile features
 
@@ -1309,7 +2750,28 @@ Use this summary to find the critical path and unblockers. Each task above lists
 11. PRIV-003 (account settings)
 12. ACC-001 (accessibility)
 
+### New high-impact feature paths (from 2026 consumer research)
+
+- Feed personalization and transparency: FED-003 -> FED-004 -> FED-005 -> FED-008
+- Creator tools: MON-002 -> MON-003, MON-004, MON-005, MON-008
+- Trust and safety: USR-004 (AI labeling), PRIV-004 (wellbeing), SAF-003 (restrict), PRIV-008 (data export)
+- Notifications: PRIV-007 -> NTF-003, NTF-004, NTF-005 (real-time transport)
+- Content enhancements: PST-004 (in-post polls), PST-007 (hashtags/mentions), PST-008 (media editor), PST-009 (articles), PST-010 (translation)
+- Discovery and social growth: SOC-004 (people discovery)
+- Localization: ACC-002 -> PST-010
+- Authentication hardening: AUTH-004 -> USR-003, AUTH-005 -> AUTH-007
+
 ### Optional / deferred
 
 - ADM-001 (admin dashboard) - low priority but high operational value.
+- ADM-002 (automated moderation queue) - low priority; enable after admin dashboard.
 - WEB-001 (web companion) - low priority but useful for non-mobile users.
+- WEB-002 (web post creation) - low priority; depends on web companion.
+- STO-002 (story highlights) - medium priority; depends on stories.
+- MSG-006 (disappearing messages) - medium priority; privacy nicety.
+- PRIV-009 (supervised accounts) - low priority; family safety / regulatory.
+- MDA-002 (media transcoding) - low priority; performance optimization.
+- LIV-004 (mobile live UI) - low priority; depends on NTF-005 and LIV-003.
+- MON-006 (live shopping) - low priority; depends on monetization maturity.
+- MYSP-009 (memories) - low priority; nostalgic feature.
+- MYSP-010 (profile visitors) - low priority; privacy-sensitive.
