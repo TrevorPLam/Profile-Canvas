@@ -11,6 +11,7 @@ import feedRouter from './feed';
 import discoverRouter from './discover';
 import notificationsRouter from './notifications';
 import messagesRouter from './messages';
+import storiesRouter from './stories';
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(feedRouter);
 router.use(discoverRouter);
 router.use(notificationsRouter);
 router.use(messagesRouter);
+router.use(storiesRouter);
 
 export default router;
