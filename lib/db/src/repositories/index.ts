@@ -8,3 +8,4 @@ export * from './notificationRepository';
 export * from './messageRepository';
 export * from './storyRepository';
 export * from './audienceRepository';
+export * from './locationRepository';

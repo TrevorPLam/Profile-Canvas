@@ -15,3 +15,4 @@ export * from './blocks';
 export * from './mutes';
 export * from './liveStreams';
 export * from './audienceLists';
+export * from './locations';
