@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { usersTable } from './users';
 import { postsTable } from './posts';
 
-export type NotificationType = 'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save';
+export type NotificationType =
+  'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save';
 
 export const notificationsTable = pgTable(
   'notifications',
@@ -19,13 +20,14 @@ export const notificationsTable = pgTable(
     type: text('type').notNull().$type<NotificationType>(),
     postId: uuid('post_id').references(() => postsTable.id, { onDelete: 'cascade' }),
     readAt: timestamp('read_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     recipientIndex: index('notifications_recipient_index').on(table.recipientId),
-    recipientReadIndex: index('notifications_recipient_read_index').on(table.recipientId, table.readAt),
+    recipientReadIndex: index('notifications_recipient_read_index').on(
+      table.recipientId,
+      table.readAt
+    ),
   })
 );
 
@@ -37,7 +39,14 @@ export const insertNotificationSchema = z.object({
   postId: z.string().uuid().nullable(),
 });
 
-export const notificationTypeSchema = z.enum(['like', 'comment', 'friendRequest', 'friendAccepted', 'repost', 'save']);
+export const notificationTypeSchema = z.enum([
+  'like',
+  'comment',
+  'friendRequest',
+  'friendAccepted',
+  'repost',
+  'save',
+]);
 
 export const selectNotificationSchema = createSelectSchema(notificationsTable);
 

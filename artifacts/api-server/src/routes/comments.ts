@@ -11,7 +11,7 @@ const router = Router();
 
 /**
  * GET /posts/:postId/comments
- * 
+ *
  * Given a post ID, when comments are requested, then comments are returned
  * in chronological order with pagination. Author information is included.
  */
@@ -38,7 +38,7 @@ router.get('/posts/:postId/comments', optionalAuth, async (req: Request, res: Re
 
 /**
  * POST /posts/:postId/comments
- * 
+ *
  * Given an authenticated user and a post, when they create a comment,
  * then the comment is persisted and returned with author information.
  */

@@ -192,7 +192,10 @@ describe.runIf(runTests)('Media Routes', () => {
     // This test will fail if AWS credentials are not configured
     // That's expected at this stage of development
     if (response.status === 500) {
-      console.log('Post media upload failed (expected if AWS not configured):', response.body.message);
+      console.log(
+        'Post media upload failed (expected if AWS not configured):',
+        response.body.message
+      );
       return;
     }
 

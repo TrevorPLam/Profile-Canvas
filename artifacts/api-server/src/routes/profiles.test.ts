@@ -111,9 +111,7 @@ describe('Profile Routes - Visibility Filtering', () => {
       return;
     }
 
-    const response = await request(app)
-      .get(`/profiles/${ownerProfile.handle}`)
-      .expect(200);
+    const response = await request(app).get(`/profiles/${ownerProfile.handle}`).expect(200);
 
     expect(response.body.moduleSettings).toHaveLength(2);
     expect(response.body.moduleSettings.map((m: any) => m.id)).toEqual(

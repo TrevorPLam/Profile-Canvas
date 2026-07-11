@@ -54,7 +54,10 @@ describe('Friendship Routes', () => {
         .send({ targetUserId: '550e8400-e29b-41d4-a716-446655440000' });
 
       expect(response.status).toBe(201);
-      expect(friendshipService.sendRequest).toHaveBeenCalledWith('test-user-id', '550e8400-e29b-41d4-a716-446655440000');
+      expect(friendshipService.sendRequest).toHaveBeenCalledWith(
+        'test-user-id',
+        '550e8400-e29b-41d4-a716-446655440000'
+      );
       expect(response.body).toHaveProperty('id');
       expect(response.body.status).toBe('pending');
     });
@@ -67,7 +70,10 @@ describe('Friendship Routes', () => {
         .send({ targetUserId: '550e8400-e29b-41d4-a716-446655440000' });
 
       expect(response.status).toBe(409);
-      expect(response.body).toHaveProperty('message', 'Friend request already exists or users are already friends');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Friend request already exists or users are already friends'
+      );
     });
 
     it('should return 400 for invalid request body', async () => {
@@ -108,8 +114,7 @@ describe('Friendship Routes', () => {
         total: 1,
       });
 
-      const response = await request(app)
-        .get('/friends/requests?type=incoming');
+      const response = await request(app).get('/friends/requests?type=incoming');
 
       expect(response.status).toBe(200);
       expect(friendshipService.listRequests).toHaveBeenCalledWith('test-user-id', 'incoming');
@@ -122,16 +127,14 @@ describe('Friendship Routes', () => {
         total: 0,
       });
 
-      const response = await request(app)
-        .get('/friends/requests?type=outgoing');
+      const response = await request(app).get('/friends/requests?type=outgoing');
 
       expect(response.status).toBe(200);
       expect(friendshipService.listRequests).toHaveBeenCalledWith('test-user-id', 'outgoing');
     });
 
     it('should return 400 for invalid type parameter', async () => {
-      const response = await request(app)
-        .get('/friends/requests?type=invalid');
+      const response = await request(app).get('/friends/requests?type=invalid');
 
       expect(response.status).toBe(400);
     });
@@ -145,8 +148,7 @@ describe('Friendship Routes', () => {
         createdAt: new Date().toISOString(),
       });
 
-      const response = await request(app)
-        .post('/friends/requests/request-id');
+      const response = await request(app).post('/friends/requests/request-id');
 
       expect(response.status).toBe(200);
       expect(friendshipService.acceptRequest).toHaveBeenCalledWith('request-id', 'test-user-id');
@@ -155,8 +157,7 @@ describe('Friendship Routes', () => {
     it('should return 404 if request not found', async () => {
       (friendshipService.acceptRequest as any).mockResolvedValue(null);
 
-      const response = await request(app)
-        .post('/friends/requests/request-id');
+      const response = await request(app).post('/friends/requests/request-id');
 
       expect(response.status).toBe(404);
     });
@@ -166,8 +167,7 @@ describe('Friendship Routes', () => {
         new Error('Not authorized to accept this request')
       );
 
-      const response = await request(app)
-        .post('/friends/requests/request-id');
+      const response = await request(app).post('/friends/requests/request-id');
 
       expect(response.status).toBe(403);
     });
@@ -184,8 +184,7 @@ describe('Friendship Routes', () => {
         updatedAt: new Date().toISOString(),
       });
 
-      const response = await request(app)
-        .delete('/friends/requests/request-id');
+      const response = await request(app).delete('/friends/requests/request-id');
 
       expect(response.status).toBe(204);
       expect(friendshipService.cancelRequest).toHaveBeenCalledWith('request-id', 'test-user-id');
@@ -194,8 +193,7 @@ describe('Friendship Routes', () => {
     it('should return 404 if request not found', async () => {
       (friendshipService.cancelRequest as any).mockResolvedValue(null);
 
-      const response = await request(app)
-        .delete('/friends/requests/request-id');
+      const response = await request(app).delete('/friends/requests/request-id');
 
       expect(response.status).toBe(404);
     });
@@ -205,8 +203,7 @@ describe('Friendship Routes', () => {
         new Error('Not authorized to cancel this request')
       );
 
-      const response = await request(app)
-        .delete('/friends/requests/request-id');
+      const response = await request(app).delete('/friends/requests/request-id');
 
       expect(response.status).toBe(403);
     });
@@ -223,8 +220,7 @@ describe('Friendship Routes', () => {
         updatedAt: new Date().toISOString(),
       });
 
-      const response = await request(app)
-        .post('/friends/requests/request-id/decline');
+      const response = await request(app).post('/friends/requests/request-id/decline');
 
       expect(response.status).toBe(204);
       expect(friendshipService.declineRequest).toHaveBeenCalledWith('request-id', 'test-user-id');
@@ -233,8 +229,7 @@ describe('Friendship Routes', () => {
     it('should return 404 if request not found', async () => {
       (friendshipService.declineRequest as any).mockResolvedValue(null);
 
-      const response = await request(app)
-        .post('/friends/requests/request-id/decline');
+      const response = await request(app).post('/friends/requests/request-id/decline');
 
       expect(response.status).toBe(404);
     });
@@ -244,8 +239,7 @@ describe('Friendship Routes', () => {
         new Error('Not authorized to decline this request')
       );
 
-      const response = await request(app)
-        .post('/friends/requests/request-id/decline');
+      const response = await request(app).post('/friends/requests/request-id/decline');
 
       expect(response.status).toBe(403);
     });
@@ -265,8 +259,7 @@ describe('Friendship Routes', () => {
         total: 1,
       });
 
-      const response = await request(app)
-        .get('/friends');
+      const response = await request(app).get('/friends');
 
       expect(response.status).toBe(200);
       expect(friendshipService.listFriends).toHaveBeenCalledWith('test-user-id');
@@ -283,7 +276,10 @@ describe('Friendship Routes', () => {
         .send({ friendUserId: '550e8400-e29b-41d4-a716-446655440000' });
 
       expect(response.status).toBe(204);
-      expect(friendshipService.removeFriend).toHaveBeenCalledWith('test-user-id', '550e8400-e29b-41d4-a716-446655440000');
+      expect(friendshipService.removeFriend).toHaveBeenCalledWith(
+        'test-user-id',
+        '550e8400-e29b-41d4-a716-446655440000'
+      );
     });
 
     it('should return 404 if friendship not found', async () => {
@@ -297,9 +293,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 400 for invalid request body', async () => {
-      const response = await request(app)
-        .delete('/friends')
-        .send({ friendUserId: 'invalid-uuid' });
+      const response = await request(app).delete('/friends').send({ friendUserId: 'invalid-uuid' });
 
       expect(response.status).toBe(400);
     });

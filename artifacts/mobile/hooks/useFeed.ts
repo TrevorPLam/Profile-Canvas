@@ -51,7 +51,6 @@ interface FeedResponse {
   offset: number;
 }
 
-
 /**
  * Transform backend feed post to mobile post format
  */
@@ -132,7 +131,11 @@ function transformToAuthor(author: FeedPost['author']): UserProfile {
  * - Loading states
  */
 export function useFeed() {
-  const query = useInfiniteQuery<FeedResponse, Error, { posts: Post[]; profiles: Record<string, UserProfile> }>({
+  const query = useInfiniteQuery<
+    FeedResponse,
+    Error,
+    { posts: Post[]; profiles: Record<string, UserProfile> }
+  >({
     queryKey: ['feed'],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await apiFetch<FeedResponse>(`/feed?limit=20&offset=${pageParam}`);
@@ -149,7 +152,7 @@ export function useFeed() {
       // Flatten and transform all pages
       const allPosts = data.pages.flatMap((page) => page.posts.map(transformToPost));
       const profiles: Record<string, UserProfile> = {};
-      
+
       data.pages.forEach((page) => {
         page.posts.forEach((post) => {
           profiles[post.authorId] = transformToAuthor(post.author);

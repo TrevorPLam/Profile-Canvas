@@ -17,6 +17,8 @@ This is a monorepo using pnpm workspaces with the following structure:
   - `mockup-sandbox/` - UI mockup sandbox
 - **scripts/** - Build and utility scripts
 
+For detailed architecture documentation, see [docs/architecture.md](docs/architecture.md).
+
 ## Prerequisites
 
 - **Node.js** 24 or later
@@ -89,6 +91,12 @@ cp .env.example .env
 ```
 
 Required environment variables are documented in `.env.example`. Do not commit `.env` files.
+
+## Documentation
+
+- [Architecture Overview](docs/architecture.md) - Domain boundaries, data flow, backend layers, and development principles
+- [API Consumer Guide](docs/api.md) - OpenAPI spec, authentication, endpoints, and usage examples
+- [Mobile Developer Guide](docs/mobile.md) - Screen map, state management, and mobile app patterns
 
 ## Project Status
 

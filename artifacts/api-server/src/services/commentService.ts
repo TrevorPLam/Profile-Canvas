@@ -16,7 +16,7 @@ export interface ListCommentsInput {
 
 /**
  * CommentService encapsulates comment business logic.
- * 
+ *
  * Deep module: Hides comment creation, pagination, and count synchronization
  * behind a simple interface of domain operations.
  */
@@ -101,7 +101,7 @@ export class CommentService {
     }
 
     const deleted = await this.commentRepo.delete(commentId);
-    
+
     if (!deleted) {
       throw new Error('Failed to delete comment');
     }

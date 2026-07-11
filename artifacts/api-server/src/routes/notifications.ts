@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * GET /notifications
- * 
+ *
  * Given an authenticated user, when they request their notifications,
  * then they receive a paginated list of notifications with actor and post details.
  * The response includes total count and unread count.
@@ -39,7 +39,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * PATCH /notifications
- * 
+ *
  * Given an authenticated user, when they mark all notifications as read,
  * then all unread notifications are marked as read and the count is returned.
  */
@@ -56,7 +56,7 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * PATCH /notifications/:notificationId
- * 
+ *
  * Given an authenticated user, when they mark a specific notification as read,
  * then the notification is marked as read if they are the recipient.
  */
@@ -82,7 +82,7 @@ router.patch('/:notificationId', requireAuth, async (req: Request, res: Response
 
 /**
  * GET /notifications/stream
- * 
+ *
  * Given an authenticated user, when they connect to the SSE stream,
  * then they receive real-time notifications as they are created.
  * The stream sends a heartbeat every 30 seconds and closes after 15 minutes.

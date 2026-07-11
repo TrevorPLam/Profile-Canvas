@@ -30,7 +30,7 @@ export interface NotificationWithDetails extends Notification {
 
 /**
  * NotificationService encapsulates notification business logic and real-time delivery.
- * 
+ *
  * Deep module: Hides SSE event management, profile loading, and notification creation
  * behind a simple interface of domain operations.
  */
@@ -168,10 +168,10 @@ export class NotificationService extends EventEmitter {
    */
   async markAllAsRead(recipientId: string): Promise<number> {
     const count = await this.notificationRepo.markAllAsRead(recipientId);
-    
+
     // Emit event to update connected clients
     this.emit('notifications-read', { recipientId, count });
-    
+
     return count;
   }
 

@@ -13,7 +13,7 @@ const topFriendsUpdateSchema = z.object({
 
 /**
  * GET /profiles/:handle
- * 
+ *
  * Given a profile handle, when an authenticated or unauthenticated viewer requests it,
  * then only modules with appropriate visibility are returned based on viewer relationship.
  */
@@ -40,7 +40,7 @@ router.get('/:handle', optionalAuth, async (req: Request, res: Response) => {
 
 /**
  * GET /profiles/me
- * 
+ *
  * Given an authenticated user, when they request their own profile,
  * then all modules are returned regardless of visibility settings.
  */
@@ -64,7 +64,7 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * PATCH /profiles/me
- * 
+ *
  * Given an authenticated user, when they update their profile,
  * then allowed fields and module settings are persisted atomically.
  * Immutable fields (userId, joinedAt) are rejected.
@@ -100,7 +100,7 @@ router.patch('/me', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * GET /profiles/me/top-friends
- * 
+ *
  * Given an authenticated user, when they request their top friends,
  * then the list of top friend user IDs is returned.
  */
@@ -124,7 +124,7 @@ router.get('/me/top-friends', requireAuth, async (req: Request, res: Response) =
 
 /**
  * PATCH /profiles/me/top-friends
- * 
+ *
  * Given an authenticated user, when they update their top friends,
  * then the list of top friend user IDs is persisted.
  */

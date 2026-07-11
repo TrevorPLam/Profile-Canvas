@@ -7,7 +7,7 @@ describe('App Layout Smoke Test', () => {
   it('should verify the app structure is correctly defined', () => {
     // This test verifies that the app structure is properly configured
     // In a real E2E test, we would use Detox or similar to test the actual app
-    
+
     // Verify that the app has the expected screens
     const expectedScreens = [
       'login',
@@ -28,11 +28,7 @@ describe('App Layout Smoke Test', () => {
 
   it('should verify context providers are available', () => {
     // Verify that the required context providers are defined
-    const expectedProviders = [
-      'AuthProvider',
-      'NotificationsProvider',
-      'QueryClientProvider',
-    ];
+    const expectedProviders = ['AuthProvider', 'NotificationsProvider', 'QueryClientProvider'];
 
     expect(expectedProviders).toContain('AuthProvider');
     expect(expectedProviders).toContain('NotificationsProvider');
@@ -42,7 +38,7 @@ describe('App Layout Smoke Test', () => {
   it('should verify SocialDataContext has been removed', () => {
     // Verify that the legacy SocialDataContext is no longer used
     const legacyContext = 'SocialDataProvider';
-    
+
     // This test ensures the migration to API hooks is complete
     expect(legacyContext).toBe('SocialDataProvider'); // Just for documentation
   });

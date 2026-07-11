@@ -53,7 +53,12 @@ export function useEngagement(postId: string) {
   const queryClient = useQueryClient();
 
   // Like mutation with optimistic update
-  const likeMutation = useMutation<EngagementSummary, Error, EngagementVariables, { previousEngagement?: EngagementSummary }>({
+  const likeMutation = useMutation<
+    EngagementSummary,
+    Error,
+    EngagementVariables,
+    { previousEngagement?: EngagementSummary }
+  >({
     mutationFn: async ({ postId }) => {
       return apiFetch<EngagementSummary>(`/posts/${postId}/like`, {
         method: 'POST',
@@ -98,7 +103,12 @@ export function useEngagement(postId: string) {
   });
 
   // Unlike mutation with optimistic update
-  const unlikeMutation = useMutation<EngagementSummary, Error, EngagementVariables, { previousEngagement?: EngagementSummary }>({
+  const unlikeMutation = useMutation<
+    EngagementSummary,
+    Error,
+    EngagementVariables,
+    { previousEngagement?: EngagementSummary }
+  >({
     mutationFn: async ({ postId }) => {
       return apiFetch<EngagementSummary>(`/posts/${postId}/like`, {
         method: 'DELETE',
@@ -136,7 +146,12 @@ export function useEngagement(postId: string) {
   });
 
   // Save mutation with optimistic update
-  const saveMutation = useMutation<EngagementSummary, Error, EngagementVariables, { previousEngagement?: EngagementSummary }>({
+  const saveMutation = useMutation<
+    EngagementSummary,
+    Error,
+    EngagementVariables,
+    { previousEngagement?: EngagementSummary }
+  >({
     mutationFn: async ({ postId }) => {
       return apiFetch<EngagementSummary>(`/posts/${postId}/save`, {
         method: 'POST',
@@ -174,7 +189,12 @@ export function useEngagement(postId: string) {
   });
 
   // Unsave mutation with optimistic update
-  const unsaveMutation = useMutation<EngagementSummary, Error, EngagementVariables, { previousEngagement?: EngagementSummary }>({
+  const unsaveMutation = useMutation<
+    EngagementSummary,
+    Error,
+    EngagementVariables,
+    { previousEngagement?: EngagementSummary }
+  >({
     mutationFn: async ({ postId }) => {
       return apiFetch<EngagementSummary>(`/posts/${postId}/save`, {
         method: 'DELETE',
@@ -260,6 +280,11 @@ export function useEngagement(postId: string) {
     isLiking: likeMutation.isPending || unlikeMutation.isPending,
     isSaving: saveMutation.isPending || unsaveMutation.isPending,
     isReposting: repostMutation.isPending,
-    error: likeMutation.error || unlikeMutation.error || saveMutation.error || unsaveMutation.error || repostMutation.error,
+    error:
+      likeMutation.error ||
+      unlikeMutation.error ||
+      saveMutation.error ||
+      unsaveMutation.error ||
+      repostMutation.error,
   };
 }

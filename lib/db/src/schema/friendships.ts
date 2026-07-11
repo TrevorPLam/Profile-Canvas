@@ -16,12 +16,8 @@ export const friendRequestsTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
     status: text('status').notNull().$type<FriendRequestStatus>().default('pending'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     // Prevent duplicate pending requests between the same users
@@ -48,7 +44,10 @@ export const friendshipsTable = pgTable(
   (table) => ({
     // Unique constraint on the pair to prevent duplicates
     // Note: Ordering (userId < friendId) is enforced in the repository layer
-    uniqueUserFriend: uniqueIndex('friendships_user_friend_unique').on(table.userId, table.friendId),
+    uniqueUserFriend: uniqueIndex('friendships_user_friend_unique').on(
+      table.userId,
+      table.friendId
+    ),
   })
 );
 
@@ -70,7 +69,10 @@ export const selectFriendRequestSchema = createSelectSchema(friendRequestsTable)
 export const selectFriendshipSchema = createSelectSchema(friendshipsTable);
 
 // Use Drizzle's built-in type inference to avoid Zod compatibility issues
-export type InsertFriendRequest = Omit<typeof friendRequestsTable.$inferInsert, 'id' | 'createdAt' | 'updatedAt'>;
+export type InsertFriendRequest = Omit<
+  typeof friendRequestsTable.$inferInsert,
+  'id' | 'createdAt' | 'updatedAt'
+>;
 export type FriendRequest = typeof friendRequestsTable.$inferSelect;
 export type InsertFriendship = Omit<typeof friendshipsTable.$inferInsert, 'createdAt'>;
 export type Friendship = typeof friendshipsTable.$inferSelect;

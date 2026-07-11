@@ -19,7 +19,7 @@ export interface GetEngagementSummaryInput {
 
 /**
  * EngagementService encapsulates engagement business logic.
- * 
+ *
  * Deep module: Hides idempotency logic, count synchronization, and post validation
  * behind a simple interface of domain operations.
  */

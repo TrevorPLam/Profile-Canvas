@@ -35,7 +35,7 @@ export interface PostWithAuthor {
 
 /**
  * PostRepository encapsulates all post data access logic.
- * 
+ *
  * Deep module: Hides Drizzle internals, JSONB parsing, and repost chain logic
  * behind a simple interface of domain operations.
  */
@@ -66,11 +66,7 @@ export class PostRepository {
    * @returns The post or null if not found
    */
   async getById(postId: string): Promise<PostWithAuthor | null> {
-    const result = await db
-      .select()
-      .from(postsTable)
-      .where(eq(postsTable.id, postId))
-      .limit(1);
+    const result = await db.select().from(postsTable).where(eq(postsTable.id, postId)).limit(1);
 
     if (result.length === 0) {
       return null;
@@ -143,10 +139,7 @@ export class PostRepository {
    * @param updates - Fields to update
    * @returns The updated post or null if not found
    */
-  async update(
-    postId: string,
-    updates: PostUpdateInput
-  ): Promise<PostWithAuthor | null> {
+  async update(postId: string, updates: PostUpdateInput): Promise<PostWithAuthor | null> {
     const result = await db
       .update(postsTable)
       .set(updates)
@@ -175,10 +168,7 @@ export class PostRepository {
    * @returns The deleted post or null if not found
    */
   async delete(postId: string): Promise<PostWithAuthor | null> {
-    const result = await db
-      .delete(postsTable)
-      .where(eq(postsTable.id, postId))
-      .returning();
+    const result = await db.delete(postsTable).where(eq(postsTable.id, postId)).returning();
 
     if (result.length === 0) {
       return null;

@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 
@@ -27,7 +36,12 @@ export default function LoginScreen() {
       // Navigate to tabs on success
       router.replace('/(tabs)');
     } catch {
-      Alert.alert('Error', isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
+      Alert.alert(
+        'Error',
+        isLogin
+          ? 'Login failed. Please check your credentials.'
+          : 'Registration failed. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }

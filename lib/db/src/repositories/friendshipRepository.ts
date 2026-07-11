@@ -271,10 +271,7 @@ export class FriendshipRepository {
    * @param friendId - The other user's UUID
    * @returns The friendship or null if not found
    */
-  private async getFriendshipBetween(
-    userId: string,
-    friendId: string
-  ): Promise<Friendship | null> {
+  private async getFriendshipBetween(userId: string, friendId: string): Promise<Friendship | null> {
     const [orderedUserId, orderedFriendId] = this.orderIds(userId, friendId);
 
     const result = await db

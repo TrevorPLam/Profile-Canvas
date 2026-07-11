@@ -19,7 +19,7 @@ export interface NotificationWithActor {
 
 /**
  * NotificationRepository encapsulates all notification data access logic.
- * 
+ *
  * Deep module: Hides Drizzle internals, pagination, and read status logic
  * behind a simple interface of domain operations.
  */
@@ -49,7 +49,7 @@ export class NotificationRepository {
     offset: number = 0
   ): Promise<NotificationWithActor[]> {
     const conditions = [eq(notificationsTable.recipientId, recipientId)];
-    
+
     if (unreadOnly) {
       conditions.push(isNull(notificationsTable.readAt));
     }
@@ -87,7 +87,9 @@ export class NotificationRepository {
     const result = await db
       .select({ count: count() })
       .from(notificationsTable)
-      .where(and(eq(notificationsTable.recipientId, recipientId), isNull(notificationsTable.readAt)));
+      .where(
+        and(eq(notificationsTable.recipientId, recipientId), isNull(notificationsTable.readAt))
+      );
     return result[0]?.count || 0;
   }
 
@@ -101,7 +103,12 @@ export class NotificationRepository {
     const result = await db
       .update(notificationsTable)
       .set({ readAt: new Date() })
-      .where(and(eq(notificationsTable.id, notificationId), eq(notificationsTable.recipientId, recipientId)))
+      .where(
+        and(
+          eq(notificationsTable.id, notificationId),
+          eq(notificationsTable.recipientId, recipientId)
+        )
+      )
       .returning();
     return result[0] || null;
   }
@@ -115,7 +122,9 @@ export class NotificationRepository {
     const result = await db
       .update(notificationsTable)
       .set({ readAt: new Date() })
-      .where(and(eq(notificationsTable.recipientId, recipientId), isNull(notificationsTable.readAt)))
+      .where(
+        and(eq(notificationsTable.recipientId, recipientId), isNull(notificationsTable.readAt))
+      )
       .returning();
     return result.length;
   }
@@ -129,7 +138,12 @@ export class NotificationRepository {
   async delete(notificationId: string, recipientId: string): Promise<Notification | null> {
     const result = await db
       .delete(notificationsTable)
-      .where(and(eq(notificationsTable.id, notificationId), eq(notificationsTable.recipientId, recipientId)))
+      .where(
+        and(
+          eq(notificationsTable.id, notificationId),
+          eq(notificationsTable.recipientId, recipientId)
+        )
+      )
       .returning();
     return result[0] || null;
   }

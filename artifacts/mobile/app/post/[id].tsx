@@ -53,21 +53,17 @@ export default function PostDetailScreen() {
 
   const confirmDelete = () => {
     if (!post) return;
-    Alert.alert(
-      'Delete post?',
-      'This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            deletePost.mutate(post.id);
-            router.back();
-          },
+    Alert.alert('Delete post?', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          deletePost.mutate(post.id);
+          router.back();
         },
-      ]
-    );
+      },
+    ]);
   };
 
   if (postLoading) {
@@ -190,9 +186,7 @@ export default function PostDetailScreen() {
               subtitle="Be the first to reply."
             />
           }
-          renderItem={({ item }) => (
-            <CommentRow comment={item} />
-          )}
+          renderItem={({ item }) => <CommentRow comment={item} />}
         />
 
         <View
@@ -264,7 +258,9 @@ function CommentRow({
         size={34}
       />
       <View style={styles.commentBody}>
-        <Text style={[styles.commentName, { color: colors.foreground }]}>{comment.author.name}</Text>
+        <Text style={[styles.commentName, { color: colors.foreground }]}>
+          {comment.author.name}
+        </Text>
         <Text style={[styles.commentText, { color: colors.foreground }]}>{comment.text}</Text>
         <Text style={[styles.commentTime, { color: colors.mutedForeground }]}>
           {timeAgo(timestamp)}

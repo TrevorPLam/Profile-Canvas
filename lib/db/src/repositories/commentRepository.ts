@@ -30,7 +30,7 @@ export interface CommentWithAuthor {
 
 /**
  * CommentRepository encapsulates all comment data access logic.
- * 
+ *
  * Deep module: Hides Drizzle internals, author joins, and pagination logic
  * behind a simple interface of domain operations.
  */
@@ -51,7 +51,7 @@ export class CommentRepository {
       .returning();
 
     const comment = await this.getWithAuthor(result[0].id);
-    
+
     if (!comment) {
       throw new Error('Failed to retrieve created comment');
     }
@@ -148,7 +148,7 @@ export class CommentRepository {
    */
   async delete(commentId: string): Promise<CommentWithAuthor | null> {
     const comment = await this.getWithAuthor(commentId);
-    
+
     if (!comment) {
       return null;
     }

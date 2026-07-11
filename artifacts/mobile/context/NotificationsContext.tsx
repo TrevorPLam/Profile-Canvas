@@ -8,9 +8,7 @@ interface NotificationsContextValue {
   markAllAsRead: () => void;
 }
 
-const NotificationsContext = createContext<NotificationsContextValue | undefined>(
-  undefined
-);
+const NotificationsContext = createContext<NotificationsContextValue | undefined>(undefined);
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const { data: unreadCount, isLoading: isLoadingUnread } = useUnreadCount();
@@ -24,11 +22,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     markAllAsRead: markAllAsRead.mutate,
   };
 
-  return (
-    <NotificationsContext.Provider value={value}>
-      {children}
-    </NotificationsContext.Provider>
-  );
+  return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
 }
 
 export function useNotificationsContext(): NotificationsContextValue {

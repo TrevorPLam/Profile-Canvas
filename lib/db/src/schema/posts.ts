@@ -42,12 +42,8 @@ export const postsTable = pgTable('posts', {
   content: jsonb('content').$type<PostContent>().notNull(),
   repostOf: jsonb('repost_of').$type<RepostInfo>(),
   topics: text('topics').array().notNull().default([]),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 

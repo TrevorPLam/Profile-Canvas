@@ -27,9 +27,7 @@ export default function MyProfileScreen() {
   if (profileError && !me) {
     return (
       <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.foreground }]}>
-          Failed to load profile
-        </Text>
+        <Text style={[styles.errorText, { color: colors.foreground }]}>Failed to load profile</Text>
       </View>
     );
   }
@@ -68,14 +66,22 @@ export default function MyProfileScreen() {
         {modules.map((module) => {
           if (module.id === 'about') {
             return (
-              <PinnedCard key={module.id} title={MODULE_LABELS.about} accentColor={displayMe.accentColor}>
+              <PinnedCard
+                key={module.id}
+                title={MODULE_LABELS.about}
+                accentColor={displayMe.accentColor}
+              >
                 <Text style={[styles.bio, { color: colors.foreground }]}>{displayMe.bio}</Text>
               </PinnedCard>
             );
           }
           if (module.id === 'mood' && (displayMe.moodLabel || displayMe.nowPlaying)) {
             return (
-              <PinnedCard key={module.id} title={MODULE_LABELS.mood} accentColor={displayMe.accentColor}>
+              <PinnedCard
+                key={module.id}
+                title={MODULE_LABELS.mood}
+                accentColor={displayMe.accentColor}
+              >
                 <View style={styles.moodRows}>
                   {displayMe.moodLabel ? (
                     <View style={styles.moodRow}>
@@ -121,9 +127,7 @@ export default function MyProfileScreen() {
                     You have not posted anything yet.
                   </Text>
                 ) : (
-                  myPosts.map((post) => (
-                    <PostCard key={post.id} post={post} author={displayMe} />
-                  ))
+                  myPosts.map((post) => <PostCard key={post.id} post={post} author={displayMe} />)
                 )}
               </View>
             );

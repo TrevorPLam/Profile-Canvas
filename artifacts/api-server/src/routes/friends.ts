@@ -16,7 +16,7 @@ const removeFriendSchema = z.object({
 
 /**
  * POST /friends/requests
- * 
+ *
  * Given an authenticated user and a target user ID, when they send a friend request,
  * then a pending request is created if one does not already exist. Duplicate requests are rejected.
  */
@@ -35,7 +35,9 @@ router.post('/requests', requireAuth, async (req: Request, res: Response) => {
     const result = await friendshipService.sendRequest(userId, targetUserId);
 
     if (!result) {
-      res.status(409).json({ message: 'Friend request already exists or users are already friends' });
+      res
+        .status(409)
+        .json({ message: 'Friend request already exists or users are already friends' });
       return;
     }
 
@@ -53,7 +55,7 @@ router.post('/requests', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * GET /friends/requests
- * 
+ *
  * Given an authenticated user, when they request their friend requests,
  * then incoming and outgoing requests are returned with pagination.
  */
@@ -77,7 +79,7 @@ router.get('/requests', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * POST /friends/requests/:requestId
- * 
+ *
  * Given an authenticated user and an incoming friend request, when they accept it,
  * then a symmetric friendship is created and the request is marked as accepted.
  * Only the recipient can accept.
@@ -85,7 +87,9 @@ router.get('/requests', requireAuth, async (req: Request, res: Response) => {
 router.post('/requests/:requestId', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+    const requestId = Array.isArray(req.params.requestId)
+      ? req.params.requestId[0]
+      : req.params.requestId;
 
     const result = await friendshipService.acceptRequest(requestId, userId);
 
@@ -108,14 +112,16 @@ router.post('/requests/:requestId', requireAuth, async (req: Request, res: Respo
 
 /**
  * DELETE /friends/requests/:requestId
- * 
+ *
  * Given an authenticated user and an outgoing friend request, when they cancel it,
  * then the request is removed. Only the sender can cancel pending requests.
  */
 router.delete('/requests/:requestId', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+    const requestId = Array.isArray(req.params.requestId)
+      ? req.params.requestId[0]
+      : req.params.requestId;
 
     const result = await friendshipService.cancelRequest(requestId, userId);
 
@@ -138,14 +144,16 @@ router.delete('/requests/:requestId', requireAuth, async (req: Request, res: Res
 
 /**
  * POST /friends/requests/:requestId/decline
- * 
+ *
  * Given an authenticated user and an incoming friend request, when they decline it,
  * then the request is marked as declined. Only the recipient can decline.
  */
 router.post('/requests/:requestId/decline', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+    const requestId = Array.isArray(req.params.requestId)
+      ? req.params.requestId[0]
+      : req.params.requestId;
 
     const result = await friendshipService.declineRequest(requestId, userId);
 
@@ -168,7 +176,7 @@ router.post('/requests/:requestId/decline', requireAuth, async (req: Request, re
 
 /**
  * GET /friends
- * 
+ *
  * Given an authenticated user, when they request their friends list,
  * then all friends are returned with pagination and profile information.
  */
@@ -186,7 +194,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * DELETE /friends
- * 
+ *
  * Given an authenticated user and a friend user ID, when they remove the friend,
  * then the symmetric friendship is deleted for both users.
  */

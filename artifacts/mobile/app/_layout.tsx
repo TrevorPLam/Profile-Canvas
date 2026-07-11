@@ -39,7 +39,10 @@ function RootLayoutNav() {
           <Stack.Screen name="post/[id]" options={{ headerShown: true, headerTitle: '' }} />
           <Stack.Screen name="friends-list" options={{ headerShown: true, headerTitle: '' }} />
           <Stack.Screen name="notifications" options={{ headerShown: true, headerTitle: '' }} />
-          <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: true }} />
+          <Stack.Screen
+            name="edit-profile"
+            options={{ presentation: 'modal', headerShown: true }}
+          />
           <Stack.Screen name="compose" options={{ presentation: 'modal', headerShown: true }} />
         </>
       )}

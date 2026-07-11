@@ -17,11 +17,7 @@ const authService = new AuthService();
  * Verifies session cookie and attaches userId to request
  * Returns 401 if session is invalid or expired
  */
-export async function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const sessionId = req.cookies?.session_id;
 
   if (!sessionId) {
@@ -45,11 +41,7 @@ export async function requireAuth(
  * Attaches userId to request if session is valid, but doesn't require it
  * Useful for endpoints that work for both authenticated and unauthenticated users
  */
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const sessionId = req.cookies?.session_id;
 
   if (sessionId) {

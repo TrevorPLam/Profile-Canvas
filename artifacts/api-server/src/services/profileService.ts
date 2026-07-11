@@ -1,4 +1,10 @@
-import { ProfileRepository, type VisibleProfile, type ProfileUpdateInput, visibleModulesFor, type ProfileModule } from '@workspace/db';
+import {
+  ProfileRepository,
+  type VisibleProfile,
+  type ProfileUpdateInput,
+  visibleModulesFor,
+  type ProfileModule,
+} from '@workspace/db';
 import { validateModuleSettings, type ModuleValidationError } from './profileValidation';
 import { friendshipService } from './friendshipService';
 
@@ -24,7 +30,7 @@ export interface ProfileForViewer {
 
 /**
  * ProfileService encapsulates profile business logic.
- * 
+ *
  * Deep module: Hides visibility filtering, relationship checks, and module validation
  * behind a simple interface of domain operations.
  */
@@ -58,11 +64,7 @@ export class ProfileService {
     }
 
     // Filter modules by visibility
-    const filteredModules = visibleModulesFor(
-      profile.moduleSettings,
-      viewerIsSelf,
-      viewerIsFriend
-    );
+    const filteredModules = visibleModulesFor(profile.moduleSettings, viewerIsSelf, viewerIsFriend);
 
     return {
       ...profile,

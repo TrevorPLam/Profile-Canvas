@@ -20,7 +20,7 @@ export interface EngagementSummary {
 
 /**
  * EngagementRepository encapsulates all engagement data access logic.
- * 
+ *
  * Deep module: Hides Drizzle internals, count derivation, and idempotency logic
  * behind a simple interface of domain operations.
  */
@@ -33,10 +33,7 @@ export class EngagementRepository {
    */
   async createLike(userId: string, postId: string): Promise<Like | null> {
     try {
-      const result = await db
-        .insert(likesTable)
-        .values({ userId, postId })
-        .returning();
+      const result = await db.insert(likesTable).values({ userId, postId }).returning();
       return result[0] || null;
     } catch {
       // Unique constraint violation means already liked
@@ -82,10 +79,7 @@ export class EngagementRepository {
    */
   async createSave(userId: string, postId: string): Promise<Save | null> {
     try {
-      const result = await db
-        .insert(savesTable)
-        .values({ userId, postId })
-        .returning();
+      const result = await db.insert(savesTable).values({ userId, postId }).returning();
       return result[0] || null;
     } catch {
       // Unique constraint violation means already saved
@@ -170,10 +164,7 @@ export class EngagementRepository {
    * @param viewerId - The viewer's UUID (optional, for anonymous viewers)
    * @returns Engagement summary with counts and viewer state
    */
-  async getEngagementSummary(
-    postId: string,
-    viewerId?: string
-  ): Promise<EngagementSummary> {
+  async getEngagementSummary(postId: string, viewerId?: string): Promise<EngagementSummary> {
     const [likeCount, saveCount, repostCount] = await Promise.all([
       this.countLikes(postId),
       this.countSaves(postId),

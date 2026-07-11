@@ -73,9 +73,7 @@ export function PostCard({ post, author }: PostCardProps) {
       {post.repostOf ? (
         <View style={styles.repostBanner}>
           <Feather name="repeat" size={12} color={colors.mutedForeground} />
-          <Text style={[styles.repostBannerText, { color: colors.mutedForeground }]}>
-            Reposted
-          </Text>
+          <Text style={[styles.repostBannerText, { color: colors.mutedForeground }]}>Reposted</Text>
         </View>
       ) : null}
       <Pressable style={styles.header} onPress={openAuthor} hitSlop={6}>
@@ -138,11 +136,7 @@ export function PostCard({ post, author }: PostCardProps) {
           </Text>
         </Pressable>
         <Pressable style={styles.actionBtn} onPress={handleRepost} hitSlop={8}>
-          <Feather
-            name="repeat"
-            size={17}
-            color={colors.primary}
-          />
+          <Feather name="repeat" size={17} color={colors.primary} />
         </Pressable>
         <Pressable style={styles.actionBtn} onPress={share} hitSlop={8}>
           <Feather name="share" size={17} color={colors.mutedForeground} />

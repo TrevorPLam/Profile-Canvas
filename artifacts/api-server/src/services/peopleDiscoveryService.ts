@@ -51,14 +51,12 @@ export class PeopleDiscoveryService {
   ): Promise<PeopleSuggestionsResponse> {
     // Get list of friends
     const friends = await friendshipRepository.listFriends(userId);
-    const friendIds = friends.map((f) =>
-      f.userId === userId ? f.friendId : f.userId
-    );
+    const friendIds = friends.map((f) => (f.userId === userId ? f.friendId : f.userId));
 
     // Get list of pending friend requests (both incoming and outgoing)
     const incomingRequests = await friendshipRepository.listRequests(userId, 'incoming');
     const outgoingRequests = await friendshipRepository.listRequests(userId, 'outgoing');
-    
+
     const pendingUserIds = new Set<string>();
     incomingRequests.forEach((r) => pendingUserIds.add(r.senderId));
     outgoingRequests.forEach((r) => pendingUserIds.add(r.receiverId));
@@ -69,25 +67,41 @@ export class PeopleDiscoveryService {
 
     // Filter out: self, friends, pending requests
     const suggestedProfiles = allProfiles
-      .filter((profile: { userId: string; handle: string; name: string; avatarUrl: string | null; bio: string | null }) => {
-        // Exclude self
-        if (profile.userId === userId) return false;
-        
-        // Exclude friends
-        if (friendIds.includes(profile.userId)) return false;
-        
-        // Exclude users with pending requests
-        if (pendingUserIds.has(profile.userId)) return false;
-        
-        return true;
-      })
-      .map((profile: { userId: string; handle: string; name: string; avatarUrl: string | null; bio: string | null }) => ({
-        userId: profile.userId,
-        handle: profile.handle,
-        name: profile.name,
-        avatarUrl: profile.avatarUrl,
-        bio: profile.bio,
-      }));
+      .filter(
+        (profile: {
+          userId: string;
+          handle: string;
+          name: string;
+          avatarUrl: string | null;
+          bio: string | null;
+        }) => {
+          // Exclude self
+          if (profile.userId === userId) return false;
+
+          // Exclude friends
+          if (friendIds.includes(profile.userId)) return false;
+
+          // Exclude users with pending requests
+          if (pendingUserIds.has(profile.userId)) return false;
+
+          return true;
+        }
+      )
+      .map(
+        (profile: {
+          userId: string;
+          handle: string;
+          name: string;
+          avatarUrl: string | null;
+          bio: string | null;
+        }) => ({
+          userId: profile.userId,
+          handle: profile.handle,
+          name: profile.name,
+          avatarUrl: profile.avatarUrl,
+          bio: profile.bio,
+        })
+      );
 
     // Apply pagination
     const total = suggestedProfiles.length;
@@ -121,19 +135,33 @@ export class PeopleDiscoveryService {
     // Get all profiles and filter by handle (case-insensitive partial match)
     // In production, this should use database ILIKE for better performance
     const allProfiles = await profileRepository.listAll();
-    
+
     const searchLower = query.toLowerCase().trim();
     const matchingProfiles = allProfiles
-      .filter((profile: { userId: string; handle: string; name: string; avatarUrl: string | null; bio: string | null }) => 
-        profile.handle.toLowerCase().includes(searchLower)
+      .filter(
+        (profile: {
+          userId: string;
+          handle: string;
+          name: string;
+          avatarUrl: string | null;
+          bio: string | null;
+        }) => profile.handle.toLowerCase().includes(searchLower)
       )
-      .map((profile: { userId: string; handle: string; name: string; avatarUrl: string | null; bio: string | null }) => ({
-        userId: profile.userId,
-        handle: profile.handle,
-        name: profile.name,
-        avatarUrl: profile.avatarUrl,
-        bio: profile.bio,
-      }));
+      .map(
+        (profile: {
+          userId: string;
+          handle: string;
+          name: string;
+          avatarUrl: string | null;
+          bio: string | null;
+        }) => ({
+          userId: profile.userId,
+          handle: profile.handle,
+          name: profile.name,
+          avatarUrl: profile.avatarUrl,
+          bio: profile.bio,
+        })
+      );
 
     // Apply pagination
     const total = matchingProfiles.length;

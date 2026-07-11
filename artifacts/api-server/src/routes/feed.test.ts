@@ -45,10 +45,7 @@ describe('Feed Routes', () => {
 
   describe('GET /api/feed', () => {
     it('should return feed with default pagination', async () => {
-      const response = await request(app)
-        .get('/api/feed')
-        .set('Cookie', authCookie)
-        .expect(200);
+      const response = await request(app).get('/api/feed').set('Cookie', authCookie).expect(200);
 
       expect(response.body).toHaveProperty('posts');
       expect(response.body).toHaveProperty('total');

@@ -48,9 +48,7 @@ describe('engagement routes', () => {
       };
       vi.mocked(engagementService.toggleLike).mockResolvedValue(mockSummary);
 
-      const response = await request(app)
-        .post('/posts/post-123/like')
-        .expect(200);
+      const response = await request(app).post('/posts/post-123/like').expect(200);
 
       expect(response.body).toEqual(mockSummary);
       expect(engagementService.toggleLike).toHaveBeenCalledWith({
@@ -60,25 +58,17 @@ describe('engagement routes', () => {
     });
 
     it('should return 404 when post not found', async () => {
-      vi.mocked(engagementService.toggleLike).mockRejectedValue(
-        new Error('Post not found')
-      );
+      vi.mocked(engagementService.toggleLike).mockRejectedValue(new Error('Post not found'));
 
-      const response = await request(app)
-        .post('/posts/post-123/like')
-        .expect(404);
+      const response = await request(app).post('/posts/post-123/like').expect(404);
 
       expect(response.body).toEqual({ message: 'Post not found' });
     });
 
     it('should return 500 on server error', async () => {
-      vi.mocked(engagementService.toggleLike).mockRejectedValue(
-        new Error('Database error')
-      );
+      vi.mocked(engagementService.toggleLike).mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .post('/posts/post-123/like')
-        .expect(500);
+      const response = await request(app).post('/posts/post-123/like').expect(500);
 
       expect(response.body).toEqual({ message: 'Internal server error' });
     });
@@ -97,9 +87,7 @@ describe('engagement routes', () => {
       };
       vi.mocked(engagementService.unlike).mockResolvedValue(mockSummary);
 
-      const response = await request(app)
-        .delete('/posts/post-123/like')
-        .expect(200);
+      const response = await request(app).delete('/posts/post-123/like').expect(200);
 
       expect(response.body).toEqual(mockSummary);
       expect(engagementService.unlike).toHaveBeenCalledWith({
@@ -109,25 +97,17 @@ describe('engagement routes', () => {
     });
 
     it('should return 404 when post not found', async () => {
-      vi.mocked(engagementService.unlike).mockRejectedValue(
-        new Error('Post not found')
-      );
+      vi.mocked(engagementService.unlike).mockRejectedValue(new Error('Post not found'));
 
-      const response = await request(app)
-        .delete('/posts/post-123/like')
-        .expect(404);
+      const response = await request(app).delete('/posts/post-123/like').expect(404);
 
       expect(response.body).toEqual({ message: 'Post not found' });
     });
 
     it('should return 500 on server error', async () => {
-      vi.mocked(engagementService.unlike).mockRejectedValue(
-        new Error('Database error')
-      );
+      vi.mocked(engagementService.unlike).mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .delete('/posts/post-123/like')
-        .expect(500);
+      const response = await request(app).delete('/posts/post-123/like').expect(500);
 
       expect(response.body).toEqual({ message: 'Internal server error' });
     });
@@ -146,9 +126,7 @@ describe('engagement routes', () => {
       };
       vi.mocked(engagementService.toggleSave).mockResolvedValue(mockSummary);
 
-      const response = await request(app)
-        .post('/posts/post-123/save')
-        .expect(200);
+      const response = await request(app).post('/posts/post-123/save').expect(200);
 
       expect(response.body).toEqual(mockSummary);
       expect(engagementService.toggleSave).toHaveBeenCalledWith({
@@ -158,25 +136,17 @@ describe('engagement routes', () => {
     });
 
     it('should return 404 when post not found', async () => {
-      vi.mocked(engagementService.toggleSave).mockRejectedValue(
-        new Error('Post not found')
-      );
+      vi.mocked(engagementService.toggleSave).mockRejectedValue(new Error('Post not found'));
 
-      const response = await request(app)
-        .post('/posts/post-123/save')
-        .expect(404);
+      const response = await request(app).post('/posts/post-123/save').expect(404);
 
       expect(response.body).toEqual({ message: 'Post not found' });
     });
 
     it('should return 500 on server error', async () => {
-      vi.mocked(engagementService.toggleSave).mockRejectedValue(
-        new Error('Database error')
-      );
+      vi.mocked(engagementService.toggleSave).mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .post('/posts/post-123/save')
-        .expect(500);
+      const response = await request(app).post('/posts/post-123/save').expect(500);
 
       expect(response.body).toEqual({ message: 'Internal server error' });
     });
@@ -195,9 +165,7 @@ describe('engagement routes', () => {
       };
       vi.mocked(engagementService.unsave).mockResolvedValue(mockSummary);
 
-      const response = await request(app)
-        .delete('/posts/post-123/save')
-        .expect(200);
+      const response = await request(app).delete('/posts/post-123/save').expect(200);
 
       expect(response.body).toEqual(mockSummary);
       expect(engagementService.unsave).toHaveBeenCalledWith({
@@ -207,25 +175,17 @@ describe('engagement routes', () => {
     });
 
     it('should return 404 when post not found', async () => {
-      vi.mocked(engagementService.unsave).mockRejectedValue(
-        new Error('Post not found')
-      );
+      vi.mocked(engagementService.unsave).mockRejectedValue(new Error('Post not found'));
 
-      const response = await request(app)
-        .delete('/posts/post-123/save')
-        .expect(404);
+      const response = await request(app).delete('/posts/post-123/save').expect(404);
 
       expect(response.body).toEqual({ message: 'Post not found' });
     });
 
     it('should return 500 on server error', async () => {
-      vi.mocked(engagementService.unsave).mockRejectedValue(
-        new Error('Database error')
-      );
+      vi.mocked(engagementService.unsave).mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .delete('/posts/post-123/save')
-        .expect(500);
+      const response = await request(app).delete('/posts/post-123/save').expect(500);
 
       expect(response.body).toEqual({ message: 'Internal server error' });
     });

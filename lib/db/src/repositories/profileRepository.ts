@@ -37,7 +37,7 @@ export interface ProfileUpdateInput {
 
 /**
  * ProfileRepository encapsulates all profile data access logic.
- * 
+ *
  * Deep module: Hides Drizzle internals, JSONB parsing, joins, and transactions
  * behind a simple interface of domain operations.
  */
@@ -151,10 +151,7 @@ export class ProfileRepository {
    * @param updates - Fields to update
    * @returns The updated profile or null if not found
    */
-  async update(
-    userId: string,
-    updates: ProfileUpdateInput
-  ): Promise<VisibleProfile | null> {
+  async update(userId: string, updates: ProfileUpdateInput): Promise<VisibleProfile | null> {
     const result = await db
       .update(profilesTable)
       .set(updates)
@@ -189,7 +186,6 @@ export class ProfileRepository {
     };
   }
 }
-
 
 // Export a singleton instance for convenience
 export const profileRepository = new ProfileRepository();

@@ -2,12 +2,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 
 // Allowed MIME types for avatar upload
-const ALLOWED_AVATAR_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-]);
+const ALLOWED_AVATAR_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
 // Allowed MIME types for post media upload (images and videos)
 const ALLOWED_POST_MEDIA_TYPES = new Set([

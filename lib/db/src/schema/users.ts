@@ -6,12 +6,8 @@ export const usersTable = pgTable('users', {
   email: text('email').notNull().unique(),
   emailVerified: timestamp('email_verified', { withTimezone: true }),
   passwordHash: text('password_hash'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({

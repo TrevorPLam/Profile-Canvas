@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
@@ -39,7 +48,14 @@ export default function EditProfileScreen() {
   // Show loading state while profile loads
   if (profileLoading || !apiMe) {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -56,23 +72,25 @@ export default function EditProfileScreen() {
   // Transform API friend data to mobile UserProfile format
   const apiFriends = friendsData?.friends || [];
   const friends = useMemo(() => {
-    return apiFriends.map((friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
-      id: friend.userId,
-      name: friend.name,
-      handle: friend.handle,
-      bio: '',
-      avatarColor: '#6366f1', // Default color since API doesn't provide it
-      avatarUrl: friend.avatarUrl,
-      wallpaper: '',
-      accentColor: '#6366f1',
-      moodLabel: null,
-      moodIcon: null,
-      nowPlaying: null,
-      joinedLabel: '',
-      topFriendIds: [],
-      friendCount: 0,
-      modules: [],
-    }));
+    return apiFriends.map(
+      (friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
+        id: friend.userId,
+        name: friend.name,
+        handle: friend.handle,
+        bio: '',
+        avatarColor: '#6366f1', // Default color since API doesn't provide it
+        avatarUrl: friend.avatarUrl,
+        wallpaper: '',
+        accentColor: '#6366f1',
+        moodLabel: null,
+        moodIcon: null,
+        nowPlaying: null,
+        joinedLabel: '',
+        topFriendIds: [],
+        friendCount: 0,
+        modules: [],
+      })
+    );
   }, [apiFriends]);
 
   // Use API top friends data
@@ -161,12 +179,7 @@ export default function EditProfileScreen() {
               disabled={isUploading}
               style={styles.avatarPicker}
             >
-              <Avatar
-                name={me.name}
-                color={me.avatarColor}
-                avatarUrl={me.avatarUrl}
-                size={80}
-              />
+              <Avatar name={me.name} color={me.avatarColor} avatarUrl={me.avatarUrl} size={80} />
               {isUploading ? (
                 <Feather name="loader" size={20} color={colors.mutedForeground} />
               ) : (
@@ -174,7 +187,9 @@ export default function EditProfileScreen() {
               )}
             </Pressable>
 
-            <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 22 }]}>Wallpaper</Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 22 }]}>
+              Wallpaper
+            </Text>
             <View style={styles.wallpaperGrid}>
               {WALLPAPER_PRESETS.map((preset) => (
                 <Pressable
@@ -404,7 +419,12 @@ export default function EditProfileScreen() {
                       }
                     }}
                   >
-                    <Avatar name={friend.name} color={friend.avatarColor} size={40} avatarUrl={friend.avatarUrl} />
+                    <Avatar
+                      name={friend.name}
+                      color={friend.avatarColor}
+                      size={40}
+                      avatarUrl={friend.avatarUrl}
+                    />
                     <Text style={[styles.friendPickName, { color: colors.foreground }]}>
                       {friend.name}
                     </Text>

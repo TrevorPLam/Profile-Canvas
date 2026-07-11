@@ -121,19 +121,14 @@ describe('Posts Routes', () => {
   describe('GET /api/posts', () => {
     beforeAll(async () => {
       // Create a test post
-      await request(app)
-        .post('/api/posts')
-        .set('Cookie', authCookie)
-        .send({
-          kind: 'text',
-          text: 'Test post for listing',
-        });
+      await request(app).post('/api/posts').set('Cookie', authCookie).send({
+        kind: 'text',
+        text: 'Test post for listing',
+      });
     });
 
     it('should list all posts', async () => {
-      const response = await request(app)
-        .get('/api/posts')
-        .expect(200);
+      const response = await request(app).get('/api/posts').expect(200);
 
       expect(response.body).toHaveProperty('posts');
       expect(Array.isArray(response.body.posts)).toBe(true);
@@ -141,18 +136,16 @@ describe('Posts Routes', () => {
     });
 
     it('should filter posts by authorId', async () => {
-      const response = await request(app)
-        .get(`/api/posts?authorId=${userId}`)
-        .expect(200);
+      const response = await request(app).get(`/api/posts?authorId=${userId}`).expect(200);
 
       expect(response.body).toHaveProperty('posts');
-      expect(response.body.posts.every((post: { authorId: string }) => post.authorId === userId)).toBe(true);
+      expect(
+        response.body.posts.every((post: { authorId: string }) => post.authorId === userId)
+      ).toBe(true);
     });
 
     it('should support pagination with limit and offset', async () => {
-      const response = await request(app)
-        .get('/api/posts?limit=5&offset=0')
-        .expect(200);
+      const response = await request(app).get('/api/posts?limit=5&offset=0').expect(200);
 
       expect(response.body).toHaveProperty('posts');
       expect(response.body.posts.length).toBeLessThanOrEqual(5);
@@ -163,29 +156,22 @@ describe('Posts Routes', () => {
     let testPostId: string;
 
     beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/posts')
-        .set('Cookie', authCookie)
-        .send({
-          kind: 'text',
-          text: 'Test post for get',
-        });
+      const response = await request(app).post('/api/posts').set('Cookie', authCookie).send({
+        kind: 'text',
+        text: 'Test post for get',
+      });
       testPostId = response.body.id;
     });
 
     it('should get a post by ID', async () => {
-      const response = await request(app)
-        .get(`/api/posts/${testPostId}`)
-        .expect(200);
+      const response = await request(app).get(`/api/posts/${testPostId}`).expect(200);
 
       expect(response.body).toHaveProperty('id', testPostId);
       expect(response.body).toHaveProperty('authorId', userId);
     });
 
     it('should return 404 for non-existent post', async () => {
-      await request(app)
-        .get('/api/posts/00000000-0000-0000-0000-000000000000')
-        .expect(404);
+      await request(app).get('/api/posts/00000000-0000-0000-0000-000000000000').expect(404);
     });
   });
 
@@ -193,36 +179,25 @@ describe('Posts Routes', () => {
     let testPostId: string;
 
     beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/posts')
-        .set('Cookie', authCookie)
-        .send({
-          kind: 'text',
-          text: 'Test post for delete',
-        });
+      const response = await request(app).post('/api/posts').set('Cookie', authCookie).send({
+        kind: 'text',
+        text: 'Test post for delete',
+      });
       testPostId = response.body.id;
     });
 
     it('should delete own post', async () => {
-      await request(app)
-        .delete(`/api/posts/${testPostId}`)
-        .set('Cookie', authCookie)
-        .expect(204);
+      await request(app).delete(`/api/posts/${testPostId}`).set('Cookie', authCookie).expect(204);
     });
 
     it('should reject deletion without authentication', async () => {
-      const response = await request(app)
-        .post('/api/posts')
-        .set('Cookie', authCookie)
-        .send({
-          kind: 'text',
-          text: 'Another test post',
-        });
+      const response = await request(app).post('/api/posts').set('Cookie', authCookie).send({
+        kind: 'text',
+        text: 'Another test post',
+      });
       const postId = response.body.id;
 
-      await request(app)
-        .delete(`/api/posts/${postId}`)
-        .expect(401);
+      await request(app).delete(`/api/posts/${postId}`).expect(401);
     });
 
     it('should return 404 for non-existent post deletion', async () => {
@@ -237,13 +212,10 @@ describe('Posts Routes', () => {
     let originalPostId: string;
 
     beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/posts')
-        .set('Cookie', authCookie)
-        .send({
-          kind: 'text',
-          text: 'Original post for repost',
-        });
+      const response = await request(app).post('/api/posts').set('Cookie', authCookie).send({
+        kind: 'text',
+        text: 'Original post for repost',
+      });
       originalPostId = response.body.id;
     });
 
@@ -274,9 +246,7 @@ describe('Posts Routes', () => {
     });
 
     it('should reject repost without authentication', async () => {
-      await request(app)
-        .post(`/api/posts/${originalPostId}/repost`)
-        .expect(401);
+      await request(app).post(`/api/posts/${originalPostId}/repost`).expect(401);
     });
 
     it('should return 404 for repost of non-existent post', async () => {

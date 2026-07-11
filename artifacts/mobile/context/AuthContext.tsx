@@ -177,7 +177,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value: AuthContextValue = {
     user,
-    isLoading: isLoading || loginMutation.isPending || registerMutation.isPending || logoutMutation.isPending,
+    isLoading:
+      isLoading ||
+      loginMutation.isPending ||
+      registerMutation.isPending ||
+      logoutMutation.isPending,
     isAuthenticated: !!user,
     login,
     register,

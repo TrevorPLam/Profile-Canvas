@@ -2,11 +2,7 @@ import { Router, type IRouter } from 'express';
 import cookieParser from 'cookie-parser';
 import { AuthService } from '../services/authService';
 import { requireAuth } from '../middlewares/auth';
-import {
-  RegisterBodySchema,
-  LoginBodySchema,
-  GetMeResponseSchema,
-} from '@workspace/api-zod';
+import { RegisterBodySchema, LoginBodySchema, GetMeResponseSchema } from '@workspace/api-zod';
 
 const router: IRouter = Router();
 const authService = new AuthService();

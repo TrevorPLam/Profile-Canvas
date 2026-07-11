@@ -1,4 +1,11 @@
-import { PostRepository, EngagementRepository, FriendshipRepository, ProfileRepository, postsTable, db } from '@workspace/db';
+import {
+  PostRepository,
+  EngagementRepository,
+  FriendshipRepository,
+  ProfileRepository,
+  postsTable,
+  db,
+} from '@workspace/db';
 import type { PostWithAuthor, EngagementSummary } from '@workspace/db';
 import { or, and, desc, sql, inArray } from 'drizzle-orm';
 
@@ -97,9 +104,7 @@ export class FeedService {
 
     // Get friend IDs
     const friendships = await this.friendshipRepo.listFriends(userId);
-    const friendIds = friendships.map((f) =>
-      f.userId === userId ? f.friendId : f.userId
-    );
+    const friendIds = friendships.map((f) => (f.userId === userId ? f.friendId : f.userId));
 
     // Include self in the list
     const authorIds = [userId, ...friendIds];
@@ -160,9 +165,7 @@ export class FeedService {
 
     // Get friend IDs to exclude
     const friendships = await this.friendshipRepo.listFriends(userId);
-    const friendIds = friendships.map((f) =>
-      f.userId === userId ? f.friendId : f.userId
-    );
+    const friendIds = friendships.map((f) => (f.userId === userId ? f.friendId : f.userId));
 
     // Exclude self and friends
     const excludedIds = [userId, ...friendIds];
@@ -300,9 +303,7 @@ export class FeedService {
     if (query) {
       // Use ILIKE for case-insensitive partial match
       // In production, consider using PostgreSQL full-text search for better performance
-      conditions.push(
-        sql`(${postsTable.content}->>'text') ILIKE ${'%' + query + '%'}`
-      );
+      conditions.push(sql`(${postsTable.content}->>'text') ILIKE ${'%' + query + '%'}`);
     }
 
     // Add topic filter condition
@@ -346,10 +347,7 @@ export class FeedService {
    * @param viewerId - Optional viewer ID for engagement state
    * @returns Array of FeedPost with engagement data
    */
-  private async toFeedPosts(
-    posts: PostWithAuthor[],
-    viewerId?: string
-  ): Promise<FeedPost[]> {
+  private async toFeedPosts(posts: PostWithAuthor[], viewerId?: string): Promise<FeedPost[]> {
     // Get author profiles
     const authorIds = [...new Set(posts.map((p) => p.authorId))];
     const profiles = await this.profileRepo.getByUserIds(authorIds);
@@ -366,7 +364,15 @@ export class FeedService {
       const engagement = engagementSummaries[index];
 
       // Extract content fields based on kind
-      const content = post.content as { text?: string; title?: string; caption?: string; thumbnailUrl?: string; durationLabel?: string; viewsLabel?: string; soundLabel?: string };
+      const content = post.content as {
+        text?: string;
+        title?: string;
+        caption?: string;
+        thumbnailUrl?: string;
+        durationLabel?: string;
+        viewsLabel?: string;
+        soundLabel?: string;
+      };
       const text = content.text || null;
       const title = content.title || null;
       const caption = content.caption || null;

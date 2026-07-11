@@ -58,9 +58,7 @@ describe.runIf(runIntegrationTests)('comments routes integration tests', () => {
 
   describe('GET /posts/:postId/comments', () => {
     it('should list comments for a post', async () => {
-      const response = await request(app)
-        .get(`/posts/${testPost.id}/comments`)
-        .expect(200);
+      const response = await request(app).get(`/posts/${testPost.id}/comments`).expect(200);
 
       expect(response.body).toHaveProperty('comments');
       expect(response.body).toHaveProperty('total');
@@ -78,9 +76,7 @@ describe.runIf(runIntegrationTests)('comments routes integration tests', () => {
     });
 
     it('should return empty array for post with no comments', async () => {
-      const response = await request(app)
-        .get(`/posts/${testPost.id}/comments`)
-        .expect(200);
+      const response = await request(app).get(`/posts/${testPost.id}/comments`).expect(200);
 
       expect(response.body.comments).toEqual([]);
       expect(response.body.total).toBe(0);

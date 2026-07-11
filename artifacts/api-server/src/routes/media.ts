@@ -38,11 +38,7 @@ const uploadPostMedia = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(
-        new Error(
-          'Invalid file type. Only JPEG, PNG, GIF, WebP, MP4, and WebM are allowed.'
-        )
-      );
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, WebP, MP4, and WebM are allowed.'));
     }
   },
 });
@@ -53,49 +49,44 @@ const router = Router();
  * POST /media/avatar
  * Upload an avatar image for the authenticated user
  */
-router.post(
-  '/avatar',
-  requireAuth,
-  upload.single('file'),
-  async (req, res): Promise<void> => {
-    try {
-      // Check if file was uploaded
-      if (!req.file) {
-        res.status(400).json({ message: 'No file uploaded' });
-        return;
-      }
-
-      // Upload to storage
-      const uploadResult: MediaUploadResult = await mediaService.uploadAvatar({
-        userId: req.userId!,
-        buffer: req.file.buffer,
-        mimeType: req.file.mimetype,
-        sizeBytes: req.file.size,
-      });
-
-      // Update profile with new avatar URL
-      const profileRepo = new ProfileRepository();
-      await profileRepo.update(req.userId!, { avatarUrl: uploadResult.url });
-
-      // Return upload result
-      res.status(201).json(uploadResult);
-    } catch (error) {
-      console.error('Avatar upload error:', error);
-      const message = error instanceof Error ? error.message : 'Upload failed';
-
-      if (message.includes('Invalid file type')) {
-        res.status(400).json({ message });
-        return;
-      }
-      if (message.includes('too large')) {
-        res.status(413).json({ message });
-        return;
-      }
-
-      res.status(500).json({ message: 'Failed to upload avatar' });
+router.post('/avatar', requireAuth, upload.single('file'), async (req, res): Promise<void> => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      res.status(400).json({ message: 'No file uploaded' });
+      return;
     }
+
+    // Upload to storage
+    const uploadResult: MediaUploadResult = await mediaService.uploadAvatar({
+      userId: req.userId!,
+      buffer: req.file.buffer,
+      mimeType: req.file.mimetype,
+      sizeBytes: req.file.size,
+    });
+
+    // Update profile with new avatar URL
+    const profileRepo = new ProfileRepository();
+    await profileRepo.update(req.userId!, { avatarUrl: uploadResult.url });
+
+    // Return upload result
+    res.status(201).json(uploadResult);
+  } catch (error) {
+    console.error('Avatar upload error:', error);
+    const message = error instanceof Error ? error.message : 'Upload failed';
+
+    if (message.includes('Invalid file type')) {
+      res.status(400).json({ message });
+      return;
+    }
+    if (message.includes('too large')) {
+      res.status(413).json({ message });
+      return;
+    }
+
+    res.status(500).json({ message: 'Failed to upload avatar' });
   }
-);
+});
 
 /**
  * POST /media/upload

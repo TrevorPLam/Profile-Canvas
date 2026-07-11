@@ -64,7 +64,14 @@ describe('notifications schema', () => {
     });
 
     it('should accept all valid notification types', () => {
-      const types = ['like', 'comment', 'friendRequest', 'friendAccepted', 'repost', 'save'] as const;
+      const types = [
+        'like',
+        'comment',
+        'friendRequest',
+        'friendAccepted',
+        'repost',
+        'save',
+      ] as const;
       types.forEach((type) => {
         const result = insertNotificationSchema.safeParse({
           recipientId: '550e8400-e29b-41d4-a716-446655440000',

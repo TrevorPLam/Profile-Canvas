@@ -29,8 +29,19 @@ const MODE_OPTIONS: { id: FeedMode; label: string }[] = [
 export default function FeedScreen() {
   const { user } = useAuth();
   const { unreadCount } = useNotificationsContext();
-  const { posts: feedPosts, profiles: feedProfiles, isLoading: feedLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
-  const { posts: recommendedPosts, profiles: recommendedProfiles, isLoading: recommendedLoading } = useRecommended();
+  const {
+    posts: feedPosts,
+    profiles: feedProfiles,
+    isLoading: feedLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFeed();
+  const {
+    posts: recommendedPosts,
+    profiles: recommendedProfiles,
+    isLoading: recommendedLoading,
+  } = useRecommended();
   const { data: requestsData } = useIncomingFriendRequests();
   const colors = useColors();
   const insets = useSafeAreaInsets();

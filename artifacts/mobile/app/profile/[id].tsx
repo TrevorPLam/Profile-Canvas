@@ -144,11 +144,7 @@ export default function OtherProfileScreen() {
                       </Text>
                     ) : (
                       theirPosts.map((post) => (
-                        <PostCard
-                          key={post.id}
-                          post={post}
-                          author={profile}
-                        />
+                        <PostCard key={post.id} post={post} author={profile} />
                       ))
                     )}
                   </View>

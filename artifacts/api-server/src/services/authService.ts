@@ -186,11 +186,7 @@ export class AuthService {
     }
 
     // Get user and profile
-    const users = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, userId))
-      .limit(1);
+    const users = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
 
     if (users.length === 0) {
       return null;

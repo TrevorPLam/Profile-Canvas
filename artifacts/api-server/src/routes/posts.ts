@@ -13,7 +13,7 @@ const router = Router();
 
 /**
  * POST /posts
- * 
+ *
  * Given an authenticated user, when they create a text post,
  * then the post is persisted with inferred topics and returned.
  */
@@ -23,7 +23,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const input = CreatePostBodySchema.parse(req.body);
 
     let post;
-    
+
     if (input.kind === 'text') {
       post = await postService.createTextPost({
         authorId: userId,
@@ -58,7 +58,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * GET /posts
- * 
+ *
  * Given a request, when it includes optional authorId filter and pagination,
  * then matching posts are returned ordered by creation date (newest first).
  */
@@ -67,7 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { authorId, limit, offset } = req.query;
 
     let posts;
-    
+
     if (authorId && typeof authorId === 'string') {
       posts = await postService.listPostsByAuthor(
         authorId,
@@ -91,7 +91,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 /**
  * GET /posts/:postId
- * 
+ *
  * Given a post ID, when requested, then the post details are returned.
  */
 router.get('/:postId', async (req: Request, res: Response) => {
@@ -116,7 +116,7 @@ router.get('/:postId', async (req: Request, res: Response) => {
 
 /**
  * DELETE /posts/:postId
- * 
+ *
  * Given an authenticated user, when they delete their own post,
  * then the post is soft-deleted.
  */
@@ -147,7 +147,7 @@ router.delete('/:postId', requireAuth, async (req: Request, res: Response) => {
 
 /**
  * POST /posts/:postId/repost
- * 
+ *
  * Given an authenticated user, when they repost an existing post,
  * then a new post with repostOf pointing to the ultimate original is created.
  * Duplicate reposts by the same user for the same original are rejected.

@@ -123,13 +123,13 @@ function transformToAuthor(author: FeedPost['author']): UserProfile {
 
 /**
  * Debounce hook for search input
- * 
+ *
  * Delays updating the debounced value until after a specified delay
  * has elapsed since the last time the input value changed.
  */
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useMemo(() => [value, value], []);
-  
+
   // For simplicity in this implementation, we'll use a simpler approach
   // In a production app, you'd use useEffect with setTimeout
   // Since React Query handles query key changes efficiently, we can rely on that
@@ -160,7 +160,11 @@ export function useDiscover(query: string, topic: string | null) {
 
   const queryString = params.toString();
 
-  const apiQuery = useQuery<FeedResponse, Error, { posts: Post[]; profiles: Record<string, UserProfile> }>({
+  const apiQuery = useQuery<
+    FeedResponse,
+    Error,
+    { posts: Post[]; profiles: Record<string, UserProfile> }
+  >({
     queryKey: ['discover', query, topic],
     queryFn: async () => {
       const response = await apiFetch<FeedResponse>(`/discover?${queryString}`);
@@ -170,7 +174,7 @@ export function useDiscover(query: string, topic: string | null) {
     select: (data) => {
       const posts = data.posts.map(transformToPost);
       const profiles: Record<string, UserProfile> = {};
-      
+
       data.posts.forEach((post) => {
         profiles[post.authorId] = transformToAuthor(post.author);
       });

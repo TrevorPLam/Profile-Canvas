@@ -29,7 +29,7 @@ export interface DeletePostInput {
 
 /**
  * PostService encapsulates post business logic.
- * 
+ *
  * Deep module: Hides topic inference, repost chain resolution, and duplicate
  * repost guards behind a simple interface of domain operations.
  */
@@ -45,7 +45,7 @@ export class PostService {
    */
   async createTextPost(input: CreateTextPostInput): Promise<PostWithAuthor> {
     const topics = inferTopics(input.content.text);
-    
+
     return this.postRepo.create({
       authorId: input.authorId,
       kind: 'text',
@@ -86,16 +86,13 @@ export class PostService {
   async createRepost(input: CreateRepostInput): Promise<PostWithAuthor> {
     // Resolve the ultimate original post
     const originalPost = await this.postRepo.resolveOriginal(input.originalPostId);
-    
+
     if (!originalPost) {
       throw new Error('Original post not found');
     }
 
     // Check if user has already reposted this original post
-    const hasReposted = await this.postRepo.hasReposted(
-      input.authorId,
-      originalPost.id
-    );
+    const hasReposted = await this.postRepo.hasReposted(input.authorId, originalPost.id);
 
     if (hasReposted) {
       throw new Error('Already reposted this post');
@@ -132,7 +129,7 @@ export class PostService {
     }
 
     const deletedPost = await this.postRepo.softDelete(input.postId);
-    
+
     if (!deletedPost) {
       throw new Error('Failed to delete post');
     }

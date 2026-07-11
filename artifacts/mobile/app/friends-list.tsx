@@ -53,7 +53,12 @@ export default function FriendsListScreen() {
   }, [requests]);
 
   // Transform API friend profile to mobile UserProfile format
-  const transformFriendToProfile = (friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
+  const transformFriendToProfile = (friend: {
+    userId: string;
+    handle: string;
+    name: string;
+    avatarUrl: string | null;
+  }) => ({
     id: friend.userId,
     name: friend.name,
     handle: friend.handle,
@@ -72,7 +77,10 @@ export default function FriendsListScreen() {
   });
 
   const transformedFriends = useMemo(() => friends.map(transformFriendToProfile), [friends]);
-  const transformedTopFriends = useMemo(() => topFriends.map(transformFriendToProfile), [topFriends]);
+  const transformedTopFriends = useMemo(
+    () => topFriends.map(transformFriendToProfile),
+    [topFriends]
+  );
   const transformedSuggested = useMemo(() => suggested.map(transformFriendToProfile), [suggested]);
 
   return (
@@ -116,7 +124,12 @@ export default function FriendsListScreen() {
                   style={styles.requestRow}
                   onPress={() => router.push(`/profile/${profile.handle}`)}
                 >
-                  <Avatar name={profile.name} color={profile.avatarColor} size={44} avatarUrl={profile.avatarUrl} />
+                  <Avatar
+                    name={profile.name}
+                    color={profile.avatarColor}
+                    size={44}
+                    avatarUrl={profile.avatarUrl}
+                  />
                   <View style={styles.requestText}>
                     <Text style={[styles.requestName, { color: colors.foreground }]}>
                       {profile.name}
@@ -199,7 +212,12 @@ export default function FriendsListScreen() {
                 style={styles.requestRow}
                 onPress={() => router.push(`/profile/${person.handle}`)}
               >
-                <Avatar name={person.name} color={person.avatarColor} size={44} avatarUrl={person.avatarUrl} />
+                <Avatar
+                  name={person.name}
+                  color={person.avatarColor}
+                  size={44}
+                  avatarUrl={person.avatarUrl}
+                />
                 <View style={styles.requestText}>
                   <Text style={[styles.requestName, { color: colors.foreground }]}>
                     {person.name}

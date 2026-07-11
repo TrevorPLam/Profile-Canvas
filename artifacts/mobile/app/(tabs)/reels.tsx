@@ -58,9 +58,7 @@ export default function ReelsScreen() {
         snapToInterval={cardHeight}
         decelerationRate="fast"
         getItemLayout={(_, index) => ({ length: cardHeight, offset: cardHeight * index, index })}
-        renderItem={({ item }) => (
-          <ReelCard post={item} author={item.author} height={cardHeight} />
-        )}
+        renderItem={({ item }) => <ReelCard post={item} author={item.author} height={cardHeight} />}
       />
     </View>
   );

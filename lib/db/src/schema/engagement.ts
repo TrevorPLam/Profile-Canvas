@@ -14,9 +14,7 @@ export const likesTable = pgTable(
     postId: uuid('post_id')
       .notNull()
       .references(() => postsTable.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     uniqueUserPost: uniqueIndex('likes_user_post_unique').on(table.userId, table.postId),
@@ -33,9 +31,7 @@ export const savesTable = pgTable(
     postId: uuid('post_id')
       .notNull()
       .references(() => postsTable.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     uniqueUserPost: uniqueIndex('saves_user_post_unique').on(table.userId, table.postId),

@@ -131,10 +131,16 @@ function transformToAuthor(author: FeedPost['author']): UserProfile {
  * - Loading states
  */
 export function useTrending() {
-  const query = useInfiniteQuery<FeedResponse, Error, { posts: Post[]; profiles: Record<string, UserProfile> }>({
+  const query = useInfiniteQuery<
+    FeedResponse,
+    Error,
+    { posts: Post[]; profiles: Record<string, UserProfile> }
+  >({
     queryKey: ['discover', 'trending'],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await apiFetch<FeedResponse>(`/discover/trending?limit=20&offset=${pageParam}`);
+      const response = await apiFetch<FeedResponse>(
+        `/discover/trending?limit=20&offset=${pageParam}`
+      );
       return response;
     },
     initialPageParam: 0,
@@ -148,7 +154,7 @@ export function useTrending() {
       // Flatten and transform all pages
       const allPosts = data.pages.flatMap((page) => page.posts.map(transformToPost));
       const profiles: Record<string, UserProfile> = {};
-      
+
       data.pages.forEach((page) => {
         page.posts.forEach((post) => {
           profiles[post.authorId] = transformToAuthor(post.author);

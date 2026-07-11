@@ -5,7 +5,15 @@ import cookieParser from 'cookie-parser';
 import discoverRouter from './discover';
 import authRouter from './auth';
 import friendsRouter from './friends';
-import { db, usersTable, sessionsTable, postsTable, profilesTable, friendRequestsTable, friendshipsTable } from '@workspace/db';
+import {
+  db,
+  usersTable,
+  sessionsTable,
+  postsTable,
+  profilesTable,
+  friendRequestsTable,
+  friendshipsTable,
+} from '@workspace/db';
 
 // Create test app
 const app = express();
@@ -268,7 +276,9 @@ describe('Discover Routes', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      const suggestedUserIds = suggestionsResponse.body.profiles.map((p: { userId: string }) => p.userId);
+      const suggestedUserIds = suggestionsResponse.body.profiles.map(
+        (p: { userId: string }) => p.userId
+      );
       expect(suggestedUserIds).not.toContain(user2Id);
     });
 
@@ -305,7 +315,9 @@ describe('Discover Routes', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      const suggestedUserIds = suggestionsResponse.body.profiles.map((p: { userId: string }) => p.userId);
+      const suggestedUserIds = suggestionsResponse.body.profiles.map(
+        (p: { userId: string }) => p.userId
+      );
       expect(suggestedUserIds).not.toContain(user3Id);
     });
   });

@@ -63,10 +63,7 @@ export class FriendshipService {
    * @param receiverId - The user receiving the request
    * @returns The created friend request or null if duplicate exists
    */
-  async sendRequest(
-    senderId: string,
-    receiverId: string
-  ): Promise<FriendRequestResponse | null> {
+  async sendRequest(senderId: string, receiverId: string): Promise<FriendRequestResponse | null> {
     // Prevent self-friend requests
     if (senderId === receiverId) {
       throw new Error('Cannot send friend request to yourself');
@@ -94,10 +91,7 @@ export class FriendshipService {
    * @param recipientId - The user accepting the request (must be the receiver)
    * @returns The created friendship or null if request not found/invalid
    */
-  async acceptRequest(
-    requestId: string,
-    recipientId: string
-  ): Promise<FriendshipResponse | null> {
+  async acceptRequest(requestId: string, recipientId: string): Promise<FriendshipResponse | null> {
     // Get the request to validate authorization
     const request = await this.getRequestById(requestId);
     if (!request) {
@@ -161,10 +155,7 @@ export class FriendshipService {
    * @param senderId - The user canceling the request (must be the sender)
    * @returns The updated request or null if not found
    */
-  async cancelRequest(
-    requestId: string,
-    senderId: string
-  ): Promise<FriendRequestResponse | null> {
+  async cancelRequest(requestId: string, senderId: string): Promise<FriendRequestResponse | null> {
     // Get the request to validate authorization
     const request = await this.getRequestById(requestId);
     if (!request) {
@@ -212,9 +203,7 @@ export class FriendshipService {
     const friendships = await friendshipRepository.listFriends(userId);
 
     // Extract friend IDs (either userId or friendId could be the current user)
-    const friendIds = friendships.map((f) =>
-      f.userId === userId ? f.friendId : f.userId
-    );
+    const friendIds = friendships.map((f) => (f.userId === userId ? f.friendId : f.userId));
 
     // Load profiles for all friends
     const profiles = await profileRepository.getByUserIds(friendIds);
@@ -262,9 +251,7 @@ export class FriendshipService {
   ): Promise<{ topFriends: string[] } | null> {
     // Validate maximum count
     if (topFriendIds.length > MAX_TOP_FRIENDS) {
-      throw new Error(
-        `Cannot have more than ${MAX_TOP_FRIENDS} top friends`
-      );
+      throw new Error(`Cannot have more than ${MAX_TOP_FRIENDS} top friends`);
     }
 
     // Validate all IDs are unique
@@ -275,9 +262,7 @@ export class FriendshipService {
 
     // Validate all top friends are actually friends
     const friends = await friendshipRepository.listFriends(userId);
-    const friendIds = friends.map((f) =>
-      f.userId === userId ? f.friendId : f.userId
-    );
+    const friendIds = friends.map((f) => (f.userId === userId ? f.friendId : f.userId));
     const friendIdSet = new Set(friendIds);
 
     for (const topFriendId of topFriendIds) {
@@ -327,9 +312,7 @@ export class FriendshipService {
       return null;
     }
 
-    const topFriendsModule = profile.moduleSettings.find(
-      (m) => m.id === 'topFriends'
-    );
+    const topFriendsModule = profile.moduleSettings.find((m) => m.id === 'topFriends');
 
     const topFriends = Array.isArray(topFriendsModule?.data?.topFriends)
       ? (topFriendsModule.data.topFriends as string[])
@@ -355,9 +338,7 @@ export class FriendshipService {
    * @param requestId - The friend request ID
    * @returns The friend request or null if not found
    */
-  private async getRequestById(
-    requestId: string
-  ): Promise<FriendRequestWithProfile | null> {
+  private async getRequestById(requestId: string): Promise<FriendRequestWithProfile | null> {
     // This is a simplified implementation - in a real system we'd add a getById method to the repository
     // For now, we'll work with the existing repository interface
     // We need to query the database directly since FriendshipRepository doesn't have getById
@@ -388,9 +369,7 @@ export class FriendshipService {
   /**
    * Convert a repository friend request to a service response
    */
-  private toFriendRequestResponse(
-    request: FriendRequestWithProfile
-  ): FriendRequestResponse {
+  private toFriendRequestResponse(request: FriendRequestWithProfile): FriendRequestResponse {
     return {
       id: request.id,
       senderId: request.senderId,
@@ -404,9 +383,7 @@ export class FriendshipService {
   /**
    * Convert a repository friendship to a service response
    */
-  private toFriendshipResponse(
-    friendship: FriendshipWithProfile
-  ): FriendshipResponse {
+  private toFriendshipResponse(friendship: FriendshipWithProfile): FriendshipResponse {
     return {
       userId: friendship.userId,
       friendId: friendship.friendId,

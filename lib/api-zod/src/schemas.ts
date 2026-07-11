@@ -95,10 +95,12 @@ export const CreatePostResponseSchema = z.object({
   authorId: z.string(),
   kind: z.enum(['text', 'video', 'reel']),
   content: z.union([TextPostContentSchema, VideoPostContentSchema, ReelPostContentSchema]),
-  repostOf: z.object({
-    originalPostId: z.string(),
-    originalAuthorId: z.string(),
-  }).nullable(),
+  repostOf: z
+    .object({
+      originalPostId: z.string(),
+      originalAuthorId: z.string(),
+    })
+    .nullable(),
   topics: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),

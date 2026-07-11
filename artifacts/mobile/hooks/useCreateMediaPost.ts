@@ -66,10 +66,7 @@ interface CreateMediaPostResult {
 /**
  * Upload media file to backend
  */
-async function uploadMedia(
-  uri: string,
-  mimeType: string
-): Promise<MediaUploadResponse> {
+async function uploadMedia(uri: string, mimeType: string): Promise<MediaUploadResponse> {
   const formData = new FormData();
   formData.append('file', {
     uri,
@@ -102,7 +99,15 @@ export function useCreateMediaPost() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<CreateMediaPostResult, Error, CreateMediaPostVariables>({
-    mutationFn: async ({ kind, mediaUri, mimeType, title, caption, durationLabel, soundLabel }: CreateMediaPostVariables) => {
+    mutationFn: async ({
+      kind,
+      mediaUri,
+      mimeType,
+      title,
+      caption,
+      durationLabel,
+      soundLabel,
+    }: CreateMediaPostVariables) => {
       // Step 1: Upload media
       const mediaUpload = await uploadMedia(mediaUri, mimeType);
 

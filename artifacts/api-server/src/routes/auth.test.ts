@@ -84,12 +84,10 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/login', () => {
     it('should login with valid credentials', async () => {
       // First register a user
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'login@example.com',
-          password: 'password123',
-        });
+      await request(app).post('/api/auth/register').send({
+        email: 'login@example.com',
+        password: 'password123',
+      });
 
       // Then login
       const response = await request(app)
@@ -116,12 +114,10 @@ describe('Auth Routes', () => {
     });
 
     it('should reject wrong password for existing user', async () => {
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'wrongpass@example.com',
-          password: 'correctpassword',
-        });
+      await request(app).post('/api/auth/register').send({
+        email: 'wrongpass@example.com',
+        password: 'correctpassword',
+      });
 
       await request(app)
         .post('/api/auth/login')
@@ -136,20 +132,15 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/logout', () => {
     it('should logout authenticated user', async () => {
       // Register and login
-      const registerResponse = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'logout@example.com',
-          password: 'password123',
-        });
+      const registerResponse = await request(app).post('/api/auth/register').send({
+        email: 'logout@example.com',
+        password: 'password123',
+      });
 
       const sessionCookie = registerResponse.headers['set-cookie'][0];
 
       // Logout
-      await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', sessionCookie)
-        .expect(204);
+      await request(app).post('/api/auth/logout').set('Cookie', sessionCookie).expect(204);
     });
 
     it('should reject logout without authentication', async () => {
@@ -160,12 +151,10 @@ describe('Auth Routes', () => {
   describe('GET /api/auth/me', () => {
     it('should return current user profile', async () => {
       // Register and login
-      const registerResponse = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'me@example.com',
-          password: 'password123',
-        });
+      const registerResponse = await request(app).post('/api/auth/register').send({
+        email: 'me@example.com',
+        password: 'password123',
+      });
 
       const sessionCookie = registerResponse.headers['set-cookie'][0];
 
@@ -188,12 +177,10 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/refresh', () => {
     it('should refresh session expiration', async () => {
       // Register and login
-      const registerResponse = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'refresh@example.com',
-          password: 'password123',
-        });
+      const registerResponse = await request(app).post('/api/auth/register').send({
+        email: 'refresh@example.com',
+        password: 'password123',
+      });
 
       const sessionCookie = registerResponse.headers['set-cookie'][0];
 

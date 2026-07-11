@@ -13,9 +13,7 @@ export const commentsTable = pgTable('comments', {
     .notNull()
     .references(() => usersTable.id, { onDelete: 'cascade' }),
   text: text('text').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Zod schema with additional validation for API layer

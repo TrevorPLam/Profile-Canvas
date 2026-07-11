@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * POST /posts/:postId/like
- * 
+ *
  * Given an authenticated user and a post, when they like the post,
  * then the like is recorded and the post's like count increments.
  * Duplicate like requests are idempotent and return success without incrementing the count again.
@@ -30,7 +30,7 @@ router.post('/:postId/like', requireAuth, async (req: Request, res: Response) =>
 
 /**
  * DELETE /posts/:postId/like
- * 
+ *
  * Given an authenticated user and a post they have liked, when they unlike the post,
  * then the like is removed and the post's like count decrements.
  * Unlike requests when the user has not liked the post are idempotent and return success without decrementing the count.
@@ -54,7 +54,7 @@ router.delete('/:postId/like', requireAuth, async (req: Request, res: Response) 
 
 /**
  * POST /posts/:postId/save
- * 
+ *
  * Given an authenticated user and a post, when they save the post,
  * then the save is recorded and the post's save count increments.
  * Duplicate save requests are idempotent and return success without incrementing the count again.
@@ -78,7 +78,7 @@ router.post('/:postId/save', requireAuth, async (req: Request, res: Response) =>
 
 /**
  * DELETE /posts/:postId/save
- * 
+ *
  * Given an authenticated user and a post they have saved, when they unsave the post,
  * then the save is removed and the post's save count decrements.
  * Unsave requests when the user has not saved the post are idempotent and return success without decrementing the count.

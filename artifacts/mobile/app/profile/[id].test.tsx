@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 /**
  * Tests for OtherProfileScreen
- * 
+ *
  * Note: Full component tests are skipped due to vitest path alias resolution issues
  * with React Native imports (documented in MOB-002). The core functionality is
  * implemented and typecheck passes.
- * 
+ *
  * These tests will be added once the vitest configuration issue is resolved.
  */
 
