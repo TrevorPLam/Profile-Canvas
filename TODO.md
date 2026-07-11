@@ -1550,9 +1550,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MOB-001: Set up mobile API client configuration
+## [x] MOB-001: Set up mobile API client configuration
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** MOB
 - **Behavior:** Given the mobile app starts, when it needs to talk to the backend, then it uses the correct base URL and attaches credentials (cookies) automatically.
@@ -1568,20 +1568,34 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MOB-001.1 [AGENT]**: Create mobile API client wrapper.
+- [x] **MOB-001.1 [AGENT]**: Create mobile API client wrapper.
   - File: `artifacts/mobile/lib/api.ts` (new)
   - Action: Configure `custom-fetch` or `api-client-react` with base URL and credentials.
   - Validation: `pnpm --filter @workspace/mobile test -- api`.
 
-- [ ] **MOB-001.2 [AGENT]**: Add environment variable documentation for mobile.
+- [x] **MOB-001.2 [AGENT]**: Add environment variable documentation for mobile.
   - File: `artifacts/mobile/.env.example` (new)
   - Action: Add `EXPO_PUBLIC_API_URL` and any other public env vars.
   - Validation: `pnpm -w run typecheck:libs`.
 
-- [ ] **MOB-001.3 [AGENT]**: Add unit test for API client configuration.
+- [x] **MOB-001.3 [AGENT]**: Add unit test for API client configuration.
   - File: `artifacts/mobile/lib/api.test.ts` (new)
   - Action: Assert that the client uses the configured base URL and includes credentials.
   - Validation: `pnpm --filter @workspace/mobile test -- api`.
+
+### Implementation Notes
+
+- Created `artifacts/mobile/lib/api.ts` with deep module pattern: hides base URL configuration, credentials handling, and custom-fetch integration behind simple `apiFetch` function
+- Configured base URL from `EXPO_PUBLIC_API_URL` environment variable with fallback to `http://localhost:3000`
+- Exported `customFetch` and related types from `@workspace/api-client-react` to enable mobile usage
+- Implemented `apiFetch` wrapper that automatically includes `credentials: 'include'` for cookie-based session management
+- Added `getApiBaseUrl()` helper for accessing the configured base URL
+- Created `artifacts/mobile/.env.example` with `EXPO_PUBLIC_API_URL` documentation
+- Added comprehensive unit tests (5 tests passing) for API client configuration
+- Tests verify: base URL retrieval, credentials inclusion, option passthrough, typed responses, and error handling
+- Typecheck passes for mobile package
+- Tests pass for mobile package
+- NOTE: React Native's fetch does not automatically handle cookies like browsers do. For production apps with cookie-based auth, consider using a cookie manager library (expo-cookies or @preeternal/react-native-cookie-manager) which requires dev builds. For Expo Go development, cookies may not persist across requests.
 
 ---
 
