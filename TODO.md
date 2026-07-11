@@ -2394,6 +2394,15 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
   - Action: Add `DATABASE_URL`, `SESSION_SECRET`, storage credentials, and domain env vars to CI/production.
   - Validation: Successful production deployment with health check passing.
 
+### Implementation Notes
+
+- Enhanced `docs/deployment.md` with comprehensive GitHub Actions secrets configuration guide
+- Added "Production Environment Secrets (Optional)" section documenting all required secrets (PROD_DATABASE_URL, PROD_SESSION_SECRET, PROD_JWT_SECRET, PROD_AWS_S3_BUCKET, PROD_AWS_REGION, PROD_AWS_ACCESS_KEY_ID, PROD_AWS_SECRET_ACCESS_KEY, PROD_API_URL)
+- Updated `.github/workflows/deploy-api.yml` with detailed comments about required environment variables and Kubernetes secrets management examples
+- Updated `.github/workflows/deploy-mobile.yml` with comments about environment variable preservation during deployment
+- Documentation now includes step-by-step instructions for adding secrets in GitHub repository settings
+- Human action required: Configure actual secret values in GitHub repository settings and production environment
+
 - [x] **DEP-001.5 [AGENT]**: Add deployment runbook.
   - File: `docs/deployment.md` (new)
   - Action: Document rollback steps, migration procedure, and environment variables.

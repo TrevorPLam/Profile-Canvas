@@ -75,7 +75,7 @@ SSE_MAX_CONNECTION_MINUTES=15
 
 ### GitHub Actions Secrets
 
-Configure the following secrets in your GitHub repository settings:
+Configure the following secrets in your GitHub repository settings (Settings → Secrets and variables → Actions → New repository secret):
 
 #### API Server Deployment
 
@@ -88,6 +88,19 @@ Configure the following secrets in your GitHub repository settings:
 
 - `MOBILE_DEPLOY_DOMAIN`: Domain for mobile app (e.g., mobile.yourdomain.com)
 - `MOBILE_REPL_ID`: Replit ID (if using Replit for hosting)
+
+#### Production Environment Secrets (Optional)
+
+For environments that require secrets to be passed at runtime (not build time), add these as GitHub Actions secrets:
+
+- `PROD_DATABASE_URL`: Production database connection string
+- `PROD_SESSION_SECRET`: Production session secret (generate with: openssl rand -base64 32)
+- `PROD_JWT_SECRET`: Production JWT secret (generate with: openssl rand -base64 32)
+- `PROD_AWS_S3_BUCKET`: Production S3 bucket name
+- `PROD_AWS_REGION`: AWS region
+- `PROD_AWS_ACCESS_KEY_ID`: AWS access key (prefer IAM roles)
+- `PROD_AWS_SECRET_ACCESS_KEY`: AWS secret key (prefer IAM roles)
+- `PROD_API_URL`: Production API URL for mobile app
 
 ## API Server Deployment
 

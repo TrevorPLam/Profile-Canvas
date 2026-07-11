@@ -64,3 +64,18 @@ jobs:
           # - kubectl apply -f k8s/api-server.yaml
           # - docker-compose up -d
           # - aws ecs update-service --cluster my-cluster --service api-server
+          #
+          # When deploying, ensure the following environment variables are set:
+          # - DATABASE_URL (from ${{ secrets.PROD_DATABASE_URL }})
+          # - SESSION_SECRET (from ${{ secrets.PROD_SESSION_SECRET }})
+          # - JWT_SECRET (from ${{ secrets.PROD_JWT_SECRET }})
+          # - AWS_S3_BUCKET (from ${{ secrets.PROD_AWS_S3_BUCKET }})
+          # - AWS_REGION (from ${{ secrets.PROD_AWS_REGION }})
+          # - AWS_ACCESS_KEY_ID (from ${{ secrets.PROD_AWS_ACCESS_KEY_ID }})
+          # - AWS_SECRET_ACCESS_KEY (from ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }})
+          #
+          # For platforms like Kubernetes, use secrets management:
+          # kubectl create secret generic corkboard-secrets \
+          #   --from-literal=database-url="${{ secrets.PROD_DATABASE_URL }}" \
+          #   --from-literal=session-secret="${{ secrets.PROD_SESSION_SECRET }}" \
+          #   --from-literal=jwt-secret="${{ secrets.PROD_JWT_SECRET }}"

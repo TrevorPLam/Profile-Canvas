@@ -50,3 +50,11 @@ jobs:
           # - netlify deploy --prod --dir=static-build
           # - firebase deploy --only hosting
           # - rsync -avz static-build/ user@server:/var/www/mobile/
+          #
+          # When deploying, ensure the following environment variables are set:
+          # - EXPO_PUBLIC_API_URL (should be set to production API URL)
+          # - MOBILE_DEPLOY_DOMAIN (from ${{ secrets.MOBILE_DEPLOY_DOMAIN }})
+          # - MOBILE_REPL_ID (from ${{ secrets.MOBILE_REPL_ID }})
+          #
+          # The build process already sets these from GitHub Actions secrets,
+          # but verify your hosting platform preserves these or provides alternatives
