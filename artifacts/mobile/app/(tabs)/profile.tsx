@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { PinnedCard } from '@/components/PinnedCard';
@@ -7,6 +7,7 @@ import { PostCard } from '@/components/PostCard';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { TopFriendsGrid } from '@/components/TopFriendsGrid';
 import { useSocialData } from '@/context/SocialDataContext';
+import { useMyProfile } from '@/hooks/useProfile';
 import { useColors } from '@/hooks/useColors';
 import { MODULE_LABELS } from '@/lib/theme';
 import { visibleModulesFor } from '@/lib/modules';
@@ -14,25 +15,48 @@ import type { Post } from '@/lib/types';
 
 export default function MyProfileScreen() {
   const colors = useColors();
-  const { me, posts, profiles, friendIds, toggleLike } = useSocialData();
+  const { data: me, isLoading: profileLoading, error: profileError } = useMyProfile();
+  const { posts, profiles, toggleLike } = useSocialData();
+
+  // Fall back to local data if API fails or not ready
+  const localMe = useSocialData().me;
+  const displayMe = me || localMe;
+
+  if (profileLoading && !displayMe) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (profileError && !displayMe) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.foreground }]}>
+          Failed to load profile
+        </Text>
+      </View>
+    );
+  }
 
   const myPosts = useMemo(
     () =>
       posts
         .filter(
           (p): p is Extract<Post, { kind: 'text' | 'video' }> =>
-            p.authorId === me.id && p.kind !== 'reel'
+            p.authorId === displayMe.id && p.kind !== 'reel'
         )
         .sort((a, b) => b.createdAt - a.createdAt),
-    [posts, me.id]
+    [posts, displayMe.id]
   );
 
   const topFriends = useMemo(
-    () => me.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [me.topFriendIds, profiles]
+    () => displayMe.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
+    [displayMe.topFriendIds, profiles]
   );
 
-  const modules = visibleModulesFor(me, true, false);
+  const modules = visibleModulesFor(displayMe, true, false);
 
   return (
     <ScrollView
@@ -41,8 +65,8 @@ export default function MyProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <ProfileHeader
-        profile={me}
-        friendCount={friendIds.length}
+        profile={displayMe}
+        friendCount={displayMe.friendCount}
         postCount={myPosts.length}
         isMe
         isFriend={false}
@@ -54,32 +78,32 @@ export default function MyProfileScreen() {
         {modules.map((module) => {
           if (module.id === 'about') {
             return (
-              <PinnedCard key={module.id} title={MODULE_LABELS.about} accentColor={me.accentColor}>
-                <Text style={[styles.bio, { color: colors.foreground }]}>{me.bio}</Text>
+              <PinnedCard key={module.id} title={MODULE_LABELS.about} accentColor={displayMe.accentColor}>
+                <Text style={[styles.bio, { color: colors.foreground }]}>{displayMe.bio}</Text>
               </PinnedCard>
             );
           }
-          if (module.id === 'mood' && (me.moodLabel || me.nowPlaying)) {
+          if (module.id === 'mood' && (displayMe.moodLabel || displayMe.nowPlaying)) {
             return (
-              <PinnedCard key={module.id} title={MODULE_LABELS.mood} accentColor={me.accentColor}>
+              <PinnedCard key={module.id} title={MODULE_LABELS.mood} accentColor={displayMe.accentColor}>
                 <View style={styles.moodRows}>
-                  {me.moodLabel ? (
+                  {displayMe.moodLabel ? (
                     <View style={styles.moodRow}>
                       <Feather
-                        name={(me.moodIcon as never) ?? 'smile'}
+                        name={(displayMe.moodIcon as never) ?? 'smile'}
                         size={15}
                         color={colors.mutedForeground}
                       />
                       <Text style={[styles.moodText, { color: colors.foreground }]}>
-                        Feeling {me.moodLabel.toLowerCase()}
+                        Feeling {displayMe.moodLabel.toLowerCase()}
                       </Text>
                     </View>
                   ) : null}
-                  {me.nowPlaying ? (
+                  {displayMe.nowPlaying ? (
                     <View style={styles.moodRow}>
                       <Feather name="music" size={15} color={colors.mutedForeground} />
                       <Text style={[styles.moodText, { color: colors.foreground }]}>
-                        {me.nowPlaying}
+                        {displayMe.nowPlaying}
                       </Text>
                     </View>
                   ) : null}
@@ -92,7 +116,7 @@ export default function MyProfileScreen() {
               <PinnedCard
                 key={module.id}
                 title={MODULE_LABELS.topFriends}
-                accentColor={me.accentColor}
+                accentColor={displayMe.accentColor}
               >
                 <TopFriendsGrid friends={topFriends} />
               </PinnedCard>
@@ -108,7 +132,7 @@ export default function MyProfileScreen() {
                   </Text>
                 ) : (
                   myPosts.map((post) => (
-                    <PostCard key={post.id} post={post} author={me} onToggleLike={toggleLike} />
+                    <PostCard key={post.id} post={post} author={displayMe} onToggleLike={toggleLike} />
                   ))
                 )}
               </View>
@@ -122,6 +146,21 @@ export default function MyProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 16,
+  },
   content: {
     paddingBottom: 120,
   },

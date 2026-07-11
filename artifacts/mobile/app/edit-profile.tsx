@@ -4,6 +4,8 @@ import { Feather } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { useSocialData } from '@/context/SocialDataContext';
+import { useMyProfile } from '@/hooks/useProfile';
+import { useUpdateProfile, useUpdateTopFriends } from '@/hooks/useUpdateProfile';
 import { useColors } from '@/hooks/useColors';
 import { ACCENT_COLORS, MODULE_LABELS, MOOD_OPTIONS, WALLPAPER_PRESETS } from '@/lib/theme';
 import type { ModuleId, Visibility } from '@/lib/types';
@@ -25,16 +27,15 @@ const AUDIENCE_OPTIONS: { id: Visibility; label: string }[] = [
 
 export default function EditProfileScreen() {
   const colors = useColors();
-  const {
-    me,
-    friendIds,
-    profiles,
-    updateMyProfile,
-    setModuleVisible,
-    setModuleAudience,
-    reorderModule,
-    setTopFriends,
-  } = useSocialData();
+  const { data: apiMe } = useMyProfile();
+  const { friendIds, profiles } = useSocialData();
+  const updateProfile = useUpdateProfile();
+  const updateTopFriends = useUpdateTopFriends();
+
+  // Use API data if available, fall back to local data
+  const localMe = useSocialData().me;
+  const me = apiMe || localMe;
+
   const [tab, setTab] = useState<Tab>('appearance');
   const [bio, setBio] = useState(me.bio);
   const [nowPlaying, setNowPlaying] = useState(me.nowPlaying ?? '');
@@ -43,6 +44,41 @@ export default function EditProfileScreen() {
   const friends = friendIds
     .map((id) => profiles[id])
     .filter((p): p is NonNullable<typeof p> => !!p);
+
+  // Helper to update profile via API
+  const handleUpdateProfile = (patch: Record<string, unknown>) => {
+    updateProfile.mutate(patch);
+  };
+
+  // Helper to update module visibility
+  const setModuleVisible = (moduleId: ModuleId, visible: boolean) => {
+    const modules = me.modules.map((m) => (m.id === moduleId ? { ...m, visible } : m));
+    handleUpdateProfile({ moduleSettings: { modules } });
+  };
+
+  // Helper to update module audience
+  const setModuleAudience = (moduleId: ModuleId, visibility: Visibility) => {
+    const modules = me.modules.map((m) => (m.id === moduleId ? { ...m, visibility } : m));
+    handleUpdateProfile({ moduleSettings: { modules } });
+  };
+
+  // Helper to reorder modules
+  const reorderModule = (moduleId: ModuleId, direction: -1 | 1) => {
+    const sorted = [...me.modules].sort((a, b) => a.order - b.order);
+    const index = sorted.findIndex((m) => m.id === moduleId);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= sorted.length) return;
+    const a = sorted[index]!;
+    const b = sorted[targetIndex]!;
+    sorted[index] = { ...b, order: a.order };
+    sorted[targetIndex] = { ...a, order: b.order };
+    handleUpdateProfile({ moduleSettings: { modules: sorted } });
+  };
+
+  // Helper to update top friends
+  const setTopFriends = (ids: string[]) => {
+    updateTopFriends.mutate(ids);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -89,7 +125,7 @@ export default function EditProfileScreen() {
               {WALLPAPER_PRESETS.map((preset) => (
                 <Pressable
                   key={preset.key}
-                  onPress={() => updateMyProfile({ wallpaper: preset.key })}
+                  onPress={() => handleUpdateProfile({ wallpaper: preset.key })}
                   style={styles.wallpaperItem}
                 >
                   <View
@@ -116,7 +152,7 @@ export default function EditProfileScreen() {
               {ACCENT_COLORS.map((c) => (
                 <Pressable
                   key={c}
-                  onPress={() => updateMyProfile({ accentColor: c })}
+                  onPress={() => handleUpdateProfile({ accentColor: c })}
                   style={[
                     styles.swatch,
                     { backgroundColor: c },
@@ -134,8 +170,8 @@ export default function EditProfileScreen() {
             <TextInput
               value={bio}
               onChangeText={setBio}
-              onEndEditing={() => updateMyProfile({ bio })}
-              onBlur={() => updateMyProfile({ bio })}
+              onEndEditing={() => handleUpdateProfile({ bio })}
+              onBlur={() => handleUpdateProfile({ bio })}
               multiline
               placeholder="Tell people about yourself"
               placeholderTextColor={colors.mutedForeground}
@@ -159,7 +195,7 @@ export default function EditProfileScreen() {
                   <Pressable
                     key={mood.label}
                     onPress={() =>
-                      updateMyProfile(
+                      handleUpdateProfile(
                         active
                           ? { moodLabel: null, moodIcon: null }
                           : { moodLabel: mood.label, moodIcon: mood.icon }
@@ -195,8 +231,8 @@ export default function EditProfileScreen() {
             <TextInput
               value={nowPlaying}
               onChangeText={setNowPlaying}
-              onEndEditing={() => updateMyProfile({ nowPlaying: nowPlaying.trim() || null })}
-              onBlur={() => updateMyProfile({ nowPlaying: nowPlaying.trim() || null })}
+              onEndEditing={() => handleUpdateProfile({ nowPlaying: nowPlaying.trim() || null })}
+              onBlur={() => handleUpdateProfile({ nowPlaying: nowPlaying.trim() || null })}
               placeholder="Song, artist, or vibe"
               placeholderTextColor={colors.mutedForeground}
               style={[
