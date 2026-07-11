@@ -85,6 +85,8 @@ overrides:
   "@types/react": "catalog:"
   # Mobile app needs specific React types for Expo SDK 54 compatibility
   "@workspace/mobile>@types/react": "~19.1.10"
+  # Force mockup-sandbox to use catalog @types/react to avoid Ref type conflicts
+  "@workspace/mockup-sandbox>@types/react": "catalog:"
   # Force latest versions of deprecated subdependencies
   glob: "^13.0.6"
   inflight: "^1.0.6"

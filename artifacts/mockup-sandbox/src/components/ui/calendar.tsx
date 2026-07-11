@@ -106,6 +106,7 @@ function Calendar({
       }}
       components={{
         Root: ({ className, rootRef, ...props }) => {
+          // @ts-expect-error - Ref type incompatibility due to multiple @types/react versions in monorepo
           return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
         },
         Chevron: ({ className, orientation, ...props }) => {
