@@ -1,9 +1,10 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
+import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
 import { timeAgo } from '@/lib/format';
 import type { Post, UserProfile } from '@/lib/types';
@@ -16,6 +17,7 @@ interface PostCardProps {
 
 export function PostCard({ post, author, onToggleLike }: PostCardProps) {
   const colors = useColors();
+  const { getProfile, repostPost, hasRepostedByMe } = useSocialData();
 
   const openAuthor = () => {
     if (author.id === 'me') {
@@ -25,13 +27,40 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
     }
   };
 
+  const openDetail = () => {
+    router.push(`/post/${post.id}`);
+  };
+
   const like = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     onToggleLike(post.id);
   };
 
+  const reposted = hasRepostedByMe(post.id);
+
+  const repost = () => {
+    if (reposted) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    repostPost(post.id);
+  };
+
+  const share = () => {
+    const summary = post.kind === 'text' ? post.text : post.title;
+    Share.share({ message: `${author.name}: ${summary}` }).catch(() => {});
+  };
+
+  const originalAuthor = post.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
+
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      {post.repostOf ? (
+        <View style={styles.repostBanner}>
+          <Feather name="repeat" size={12} color={colors.mutedForeground} />
+          <Text style={[styles.repostBannerText, { color: colors.mutedForeground }]}>
+            Reposted from {originalAuthor?.name ?? 'someone'}
+          </Text>
+        </View>
+      ) : null}
       <Pressable style={styles.header} onPress={openAuthor} hitSlop={6}>
         <Avatar name={author.name} color={author.avatarColor} size={40} />
         <View style={styles.headerText}>
@@ -42,25 +71,27 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
         </View>
       </Pressable>
 
-      {post.kind === 'text' ? (
-        <Text style={[styles.text, { color: colors.foreground }]}>{post.text}</Text>
-      ) : (
-        <View style={styles.videoWrap}>
-          <Image source={post.thumbnail} style={styles.thumbnail} resizeMode="cover" />
-          <View style={styles.playOverlay}>
-            <View style={styles.playCircle}>
-              <Feather name="play" size={20} color="#FFFCF5" />
+      <Pressable onPress={openDetail}>
+        {post.kind === 'text' ? (
+          <Text style={[styles.text, { color: colors.foreground }]}>{post.text}</Text>
+        ) : (
+          <View style={styles.videoWrap}>
+            <Image source={post.thumbnail} style={styles.thumbnail} resizeMode="cover" />
+            <View style={styles.playOverlay}>
+              <View style={styles.playCircle}>
+                <Feather name="play" size={20} color="#FFFCF5" />
+              </View>
             </View>
+            <View style={styles.durationBadge}>
+              <Text style={styles.durationText}>{post.durationLabel}</Text>
+            </View>
+            <Text style={[styles.videoTitle, { color: colors.foreground }]}>{post.title}</Text>
+            <Text style={[styles.videoMeta, { color: colors.mutedForeground }]}>
+              {post.viewsLabel}
+            </Text>
           </View>
-          <View style={styles.durationBadge}>
-            <Text style={styles.durationText}>{post.durationLabel}</Text>
-          </View>
-          <Text style={[styles.videoTitle, { color: colors.foreground }]}>{post.title}</Text>
-          <Text style={[styles.videoMeta, { color: colors.mutedForeground }]}>
-            {post.viewsLabel}
-          </Text>
-        </View>
-      )}
+        )}
+      </Pressable>
 
       <View style={styles.actions}>
         <Pressable style={styles.actionBtn} onPress={like} hitSlop={8}>
@@ -79,18 +110,18 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
             {post.likeCount}
           </Text>
         </Pressable>
-        <View style={styles.actionBtn}>
+        <Pressable style={styles.actionBtn} onPress={openDetail} hitSlop={8}>
           <Feather name="message-circle" size={17} color={colors.mutedForeground} />
           <Text style={[styles.actionText, { color: colors.mutedForeground }]}>
             {post.commentCount}
           </Text>
-        </View>
-        <View style={styles.actionBtn}>
-          <Feather name="repeat" size={17} color={colors.mutedForeground} />
-        </View>
-        <View style={styles.actionBtn}>
+        </Pressable>
+        <Pressable style={styles.actionBtn} onPress={repost} hitSlop={8} disabled={reposted}>
+          <Feather name="repeat" size={17} color={reposted ? colors.primary : colors.mutedForeground} />
+        </Pressable>
+        <Pressable style={styles.actionBtn} onPress={share} hitSlop={8}>
           <Feather name="share" size={17} color={colors.mutedForeground} />
-        </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -173,6 +204,16 @@ const styles = StyleSheet.create({
   },
   videoMeta: {
     fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+  },
+  repostBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: -2,
+  },
+  repostBannerText: {
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
   },
   actions: {

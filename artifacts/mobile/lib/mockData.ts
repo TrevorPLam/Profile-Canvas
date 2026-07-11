@@ -1,4 +1,4 @@
-import type { FriendRequest, Post, UserProfile } from '@/lib/types';
+import type { Comment, FriendRequest, Post, UserProfile } from '@/lib/types';
 
 const HOUR = 1000 * 60 * 60;
 
@@ -289,6 +289,68 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 3,
       likedByMe: false,
       text: 'Sold my film scanner and immediately regretted it.',
+    },
+  ];
+}
+
+export function createSeedComments(now: number): Comment[] {
+  const t = (hoursAgo: number) => now - hoursAgo * HOUR;
+  return [
+    {
+      id: 'c1',
+      postId: 'p1',
+      authorId: 'u1',
+      text: 'It really does look better than any template feed, ngl.',
+      createdAt: t(0.3),
+    },
+    {
+      id: 'c2',
+      postId: 'p1',
+      authorId: 'u2',
+      text: 'Okay the wallpaper choice is sending me',
+      createdAt: t(0.2),
+    },
+    {
+      id: 'c3',
+      postId: 'p1',
+      authorId: 'u3',
+      text: 'Teach me your ways',
+      createdAt: t(0.1),
+    },
+    {
+      id: 'c4',
+      postId: 'p2',
+      authorId: 'me',
+      text: 'This is the one, don\u2019t change a single note',
+      createdAt: t(0.8),
+    },
+    {
+      id: 'c5',
+      postId: 'p2',
+      authorId: 'u3',
+      text: '3am is when the good ideas happen fr',
+      createdAt: t(0.6),
+    },
+    {
+      id: 'c6',
+      postId: 'p3',
+      authorId: 'u1',
+      text: 'Adding this to the watch-later pile immediately',
+      createdAt: t(2.5),
+    },
+    {
+      id: 'c7',
+      postId: 'p3',
+      authorId: 'me',
+      text: 'The no-plan energy is exactly why I clicked',
+      createdAt: t(2),
+    },
+    {
+      id: 'c8',
+      postId: 'p4',
+      authorId: 'u1',
+      text: 'Six months of patience for one perfect skillet, respect',
+      createdAt: t(4),
     },
   ];
 }

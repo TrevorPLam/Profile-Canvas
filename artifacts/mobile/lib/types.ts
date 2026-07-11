@@ -35,6 +35,11 @@ export interface FriendRequest {
 
 export type PostKind = 'text' | 'video' | 'reel';
 
+export interface RepostInfo {
+  originalPostId: string;
+  originalAuthorId: string;
+}
+
 interface BasePost {
   id: string;
   authorId: string;
@@ -43,6 +48,7 @@ interface BasePost {
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
+  repostOf?: RepostInfo;
 }
 
 export interface TextPost extends BasePost {
@@ -67,6 +73,14 @@ export interface ReelPost extends BasePost {
 }
 
 export type Post = TextPost | VideoPost | ReelPost;
+
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  text: string;
+  createdAt: number;
+}
 
 export interface WallpaperPreset {
   key: string;

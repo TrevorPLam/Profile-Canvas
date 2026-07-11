@@ -9,17 +9,19 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ME_ID,
+  createSeedComments,
   createSeedFriendRequests,
   createSeedPosts,
   createSeedProfiles,
 } from '@/lib/mockData';
-import type { FriendRequest, ModuleId, Post, UserProfile, Visibility } from '@/lib/types';
+import type { Comment, FriendRequest, ModuleId, Post, UserProfile, Visibility } from '@/lib/types';
 
 interface StoredState {
   profiles: Record<string, UserProfile>;
   posts: Post[];
   friendIds: string[];
   requests: FriendRequest[];
+  comments: Comment[];
 }
 
 const STORAGE_KEY = 'corkboard.social.v1';
@@ -31,10 +33,15 @@ interface SocialDataContextValue {
   posts: Post[];
   friendIds: string[];
   requests: FriendRequest[];
+  comments: Comment[];
   getProfile: (id: string) => UserProfile | undefined;
   isFriend: (id: string) => boolean;
   toggleLike: (postId: string) => void;
   addTextPost: (text: string) => void;
+  getComments: (postId: string) => Comment[];
+  addComment: (postId: string, text: string) => void;
+  repostPost: (postId: string) => void;
+  hasRepostedByMe: (postId: string) => boolean;
   updateMyProfile: (patch: Partial<UserProfile>) => void;
   setModuleVisible: (moduleId: ModuleId, visible: boolean) => void;
   setModuleAudience: (moduleId: ModuleId, visibility: Visibility) => void;
@@ -74,6 +81,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
         posts: createSeedPosts(now),
         friendIds: ['u1', 'u2', 'u3'],
         requests: createSeedFriendRequests(now),
+        comments: createSeedComments(now),
       };
       if (mounted) {
         setState(seeded);
@@ -173,6 +181,56 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
       persist({ ...state, requests: state.requests.filter((r) => r.id !== requestId) });
     };
 
+    const getComments = (postId: string) =>
+      state.comments
+        .filter((c) => c.postId === postId)
+        .sort((a, b) => a.createdAt - b.createdAt);
+
+    const addComment = (postId: string, text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      const comment: Comment = {
+        id: `c-${Date.now()}`,
+        postId,
+        authorId: ME_ID,
+        text: trimmed,
+        createdAt: Date.now(),
+      };
+      const posts = state.posts.map((p) =>
+        p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p,
+      );
+      persist({ ...state, posts, comments: [...state.comments, comment] });
+    };
+
+    const rootRepostId = (postId: string) => {
+      const post = state.posts.find((p) => p.id === postId);
+      return post?.repostOf?.originalPostId ?? postId;
+    };
+
+    const hasRepostedByMe = (postId: string) => {
+      const rootId = rootRepostId(postId);
+      return state.posts.some((p) => p.authorId === ME_ID && p.repostOf?.originalPostId === rootId);
+    };
+
+    const repostPost = (postId: string) => {
+      const original = state.posts.find((p) => p.id === postId);
+      if (!original) return;
+      if (hasRepostedByMe(postId)) return;
+      const rootId = original.repostOf?.originalPostId ?? original.id;
+      const rootAuthorId = original.repostOf?.originalAuthorId ?? original.authorId;
+      const repost: Post = {
+        ...original,
+        id: `repost-${Date.now()}`,
+        authorId: ME_ID,
+        createdAt: Date.now(),
+        likeCount: 0,
+        commentCount: 0,
+        likedByMe: false,
+        repostOf: { originalPostId: rootId, originalAuthorId: rootAuthorId },
+      };
+      persist({ ...state, posts: [repost, ...state.posts] });
+    };
+
     const removeFriend = (id: string) => {
       persist({
         ...state,
@@ -191,10 +249,15 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
       posts: state.posts,
       friendIds: state.friendIds,
       requests: state.requests,
+      comments: state.comments,
       getProfile,
       isFriend,
       toggleLike,
       addTextPost,
+      getComments,
+      addComment,
+      repostPost,
+      hasRepostedByMe,
       updateMyProfile,
       setModuleVisible,
       setModuleAudience,

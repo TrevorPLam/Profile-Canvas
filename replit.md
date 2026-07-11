@@ -16,7 +16,7 @@ A social app that mixes a short-text feed, YouTube-style videos, and TikTok/Inst
 
 ## Where things live
 
-- `artifacts/mobile/app/` — expo-router screens: `(tabs)/index.tsx` (Feed), `(tabs)/reels.tsx`, `(tabs)/friends.tsx`, `(tabs)/profile.tsx` (own profile), `profile/[id].tsx` (other users), `edit-profile.tsx` and `compose.tsx` (modals)
+- `artifacts/mobile/app/` — expo-router screens: `(tabs)/index.tsx` (Feed), `(tabs)/reels.tsx`, `(tabs)/discover.tsx` (people search + friend requests), `(tabs)/profile.tsx` (own profile), `profile/[id].tsx` (other users), `post/[id].tsx` (post detail + comment thread), `edit-profile.tsx` and `compose.tsx` (modals)
 - `artifacts/mobile/context/SocialDataContext.tsx` — single source of truth for users/posts/friends, persisted to AsyncStorage
 - `artifacts/mobile/lib/types.ts`, `lib/theme.ts`, `lib/mockData.ts`, `lib/modules.ts` — domain types, wallpaper/accent/mood presets, seed data, profile-module visibility logic
 - `artifacts/mobile/constants/colors.ts` — warm cork/paper color palette
@@ -27,6 +27,8 @@ A social app that mixes a short-text feed, YouTube-style videos, and TikTok/Inst
 - Feed shows all seeded users' content (discover-style); a separate Friends tab holds the actual friend graph (requests/accept/decline/top friends) so the two concerns don't get conflated.
 - Profile customization (wallpaper, accent color, mood, now-playing, bio, top friends, module order/visibility) is modeled as data on `UserProfile`, not styling logic scattered across screens — see `lib/theme.ts` and `lib/modules.ts::visibleModulesFor`.
 - Avatars are deterministic color+initials (no generated portraits); wallpapers are gradient presets via `expo-linear-gradient`, not images.
+- Comments live in their own `comments` collection in `SocialDataContext`, keyed by `postId`; each post also independently tracks its own `commentCount`.
+- A repost is a full copy of the original post's content stored as a new `Post` with `authorId: 'me'` and a `repostOf` pointer to the original id/author (dereferenced to the ultimate original if reposting a repost) — this makes reposts show up in feed/profile/reels the same as any other post, with a "Reposted from X" banner for context.
 
 ## Product
 
