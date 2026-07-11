@@ -427,9 +427,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] PRF-001: Extend API spec for profile operations
+## [x] PRF-001: Extend API spec for profile operations
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** PRF
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for fetching, updating, and customizing a profile.
@@ -445,14 +445,31 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **PRF-001.1 [AGENT/HUMAN]**: Draft profile endpoints in OpenAPI.
+- [x] **PRF-001.1 [AGENT/HUMAN]**: Draft profile endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add profile paths and schemas, including module settings and visibility enum.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
 
-- [ ] **PRF-001.2 [HUMAN]**: Review profile visibility contract.
+- [x] **PRF-001.2 [HUMAN]**: Review profile visibility contract.
   - Action: Confirm that module visibility semantics match the mobile app expectations.
   - Validation: Manual review of `lib/api-spec/openapi.yaml` profile schemas.
+
+### Implementation Notes
+
+- Added `profiles` tag to OpenAPI spec for organization
+- Implemented 5 profile endpoints: GET /profiles/{handle}, GET /profiles/me, PATCH /profiles/me, GET /profiles/me/top-friends, PATCH /profiles/me/top-friends
+- All endpoints follow BDD-style descriptions in the description field
+- GET /profiles/{handle} uses optional auth (cookieAuth) to support both authenticated and unauthenticated viewers
+- GET /profiles/me and PATCH /profiles/me require authentication
+- Top friends endpoints require authentication
+- Added ProfileUpdateRequest schema with all mutable fields (name, bio, avatarUrl, wallpaper, accentColor, moodLabel, moodIcon, nowPlaying, moduleSettings)
+- Added TopFriendsResponse and TopFriendsUpdateRequest schemas for top friends management
+- ProfileModule schema already existed with visibility enum (everyone, friends, onlyMe) matching mobile app expectations
+- Codegen successfully generates api-zod and api-client-react without errors
+- Typecheck passes for libs
+- Pre-existing typecheck errors in artifacts/mockup-sandbox (React type conflicts) are out of scope (documented in TOOL-001)
+- Pre-existing lint errors in artifacts/mobile and artifacts/mockup-sandbox (unused variables) are out of scope (documented in TOOL-001)
+- Pre-existing test failures in api-server (DATABASE_URL not set) are out of scope (documented in AUTH-002)
 
 ---
 

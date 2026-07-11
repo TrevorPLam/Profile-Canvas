@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: auth
     description: Authentication operations
+  - name: profiles
+    description: Profile operations
 paths:
   /healthz:
     get:
@@ -173,6 +175,139 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /profiles/{handle}:
+    get:
+      operationId: getProfileByHandle
+      tags: [profiles]
+      summary: Get profile by handle
+      description: Given a profile handle, when a viewer requests it, then the profile is returned with modules filtered by the viewer's relationship (everyone, friends, or onlyMe visibility).
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /profiles/me:
+    get:
+      operationId: getMyProfile
+      tags: [profiles]
+      summary: Get current user's profile
+      description: Given an authenticated user, when they request their profile, then their full profile with all modules is returned regardless of visibility settings.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Current user's profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateMyProfile
+      tags: [profiles]
+      summary: Update current user's profile
+      description: Given an authenticated user, when they update their profile, then allowed fields and module settings are persisted atomically. Immutable fields (userId, joinedAt) are rejected.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdateRequest"
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /profiles/me/top-friends:
+    get:
+      operationId: getMyTopFriends
+      tags: [profiles]
+      summary: Get current user's top friends
+      description: Given an authenticated user, when they request their top friends, then the list of top friend user IDs is returned.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Top friends retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopFriendsResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateMyTopFriends
+      tags: [profiles]
+      summary: Update current user's top friends
+      description: Given an authenticated user, when they update their top friends, then the list of top friend user IDs is persisted.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopFriendsUpdateRequest"
+      responses:
+        "200":
+          description: Top friends updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopFriendsResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -304,4 +439,54 @@ components:
           type: string
       required:
         - message
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        wallpaper:
+          type: string
+          nullable: true
+        accentColor:
+          type: string
+          nullable: true
+        moodLabel:
+          type: string
+          nullable: true
+        moodIcon:
+          type: string
+          nullable: true
+        nowPlaying:
+          type: string
+          nullable: true
+        moduleSettings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileModule"
+    TopFriendsResponse:
+      type: object
+      properties:
+        topFriends:
+          type: array
+          items:
+            type: string
+          description: Array of user IDs representing the user's top friends
+      required:
+        - topFriends
+    TopFriendsUpdateRequest:
+      type: object
+      properties:
+        topFriends:
+          type: array
+          items:
+            type: string
+          description: Array of user IDs to set as top friends
+      required:
+        - topFriends
 

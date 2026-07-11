@@ -78,3 +78,25 @@ export interface Error {
   message: string;
 }
 
+export interface ProfileUpdateRequest {
+  name?: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  wallpaper?: string | null;
+  accentColor?: string | null;
+  moodLabel?: string | null;
+  moodIcon?: string | null;
+  nowPlaying?: string | null;
+  moduleSettings?: ProfileModule[];
+}
+
+export interface TopFriendsResponse {
+  /** Array of user IDs representing the user's top friends */
+  topFriends: string[];
+}
+
+export interface TopFriendsUpdateRequest {
+  /** Array of user IDs to set as top friends */
+  topFriends: string[];
+}
+

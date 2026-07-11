@@ -23,7 +23,11 @@ import type {
   Error,
   HealthStatus,
   LoginRequest,
+  ProfileResponse,
+  ProfileUpdateRequest,
   RegisterRequest,
+  TopFriendsResponse,
+  TopFriendsUpdateRequest,
   UserProfileResponse,
   UserResponse
 } from './api.schemas';
@@ -497,5 +501,383 @@ export const useRefreshSession = <TError = ErrorType<Error>,
         TContext
       > => {
       return useMutation(getRefreshSessionMutationOptions(options));
+    }
+
+export const getGetProfileByHandleUrl = (handle: string,) => {
+
+
+
+
+  return `/api/profiles/${handle}`
+}
+
+/**
+ * Given a profile handle, when a viewer requests it, then the profile is returned with modules filtered by the viewer's relationship (everyone, friends, or onlyMe visibility).
+ * @summary Get profile by handle
+ */
+export const getProfileByHandle = async (handle: string, options?: RequestInit): Promise<ProfileResponse> => {
+
+  return customFetch<ProfileResponse>(getGetProfileByHandleUrl(handle),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProfileByHandleQueryKey = (handle: string,) => {
+    return [
+    `/api/profiles/${handle}`
+    ] as const;
+    }
+
+
+export const getGetProfileByHandleQueryOptions = <TData = Awaited<ReturnType<typeof getProfileByHandle>>, TError = ErrorType<Error>>(handle: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProfileByHandle>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfileByHandleQueryKey(handle);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfileByHandle>>> = ({ signal }) => getProfileByHandle(handle, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: handle !== null && handle !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfileByHandle>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProfileByHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getProfileByHandle>>>
+export type GetProfileByHandleQueryError = ErrorType<Error>
+
+
+/**
+ * @summary Get profile by handle
+ */
+
+export function useGetProfileByHandle<TData = Awaited<ReturnType<typeof getProfileByHandle>>, TError = ErrorType<Error>>(
+ handle: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProfileByHandle>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProfileByHandleQueryOptions(handle,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyProfileUrl = () => {
+
+
+
+
+  return `/api/profiles/me`
+}
+
+/**
+ * Given an authenticated user, when they request their profile, then their full profile with all modules is returned regardless of visibility settings.
+ * @summary Get current user's profile
+ */
+export const getMyProfile = async ( options?: RequestInit): Promise<ProfileResponse> => {
+
+  return customFetch<ProfileResponse>(getGetMyProfileUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyProfileQueryKey = () => {
+    return [
+    `/api/profiles/me`
+    ] as const;
+    }
+
+
+export const getGetMyProfileQueryOptions = <TData = Awaited<ReturnType<typeof getMyProfile>>, TError = ErrorType<Error>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyProfile>>> = ({ signal }) => getMyProfile({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getMyProfile>>>
+export type GetMyProfileQueryError = ErrorType<Error>
+
+
+/**
+ * @summary Get current user's profile
+ */
+
+export function useGetMyProfile<TData = Awaited<ReturnType<typeof getMyProfile>>, TError = ErrorType<Error>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateMyProfileUrl = () => {
+
+
+
+
+  return `/api/profiles/me`
+}
+
+/**
+ * Given an authenticated user, when they update their profile, then allowed fields and module settings are persisted atomically. Immutable fields (userId, joinedAt) are rejected.
+ * @summary Update current user's profile
+ */
+export const updateMyProfile = async (profileUpdateRequest: ProfileUpdateRequest, options?: RequestInit): Promise<ProfileResponse> => {
+
+  return customFetch<ProfileResponse>(getUpdateMyProfileUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(profileUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateMyProfileMutationOptions = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdateRequest>}, TContext> => {
+
+const mutationKey = ['updateMyProfile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyProfile>>, {data: BodyType<ProfileUpdateRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMyProfile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyProfile>>>
+    export type UpdateMyProfileMutationBody = BodyType<ProfileUpdateRequest>
+    export type UpdateMyProfileMutationError = ErrorType<Error>
+
+    /**
+ * @summary Update current user's profile
+ */
+export const useUpdateMyProfile = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMyProfile>>,
+        TError,
+        {data: BodyType<ProfileUpdateRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateMyProfileMutationOptions(options));
+    }
+
+export const getGetMyTopFriendsUrl = () => {
+
+
+
+
+  return `/api/profiles/me/top-friends`
+}
+
+/**
+ * Given an authenticated user, when they request their top friends, then the list of top friend user IDs is returned.
+ * @summary Get current user's top friends
+ */
+export const getMyTopFriends = async ( options?: RequestInit): Promise<TopFriendsResponse> => {
+
+  return customFetch<TopFriendsResponse>(getGetMyTopFriendsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyTopFriendsQueryKey = () => {
+    return [
+    `/api/profiles/me/top-friends`
+    ] as const;
+    }
+
+
+export const getGetMyTopFriendsQueryOptions = <TData = Awaited<ReturnType<typeof getMyTopFriends>>, TError = ErrorType<Error>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyTopFriends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyTopFriendsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyTopFriends>>> = ({ signal }) => getMyTopFriends({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyTopFriends>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyTopFriendsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyTopFriends>>>
+export type GetMyTopFriendsQueryError = ErrorType<Error>
+
+
+/**
+ * @summary Get current user's top friends
+ */
+
+export function useGetMyTopFriends<TData = Awaited<ReturnType<typeof getMyTopFriends>>, TError = ErrorType<Error>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyTopFriends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyTopFriendsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateMyTopFriendsUrl = () => {
+
+
+
+
+  return `/api/profiles/me/top-friends`
+}
+
+/**
+ * Given an authenticated user, when they update their top friends, then the list of top friend user IDs is persisted.
+ * @summary Update current user's top friends
+ */
+export const updateMyTopFriends = async (topFriendsUpdateRequest: TopFriendsUpdateRequest, options?: RequestInit): Promise<TopFriendsResponse> => {
+
+  return customFetch<TopFriendsResponse>(getUpdateMyTopFriendsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(topFriendsUpdateRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateMyTopFriendsMutationOptions = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyTopFriends>>, TError,{data: BodyType<TopFriendsUpdateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyTopFriends>>, TError,{data: BodyType<TopFriendsUpdateRequest>}, TContext> => {
+
+const mutationKey = ['updateMyTopFriends'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyTopFriends>>, {data: BodyType<TopFriendsUpdateRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMyTopFriends(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMyTopFriendsMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyTopFriends>>>
+    export type UpdateMyTopFriendsMutationBody = BodyType<TopFriendsUpdateRequest>
+    export type UpdateMyTopFriendsMutationError = ErrorType<Error>
+
+    /**
+ * @summary Update current user's top friends
+ */
+export const useUpdateMyTopFriends = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyTopFriends>>, TError,{data: BodyType<TopFriendsUpdateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMyTopFriends>>,
+        TError,
+        {data: BodyType<TopFriendsUpdateRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateMyTopFriendsMutationOptions(options));
     }
 

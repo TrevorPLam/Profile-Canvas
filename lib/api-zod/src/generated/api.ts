@@ -111,3 +111,121 @@ export const RefreshSessionResponse = zod.object({
 })
 
 
+/**
+ * Given a profile handle, when a viewer requests it, then the profile is returned with modules filtered by the viewer's relationship (everyone, friends, or onlyMe visibility).
+ * @summary Get profile by handle
+ */
+export const GetProfileByHandleParams = zod.object({
+  "handle": zod.coerce.string()
+})
+
+export const GetProfileByHandleResponse = zod.object({
+  "userId": zod.string(),
+  "handle": zod.string(),
+  "name": zod.string(),
+  "bio": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "wallpaper": zod.string().nullish(),
+  "accentColor": zod.string().nullish(),
+  "moodLabel": zod.string().nullish(),
+  "moodIcon": zod.string().nullish(),
+  "nowPlaying": zod.string().nullish(),
+  "moduleSettings": zod.array(zod.object({
+  "id": zod.enum(['about', 'topFriends', 'mood', 'posts']),
+  "visible": zod.boolean(),
+  "visibility": zod.enum(['everyone', 'friends', 'onlyMe']),
+  "order": zod.number()
+})),
+  "joinedAt": zod.string()
+})
+
+
+/**
+ * Given an authenticated user, when they request their profile, then their full profile with all modules is returned regardless of visibility settings.
+ * @summary Get current user's profile
+ */
+export const GetMyProfileResponse = zod.object({
+  "userId": zod.string(),
+  "handle": zod.string(),
+  "name": zod.string(),
+  "bio": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "wallpaper": zod.string().nullish(),
+  "accentColor": zod.string().nullish(),
+  "moodLabel": zod.string().nullish(),
+  "moodIcon": zod.string().nullish(),
+  "nowPlaying": zod.string().nullish(),
+  "moduleSettings": zod.array(zod.object({
+  "id": zod.enum(['about', 'topFriends', 'mood', 'posts']),
+  "visible": zod.boolean(),
+  "visibility": zod.enum(['everyone', 'friends', 'onlyMe']),
+  "order": zod.number()
+})),
+  "joinedAt": zod.string()
+})
+
+
+/**
+ * Given an authenticated user, when they update their profile, then allowed fields and module settings are persisted atomically. Immutable fields (userId, joinedAt) are rejected.
+ * @summary Update current user's profile
+ */
+export const UpdateMyProfileBody = zod.object({
+  "name": zod.string().optional(),
+  "bio": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "wallpaper": zod.string().nullish(),
+  "accentColor": zod.string().nullish(),
+  "moodLabel": zod.string().nullish(),
+  "moodIcon": zod.string().nullish(),
+  "nowPlaying": zod.string().nullish(),
+  "moduleSettings": zod.array(zod.object({
+  "id": zod.enum(['about', 'topFriends', 'mood', 'posts']),
+  "visible": zod.boolean(),
+  "visibility": zod.enum(['everyone', 'friends', 'onlyMe']),
+  "order": zod.number()
+})).optional()
+})
+
+export const UpdateMyProfileResponse = zod.object({
+  "userId": zod.string(),
+  "handle": zod.string(),
+  "name": zod.string(),
+  "bio": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "wallpaper": zod.string().nullish(),
+  "accentColor": zod.string().nullish(),
+  "moodLabel": zod.string().nullish(),
+  "moodIcon": zod.string().nullish(),
+  "nowPlaying": zod.string().nullish(),
+  "moduleSettings": zod.array(zod.object({
+  "id": zod.enum(['about', 'topFriends', 'mood', 'posts']),
+  "visible": zod.boolean(),
+  "visibility": zod.enum(['everyone', 'friends', 'onlyMe']),
+  "order": zod.number()
+})),
+  "joinedAt": zod.string()
+})
+
+
+/**
+ * Given an authenticated user, when they request their top friends, then the list of top friend user IDs is returned.
+ * @summary Get current user's top friends
+ */
+export const GetMyTopFriendsResponse = zod.object({
+  "topFriends": zod.array(zod.string()).describe('Array of user IDs representing the user\'s top friends')
+})
+
+
+/**
+ * Given an authenticated user, when they update their top friends, then the list of top friend user IDs is persisted.
+ * @summary Update current user's top friends
+ */
+export const UpdateMyTopFriendsBody = zod.object({
+  "topFriends": zod.array(zod.string()).describe('Array of user IDs to set as top friends')
+})
+
+export const UpdateMyTopFriendsResponse = zod.object({
+  "topFriends": zod.array(zod.string()).describe('Array of user IDs representing the user\'s top friends')
+})
+
+
