@@ -26,21 +26,23 @@ export default function FriendsListScreen() {
 
   const friends = useMemo(
     () => friendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [friendIds, profiles],
+    [friendIds, profiles]
   );
 
   const topFriends = useMemo(
     () => me.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [me.topFriendIds, profiles],
+    [me.topFriendIds, profiles]
   );
 
   const suggested = useMemo(
     () =>
       Object.values(profiles).filter(
         (p) =>
-          p.id !== ME_ID && !friendIds.includes(p.id) && !requests.some((r) => r.fromUserId === p.id),
+          p.id !== ME_ID &&
+          !friendIds.includes(p.id) &&
+          !requests.some((r) => r.fromUserId === p.id)
       ),
-    [profiles, friendIds, requests],
+    [profiles, friendIds, requests]
   );
 
   return (
@@ -62,9 +64,7 @@ export default function FriendsListScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {requests.length > 0 ? (
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              Friend requests
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Friend requests</Text>
             {requests.map((req) => {
               const requester = profiles[req.fromUserId];
               if (!requester) return null;

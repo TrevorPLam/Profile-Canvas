@@ -33,7 +33,7 @@ const KEYWORDS: Record<string, string[]> = {
 export function inferTopics(text: string): string[] {
   const lower = text.toLowerCase();
   const matches = TOPICS.filter((topic) =>
-    (KEYWORDS[topic.id] ?? []).some((kw) => lower.includes(kw)),
+    (KEYWORDS[topic.id] ?? []).some((kw) => lower.includes(kw))
   ).map((t) => t.id);
   return matches.length > 0 ? matches : ['lifestyle'];
 }

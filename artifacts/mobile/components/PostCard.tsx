@@ -55,9 +55,7 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
   const confirmDelete = () => {
     Alert.alert(
       post.repostOf ? 'Undo repost?' : 'Delete post?',
-      post.repostOf
-        ? 'This will remove it from your profile and feed.'
-        : 'This cannot be undone.',
+      post.repostOf ? 'This will remove it from your profile and feed.' : 'This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -65,7 +63,7 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
           style: 'destructive',
           onPress: () => deletePost(post.id),
         },
-      ],
+      ]
     );
   };
 
@@ -135,7 +133,11 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
           </Text>
         </Pressable>
         <Pressable style={styles.actionBtn} onPress={repost} hitSlop={8} disabled={reposted}>
-          <Feather name="repeat" size={17} color={reposted ? colors.primary : colors.mutedForeground} />
+          <Feather
+            name="repeat"
+            size={17}
+            color={reposted ? colors.primary : colors.mutedForeground}
+          />
         </Pressable>
         <Pressable style={styles.actionBtn} onPress={share} hitSlop={8}>
           <Feather name="share" size={17} color={colors.mutedForeground} />

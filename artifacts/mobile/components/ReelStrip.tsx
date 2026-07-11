@@ -22,7 +22,11 @@ export function ReelStrip({ reels, authors }: ReelStripProps) {
           <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
         </Pressable>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.row}
+      >
         {reels.map((reel) => {
           const author = authors[reel.authorId];
           return (

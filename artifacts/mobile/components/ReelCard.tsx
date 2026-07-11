@@ -53,9 +53,7 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
   const confirmDelete = () => {
     Alert.alert(
       post.repostOf ? 'Undo repost?' : 'Delete reel?',
-      post.repostOf
-        ? 'This will remove it from your profile and reels.'
-        : 'This cannot be undone.',
+      post.repostOf ? 'This will remove it from your profile and reels.' : 'This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -63,7 +61,7 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
           style: 'destructive',
           onPress: () => deletePost(post.id),
         },
-      ],
+      ]
     );
   };
 
@@ -83,7 +81,9 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
             {post.repostOf ? (
               <View style={styles.repostRow}>
                 <Feather name="repeat" size={12} color="#FFFCF5" />
-                <Text style={styles.repostText}>Reposted from {originalAuthor?.name ?? 'someone'}</Text>
+                <Text style={styles.repostText}>
+                  Reposted from {originalAuthor?.name ?? 'someone'}
+                </Text>
               </View>
             ) : null}
             <Pressable style={styles.authorRow} onPress={openAuthor} hitSlop={6}>
@@ -98,11 +98,7 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
           </View>
           <View style={styles.rail}>
             <Pressable style={styles.railBtn} onPress={like} hitSlop={8}>
-              <Feather
-                name="heart"
-                size={26}
-                color={post.likedByMe ? '#FF3D7F' : '#FFFCF5'}
-              />
+              <Feather name="heart" size={26} color={post.likedByMe ? '#FF3D7F' : '#FFFCF5'} />
               <Text style={styles.railText}>{post.likeCount}</Text>
             </Pressable>
             <Pressable style={styles.railBtn} onPress={openDetail} hitSlop={8}>

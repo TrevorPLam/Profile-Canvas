@@ -37,7 +37,7 @@ export default function FeedScreen() {
     const sorted = [...scopedPosts].sort((a, b) => b.createdAt - a.createdAt);
     const reelPool = sorted.filter((p): p is ReelPost => p.kind === 'reel');
     const nonReel = sorted.filter(
-      (p): p is Extract<Post, { kind: 'text' | 'video' }> => p.kind !== 'reel',
+      (p): p is Extract<Post, { kind: 'text' | 'video' }> => p.kind !== 'reel'
     );
 
     const result: FeedRow[] = [];
@@ -59,13 +59,19 @@ export default function FeedScreen() {
   }, [scopedPosts]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}
+    >
       <View style={styles.topBar}>
         <Pressable onPress={() => router.push('/(tabs)/profile')} hitSlop={8}>
           <Avatar name={me.name} color={me.avatarColor} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
-        <Pressable onPress={() => router.push('/friends-list')} hitSlop={8} style={styles.friendsBtn}>
+        <Pressable
+          onPress={() => router.push('/friends-list')}
+          hitSlop={8}
+          style={styles.friendsBtn}
+        >
           <Feather name="users" size={22} color={colors.foreground} />
           {requests.length > 0 ? (
             <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
@@ -103,9 +109,7 @@ export default function FeedScreen() {
 
       <FlatList
         data={rows}
-        keyExtractor={(item, index) =>
-          item.kind === 'post' ? item.post.id : `strip-${index}`
-        }
+        keyExtractor={(item, index) => (item.kind === 'post' ? item.post.id : `strip-${index}`)}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         scrollEnabled={rows.length > 0}

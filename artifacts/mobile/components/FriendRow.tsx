@@ -14,10 +14,7 @@ interface FriendRowProps {
 export function FriendRow({ user, rightSlot }: FriendRowProps) {
   const colors = useColors();
   return (
-    <Pressable
-      style={styles.row}
-      onPress={() => router.push(`/profile/${user.id}`)}
-    >
+    <Pressable style={styles.row} onPress={() => router.push(`/profile/${user.id}`)}>
       <Avatar name={user.name} color={user.avatarColor} size={46} />
       <View style={styles.textWrap}>
         <Text style={[styles.name, { color: colors.foreground }]}>{user.name}</Text>

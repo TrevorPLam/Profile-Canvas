@@ -39,9 +39,7 @@ export function ProfileHeader({
         {isMe ? (
           <Pressable style={styles.editBtn} onPress={onEdit}>
             <Feather name="edit-2" size={14} color={wallpaper.textOnWallpaper} />
-            <Text style={[styles.editText, { color: wallpaper.textOnWallpaper }]}>
-              Customize
-            </Text>
+            <Text style={[styles.editText, { color: wallpaper.textOnWallpaper }]}>Customize</Text>
           </Pressable>
         ) : isFriend ? (
           <Pressable style={styles.editBtn} onPress={onRemoveFriend}>
@@ -81,9 +79,7 @@ export function ProfileHeader({
           </View>
         )}
         <View style={styles.stat}>
-          <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>
-            {postCount}
-          </Text>
+          <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>{postCount}</Text>
           <Text style={[styles.statLabel, { color: wallpaper.textOnWallpaper }]}>Posts</Text>
         </View>
         <View style={styles.stat}>

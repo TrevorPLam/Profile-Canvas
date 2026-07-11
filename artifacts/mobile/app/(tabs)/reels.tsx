@@ -18,13 +18,17 @@ export default function ReelsScreen() {
       [...posts]
         .filter((p): p is ReelPost => p.kind === 'reel')
         .sort((a, b) => b.createdAt - a.createdAt),
-    [posts],
+    [posts]
   );
 
   if (reels.length === 0) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <EmptyState icon="film" title="No reels yet" subtitle="Short vertical videos will appear here." />
+        <EmptyState
+          icon="film"
+          title="No reels yet"
+          subtitle="Short vertical videos will appear here."
+        />
       </View>
     );
   }

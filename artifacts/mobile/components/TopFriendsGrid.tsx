@@ -18,7 +18,9 @@ export function TopFriendsGrid({ friends }: TopFriendsGridProps) {
           key={friend.id}
           style={styles.item}
           onPress={() =>
-            friend.id === 'me' ? router.push('/(tabs)/profile') : router.push(`/profile/${friend.id}`)
+            friend.id === 'me'
+              ? router.push('/(tabs)/profile')
+              : router.push(`/profile/${friend.id}`)
           }
         >
           <View style={styles.rankBadge}>

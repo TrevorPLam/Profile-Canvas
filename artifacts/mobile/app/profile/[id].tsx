@@ -28,11 +28,11 @@ export default function OtherProfileScreen() {
         ? posts
             .filter(
               (p): p is Extract<Post, { kind: 'text' | 'video' }> =>
-                p.authorId === profile.id && p.kind !== 'reel',
+                p.authorId === profile.id && p.kind !== 'reel'
             )
             .sort((a, b) => b.createdAt - a.createdAt)
         : [],
-    [posts, profile],
+    [posts, profile]
   );
 
   const friend = profile ? isFriend(profile.id) : false;
@@ -40,9 +40,11 @@ export default function OtherProfileScreen() {
   const topFriends = useMemo(
     () =>
       profile
-        ? profile.topFriendIds.map((fid) => profiles[fid]).filter((p): p is NonNullable<typeof p> => !!p)
+        ? profile.topFriendIds
+            .map((fid) => profiles[fid])
+            .filter((p): p is NonNullable<typeof p> => !!p)
         : [],
-    [profile, profiles],
+    [profile, profiles]
   );
 
   if (!profile) {
@@ -93,14 +95,22 @@ export default function OtherProfileScreen() {
             modules.map((module) => {
               if (module.id === 'about') {
                 return (
-                  <PinnedCard key={module.id} title={MODULE_LABELS.about} accentColor={profile.accentColor}>
+                  <PinnedCard
+                    key={module.id}
+                    title={MODULE_LABELS.about}
+                    accentColor={profile.accentColor}
+                  >
                     <Text style={[styles.bio, { color: colors.foreground }]}>{profile.bio}</Text>
                   </PinnedCard>
                 );
               }
               if (module.id === 'mood' && (profile.moodLabel || profile.nowPlaying)) {
                 return (
-                  <PinnedCard key={module.id} title={MODULE_LABELS.mood} accentColor={profile.accentColor}>
+                  <PinnedCard
+                    key={module.id}
+                    title={MODULE_LABELS.mood}
+                    accentColor={profile.accentColor}
+                  >
                     <View style={styles.moodRows}>
                       {profile.moodLabel ? (
                         <View style={styles.moodRow}>
@@ -128,7 +138,11 @@ export default function OtherProfileScreen() {
               }
               if (module.id === 'topFriends' && topFriends.length > 0) {
                 return (
-                  <PinnedCard key={module.id} title={MODULE_LABELS.topFriends} accentColor={profile.accentColor}>
+                  <PinnedCard
+                    key={module.id}
+                    title={MODULE_LABELS.topFriends}
+                    accentColor={profile.accentColor}
+                  >
                     <TopFriendsGrid friends={topFriends} />
                   </PinnedCard>
                 );
@@ -143,7 +157,12 @@ export default function OtherProfileScreen() {
                       </Text>
                     ) : (
                       theirPosts.map((post) => (
-                        <PostCard key={post.id} post={post} author={profile} onToggleLike={toggleLike} />
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          author={profile}
+                          onToggleLike={toggleLike}
+                        />
                       ))
                     )}
                   </View>

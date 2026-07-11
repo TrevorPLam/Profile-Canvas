@@ -3,7 +3,7 @@ import type { ProfileModule, UserProfile } from '@/lib/types';
 export function visibleModulesFor(
   profile: UserProfile,
   viewerIsSelf: boolean,
-  viewerIsFriend: boolean,
+  viewerIsFriend: boolean
 ): ProfileModule[] {
   return [...profile.modules]
     .sort((a, b) => a.order - b.order)

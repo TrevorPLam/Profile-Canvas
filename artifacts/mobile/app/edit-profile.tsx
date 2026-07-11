@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
@@ -48,7 +40,9 @@ export default function EditProfileScreen() {
   const [nowPlaying, setNowPlaying] = useState(me.nowPlaying ?? '');
 
   const sortedModules = [...me.modules].sort((a, b) => a.order - b.order);
-  const friends = friendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p);
+  const friends = friendIds
+    .map((id) => profiles[id])
+    .filter((p): p is NonNullable<typeof p> => !!p);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -73,10 +67,7 @@ export default function EditProfileScreen() {
           <Pressable
             key={t.id}
             onPress={() => setTab(t.id)}
-            style={[
-              styles.tabBtn,
-              tab === t.id && { backgroundColor: colors.primary },
-            ]}
+            style={[styles.tabBtn, tab === t.id && { backgroundColor: colors.primary }]}
           >
             <Text
               style={[
@@ -105,7 +96,10 @@ export default function EditProfileScreen() {
                     style={[
                       styles.wallpaperSwatch,
                       { backgroundColor: preset.colors[0] },
-                      me.wallpaper === preset.key && { borderColor: colors.foreground, borderWidth: 3 },
+                      me.wallpaper === preset.key && {
+                        borderColor: colors.foreground,
+                        borderWidth: 3,
+                      },
                     ]}
                   />
                   <Text style={[styles.wallpaperLabel, { color: colors.mutedForeground }]}>
@@ -147,11 +141,17 @@ export default function EditProfileScreen() {
               placeholderTextColor={colors.mutedForeground}
               style={[
                 styles.textArea,
-                { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border },
+                {
+                  color: colors.foreground,
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
               ]}
             />
 
-            <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 20 }]}>Mood</Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 20 }]}>
+              Mood
+            </Text>
             <View style={styles.moodGrid}>
               {MOOD_OPTIONS.map((mood) => {
                 const active = me.moodLabel === mood.label;
@@ -162,7 +162,7 @@ export default function EditProfileScreen() {
                       updateMyProfile(
                         active
                           ? { moodLabel: null, moodIcon: null }
-                          : { moodLabel: mood.label, moodIcon: mood.icon },
+                          : { moodLabel: mood.label, moodIcon: mood.icon }
                       )
                     }
                     style={[
@@ -201,7 +201,11 @@ export default function EditProfileScreen() {
               placeholderTextColor={colors.mutedForeground}
               style={[
                 styles.input,
-                { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border },
+                {
+                  color: colors.foreground,
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
               ]}
             />
           </View>
@@ -215,7 +219,10 @@ export default function EditProfileScreen() {
             {sortedModules.map((module, index) => (
               <View
                 key={module.id}
-                style={[styles.moduleRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+                style={[
+                  styles.moduleRow,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                ]}
               >
                 <View style={styles.moduleTop}>
                   <Text style={[styles.moduleTitle, { color: colors.foreground }]}>
@@ -268,7 +275,11 @@ export default function EditProfileScreen() {
                       <Feather
                         name="chevron-down"
                         size={16}
-                        color={index === sortedModules.length - 1 ? colors.border : colors.mutedForeground}
+                        color={
+                          index === sortedModules.length - 1
+                            ? colors.border
+                            : colors.mutedForeground
+                        }
                       />
                     </Pressable>
                   </View>

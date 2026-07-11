@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ME_ID,
@@ -112,7 +105,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
       const posts = state.posts.map((p) =>
         p.id === postId
           ? { ...p, likedByMe: !p.likedByMe, likeCount: p.likeCount + (p.likedByMe ? -1 : 1) }
-          : p,
+          : p
       );
       persist({ ...state, posts });
     };
@@ -185,9 +178,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
     };
 
     const getComments = (postId: string) =>
-      state.comments
-        .filter((c) => c.postId === postId)
-        .sort((a, b) => a.createdAt - b.createdAt);
+      state.comments.filter((c) => c.postId === postId).sort((a, b) => a.createdAt - b.createdAt);
 
     const addComment = (postId: string, text: string) => {
       const trimmed = text.trim();
@@ -200,7 +191,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
         createdAt: Date.now(),
       };
       const posts = state.posts.map((p) =>
-        p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p,
+        p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p
       );
       persist({ ...state, posts, comments: [...state.comments, comment] });
     };

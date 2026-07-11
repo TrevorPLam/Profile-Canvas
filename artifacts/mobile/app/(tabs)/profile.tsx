@@ -19,14 +19,17 @@ export default function MyProfileScreen() {
   const myPosts = useMemo(
     () =>
       posts
-        .filter((p): p is Extract<Post, { kind: 'text' | 'video' }> => p.authorId === me.id && p.kind !== 'reel')
+        .filter(
+          (p): p is Extract<Post, { kind: 'text' | 'video' }> =>
+            p.authorId === me.id && p.kind !== 'reel'
+        )
         .sort((a, b) => b.createdAt - a.createdAt),
-    [posts, me.id],
+    [posts, me.id]
   );
 
   const topFriends = useMemo(
     () => me.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [me.topFriendIds, profiles],
+    [me.topFriendIds, profiles]
   );
 
   const modules = visibleModulesFor(me, true, false);
@@ -62,7 +65,11 @@ export default function MyProfileScreen() {
                 <View style={styles.moodRows}>
                   {me.moodLabel ? (
                     <View style={styles.moodRow}>
-                      <Feather name={(me.moodIcon as never) ?? 'smile'} size={15} color={colors.mutedForeground} />
+                      <Feather
+                        name={(me.moodIcon as never) ?? 'smile'}
+                        size={15}
+                        color={colors.mutedForeground}
+                      />
                       <Text style={[styles.moodText, { color: colors.foreground }]}>
                         Feeling {me.moodLabel.toLowerCase()}
                       </Text>
@@ -82,7 +89,11 @@ export default function MyProfileScreen() {
           }
           if (module.id === 'topFriends' && topFriends.length > 0) {
             return (
-              <PinnedCard key={module.id} title={MODULE_LABELS.topFriends} accentColor={me.accentColor}>
+              <PinnedCard
+                key={module.id}
+                title={MODULE_LABELS.topFriends}
+                accentColor={me.accentColor}
+              >
                 <TopFriendsGrid friends={topFriends} />
               </PinnedCard>
             );

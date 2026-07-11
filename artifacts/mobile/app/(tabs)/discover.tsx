@@ -142,7 +142,11 @@ export default function DiscoverScreen() {
                     </>
                   ) : (
                     <View style={[styles.tileText, { backgroundColor: primaryTopic.color }]}>
-                      <Feather name={primaryTopic.icon as never} size={16} color="rgba(255,252,245,0.7)" />
+                      <Feather
+                        name={primaryTopic.icon as never}
+                        size={16}
+                        color="rgba(255,252,245,0.7)"
+                      />
                       <Text style={styles.tileTextBody} numberOfLines={5}>
                         {post.text}
                       </Text>

@@ -58,7 +58,7 @@ export default function PostDetailScreen() {
             router.back();
           },
         },
-      ],
+      ]
     );
   };
 
@@ -108,7 +108,9 @@ export default function PostDetailScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View
+              style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
               {post.repostOf ? (
                 <View style={styles.repostBanner}>
                   <Feather name="repeat" size={12} color={colors.mutedForeground} />
@@ -168,13 +170,19 @@ export default function PostDetailScreen() {
               subtitle="Be the first to reply."
             />
           }
-          renderItem={({ item }) => <CommentRow comment={item} authorProfile={profiles[item.authorId]} />}
+          renderItem={({ item }) => (
+            <CommentRow comment={item} authorProfile={profiles[item.authorId]} />
+          )}
         />
 
         <View
           style={[
             styles.composeRow,
-            { borderTopColor: colors.border, backgroundColor: colors.card, paddingBottom: insets.bottom + 10 },
+            {
+              borderTopColor: colors.border,
+              backgroundColor: colors.card,
+              paddingBottom: insets.bottom + 10,
+            },
           ]}
         >
           <Avatar name={me.name} color={me.avatarColor} size={32} />
@@ -194,7 +202,11 @@ export default function PostDetailScreen() {
               { backgroundColor: draft.trim() ? colors.primary : colors.secondary },
             ]}
           >
-            <Feather name="arrow-up" size={16} color={draft.trim() ? '#FFFCF5' : colors.mutedForeground} />
+            <Feather
+              name="arrow-up"
+              size={16}
+              color={draft.trim() ? '#FFFCF5' : colors.mutedForeground}
+            />
           </Pressable>
         </View>
       </KeyboardAvoidingView>

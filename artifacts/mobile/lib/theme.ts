@@ -5,7 +5,12 @@ export const WALLPAPER_PRESETS: WallpaperPreset[] = [
   { key: 'denim', label: 'Denim', colors: ['#4C6E92', '#243A54'], textOnWallpaper: '#F6F3EC' },
   { key: 'forest', label: 'Pine', colors: ['#3E6350', '#1D2E24'], textOnWallpaper: '#F6F3EC' },
   { key: 'sunset', label: 'Sunset', colors: ['#F4A67A', '#E0654F'], textOnWallpaper: '#3B2013' },
-  { key: 'midnight', label: 'Midnight', colors: ['#3A2E5C', '#181B33'], textOnWallpaper: '#F1EEFA' },
+  {
+    key: 'midnight',
+    label: 'Midnight',
+    colors: ['#3A2E5C', '#181B33'],
+    textOnWallpaper: '#F1EEFA',
+  },
   { key: 'pastel', label: 'Pastel', colors: ['#F6D2DE', '#CFE0EF'], textOnWallpaper: '#4A3B45' },
   { key: 'neon', label: 'Neon', colors: ['#FF3D7F', '#7B2FF7'], textOnWallpaper: '#FBF3FF' },
   { key: 'paper', label: 'Notebook', colors: ['#F1EAD6', '#DCD0AE'], textOnWallpaper: '#3B2A1E' },
@@ -66,6 +71,6 @@ export function colorForId(id: string, palette: string[]): string {
 export function initialsFor(name: string): string {
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? '' : '';
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
   return (first + last).toUpperCase();
 }
