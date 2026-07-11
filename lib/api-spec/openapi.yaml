@@ -48,6 +48,8 @@ tags:
     description: Location sharing and map operations
   - name: gamification
     description: Gamification operations (polls, quizzes, streaks, badges)
+  - name: monetization
+    description: Monetization operations (tips, subscriptions, gifts, creator analytics)
 paths:
   /healthz:
     get:
@@ -3595,6 +3597,213 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AvailableBadgeListResponse"
+  /tips:
+    post:
+      operationId: sendTip
+      tags: [monetization]
+      summary: Send a tip to a creator
+      description: Given an authenticated user and a creator, when they send a tip, then the payment is processed and the creator's balance increases. Tips are one-time payments.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendTipRequest"
+      responses:
+        "201":
+          description: Tip sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TipResponse"
+        "400":
+          description: Invalid request (validation error or payment failed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Creator not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /subscriptions:
+    post:
+      operationId: createSubscription
+      tags: [monetization]
+      summary: Create a subscription to a creator
+      description: Given an authenticated user and a creator, when they subscribe, then recurring payments are set up and the creator's balance increases periodically. Subscriptions are recurring payments.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubscriptionRequest"
+      responses:
+        "201":
+          description: Subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionResponse"
+        "400":
+          description: Invalid request (validation error or payment failed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Creator or tier not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: getUserSubscriptions
+      tags: [monetization]
+      summary: Get user's subscriptions
+      description: Given an authenticated user, when they request their subscriptions, then all active subscriptions are returned.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Subscriptions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionListResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /subscriptions/tiers:
+    get:
+      operationId: getSubscriptionTiers
+      tags: [monetization]
+      summary: Get available subscription tiers for a creator
+      description: Given a creator ID, when available tiers are requested, then all subscription tiers with pricing are returned.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: creatorId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The creator's user ID
+      responses:
+        "200":
+          description: Subscription tiers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionTierListResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Creator not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /gifts:
+    post:
+      operationId: sendGift
+      tags: [monetization]
+      summary: Send a virtual gift to a creator
+      description: Given an authenticated user and a creator, when they send a gift, then virtual currency is converted to monetary value and the creator's balance increases. Gifts have virtual-to-real conversion rates.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendGiftRequest"
+      responses:
+        "201":
+          description: Gift sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftResponse"
+        "400":
+          description: Invalid request (validation error or insufficient balance)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Creator not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /creator/analytics:
+    get:
+      operationId: getCreatorAnalytics
+      tags: [monetization]
+      summary: Get creator monetization analytics
+      description: Given an authenticated creator, when they request analytics, then revenue breakdown, subscriber counts, and engagement metrics are returned.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+          description: The time period for analytics
+      responses:
+        "200":
+          description: Analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatorAnalyticsResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (not a creator)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -6103,5 +6312,288 @@ components:
       required:
         - badges
         - total
-
+    SendTipRequest:
+      type: object
+      properties:
+        creatorId:
+          type: string
+          description: The creator's user ID
+        amount:
+          type: number
+          description: The tip amount in the creator's currency
+          minimum: 0.01
+          format: float
+        message:
+          type: string
+          description: An optional message to accompany the tip
+          maxLength: 200
+          nullable: true
+      required:
+        - creatorId
+        - amount
+    TipResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the tip transaction
+        creatorId:
+          type: string
+          description: The creator's user ID
+        senderId:
+          type: string
+          description: The user ID of the sender
+        amount:
+          type: number
+          description: The tip amount
+          format: float
+        message:
+          type: string
+          nullable: true
+          description: The message accompanying the tip
+        createdAt:
+          type: string
+          description: ISO timestamp when the tip was sent
+      required:
+        - id
+        - creatorId
+        - senderId
+        - amount
+        - createdAt
+    CreateSubscriptionRequest:
+      type: object
+      properties:
+        creatorId:
+          type: string
+          description: The creator's user ID
+        tierId:
+          type: string
+          description: The subscription tier ID
+      required:
+        - creatorId
+        - tierId
+    SubscriptionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the subscription
+        creatorId:
+          type: string
+          description: The creator's user ID
+        subscriberId:
+          type: string
+          description: The subscriber's user ID
+        tierId:
+          type: string
+          description: The subscription tier ID
+        status:
+          type: string
+          enum: [active, past_due, canceled, unpaid]
+          description: The subscription status
+        currentPeriodStart:
+          type: string
+          description: ISO timestamp when the current billing period started
+        currentPeriodEnd:
+          type: string
+          description: ISO timestamp when the current billing period ends
+        createdAt:
+          type: string
+          description: ISO timestamp when the subscription was created
+      required:
+        - id
+        - creatorId
+        - subscriberId
+        - tierId
+        - status
+        - currentPeriodStart
+        - currentPeriodEnd
+        - createdAt
+    SubscriptionListResponse:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionResponse"
+          description: Array of subscriptions
+        total:
+          type: integer
+          description: Total count of subscriptions
+      required:
+        - subscriptions
+        - total
+    SubscriptionTier:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the tier
+        name:
+          type: string
+          description: The tier name
+        description:
+          type: string
+          description: The tier description
+        price:
+          type: number
+          description: The monthly price in the creator's currency
+          format: float
+        currency:
+          type: string
+          description: The currency code (e.g., USD)
+        benefits:
+          type: array
+          items:
+            type: string
+          description: List of benefits included in this tier
+      required:
+        - id
+        - name
+        - description
+        - price
+        - currency
+        - benefits
+    SubscriptionTierListResponse:
+      type: object
+      properties:
+        tiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionTier"
+          description: Array of subscription tiers
+        total:
+          type: integer
+          description: Total count of tiers
+      required:
+        - tiers
+        - total
+    SendGiftRequest:
+      type: object
+      properties:
+        creatorId:
+          type: string
+          description: The creator's user ID
+        giftId:
+          type: string
+          description: The ID of the gift type to send
+        quantity:
+          type: integer
+          description: The number of gifts to send
+          minimum: 1
+          maximum: 100
+          default: 1
+        message:
+          type: string
+          description: An optional message to accompany the gift
+          maxLength: 100
+          nullable: true
+      required:
+        - creatorId
+        - giftId
+    GiftResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the gift transaction
+        creatorId:
+          type: string
+          description: The creator's user ID
+        senderId:
+          type: string
+          description: The user ID of the sender
+        giftId:
+          type: string
+          description: The ID of the gift type
+        quantity:
+          type: integer
+          description: The number of gifts sent
+        message:
+          type: string
+          nullable: true
+          description: The message accompanying the gift
+        monetaryValue:
+          type: number
+          description: The monetary value of the gift in the creator's currency
+          format: float
+        createdAt:
+          type: string
+          description: ISO timestamp when the gift was sent
+      required:
+        - id
+        - creatorId
+        - senderId
+        - giftId
+        - quantity
+        - monetaryValue
+        - createdAt
+    CreatorAnalyticsResponse:
+      type: object
+      properties:
+        period:
+          type: string
+          description: The time period for these analytics
+        revenue:
+          type: object
+          properties:
+            total:
+              type: number
+              description: Total revenue in the period
+              format: float
+            fromTips:
+              type: number
+              description: Revenue from tips
+              format: float
+            fromSubscriptions:
+              type: number
+              description: Revenue from subscriptions
+              format: float
+            fromGifts:
+              type: number
+              description: Revenue from gifts
+              format: float
+          required:
+            - total
+            - fromTips
+            - fromSubscriptions
+            - fromGifts
+        subscribers:
+          type: object
+          properties:
+            total:
+              type: integer
+              description: Total active subscribers
+            new:
+              type: integer
+              description: New subscribers in the period
+            churned:
+              type: integer
+              description: Churned subscribers in the period
+          required:
+            - total
+            - new
+            - churned
+        engagement:
+          type: object
+          properties:
+            tipsReceived:
+              type: integer
+              description: Number of tips received
+            giftsReceived:
+              type: integer
+              description: Number of gifts received
+            averageTipAmount:
+              type: number
+              description: Average tip amount
+              format: float
+          required:
+            - tipsReceived
+            - giftsReceived
+            - averageTipAmount
+      required:
+        - period
+        - revenue
+        - subscribers
+        - engagement
 
