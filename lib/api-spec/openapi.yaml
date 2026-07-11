@@ -44,6 +44,8 @@ tags:
     description: Collaboration operations (remix, duet, collab)
   - name: music
     description: Music integration operations
+  - name: location
+    description: Location sharing and map operations
 paths:
   /healthz:
     get:
@@ -3154,6 +3156,120 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /location/share:
+    post:
+      operationId: shareLocation
+      tags: [location]
+      summary: Share current location
+      description: Given an authenticated user, when they share their location, then their last known location is stored with an expiration time and shared with selected friends via audience list. Location data expires after 24 hours by default.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationShareRequest"
+      responses:
+        "201":
+          description: Location shared successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationResponse"
+        "400":
+          description: Invalid request (validation error or invalid coordinates)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateLocationShare
+      tags: [location]
+      summary: Update location sharing settings
+      description: Given an authenticated user, when they update their location sharing settings, then the audience list and expiration are updated. Users can exclude specific friends from seeing their location.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationUpdateRequest"
+      responses:
+        "200":
+          description: Location sharing updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Location share not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /location/map:
+    get:
+      operationId: getLocationMap
+      tags: [location]
+      summary: Get location map of friends
+      description: Given an authenticated user, when they request the location map, then location-tagged content from friends (based on audience list visibility) is displayed on a map. Only locations from friends who have enabled sharing are returned.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+          description: Maximum number of locations to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of locations to skip for pagination
+      responses:
+        "200":
+          description: Location map retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationMapResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -3388,6 +3504,10 @@ components:
           enum: [text]
         text:
           type: string
+        locationId:
+          type: string
+          nullable: true
+          description: Optional location ID to tag the post with a shared location
       required:
         - kind
         - text
@@ -3405,6 +3525,10 @@ components:
           type: string
         viewsLabel:
           type: string
+        locationId:
+          type: string
+          nullable: true
+          description: Optional location ID to tag the post with a shared location
       required:
         - kind
         - title
@@ -3425,6 +3549,10 @@ components:
           type: string
         viewsLabel:
           type: string
+        locationId:
+          type: string
+          nullable: true
+          description: Optional location ID to tag the post with a shared location
       required:
         - kind
         - caption
@@ -4309,6 +4437,10 @@ components:
           type: string
           nullable: true
           description: Optional custom audience list ID (required if audience is 'custom')
+        locationId:
+          type: string
+          nullable: true
+          description: Optional location ID to tag the story with a shared location
       required:
         - mediaUrl
         - mediaType
@@ -5089,5 +5221,169 @@ components:
         - userId
         - track
         - createdAt
+    LocationShareRequest:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude coordinate in decimal degrees
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude coordinate in decimal degrees
+        placeName:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Optional place name or venue name
+        accuracyMeters:
+          type: number
+          format: double
+          minimum: 0
+          nullable: true
+          description: Accuracy of the location in meters (from GPS)
+        audienceListId:
+          type: string
+          nullable: true
+          description: Optional audience list ID to share location with (null means all friends)
+        expiresAt:
+          type: string
+          nullable: true
+          description: ISO timestamp when location should expire (null means 24 hours from now)
+      required:
+        - latitude
+        - longitude
+    LocationUpdateRequest:
+      type: object
+      properties:
+        audienceListId:
+          type: string
+          nullable: true
+          description: Updated audience list ID to share location with
+        excludedFriendIds:
+          type: array
+          items:
+            type: string
+          description: List of friend IDs to exclude from seeing location
+        expiresAt:
+          type: string
+          nullable: true
+          description: Updated expiration timestamp (null extends to 24 hours from now)
+        enabled:
+          type: boolean
+          description: Whether location sharing is enabled (false stops sharing)
+    LocationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the location share
+        userId:
+          type: string
+          description: The user sharing their location
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate
+        placeName:
+          type: string
+          nullable: true
+          description: Place name or venue name
+        accuracyMeters:
+          type: number
+          format: double
+          nullable: true
+          description: Accuracy in meters
+        audienceListId:
+          type: string
+          nullable: true
+          description: Audience list ID for visibility
+        excludedFriendIds:
+          type: array
+          items:
+            type: string
+          description: Excluded friend IDs
+        enabled:
+          type: boolean
+          description: Whether sharing is enabled
+        expiresAt:
+          type: string
+          description: ISO timestamp when location expires
+        updatedAt:
+          type: string
+          description: ISO timestamp when location was last updated
+      required:
+        - id
+        - userId
+        - latitude
+        - longitude
+        - enabled
+        - expiresAt
+        - updatedAt
+    LocationMapResponse:
+      type: object
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocationMapItem"
+          description: Array of friend locations
+        total:
+          type: integer
+          description: Total count of friend locations
+      required:
+        - locations
+        - total
+    LocationMapItem:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The user ID of the friend
+        handle:
+          type: string
+          description: The friend's handle
+        name:
+          type: string
+          description: The friend's display name
+        avatarUrl:
+          type: string
+          nullable: true
+          description: The friend's avatar URL
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate
+        placeName:
+          type: string
+          nullable: true
+          description: Place name or venue name
+        updatedAt:
+          type: string
+          description: ISO timestamp when location was last updated
+        postId:
+          type: string
+          nullable: true
+          description: Optional post ID if location is tagged to content
+      required:
+        - userId
+        - handle
+        - name
+        - latitude
+        - longitude
+        - updatedAt
 
 
