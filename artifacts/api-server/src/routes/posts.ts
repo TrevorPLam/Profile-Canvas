@@ -2,11 +2,11 @@ import { Router, type Request, type Response } from 'express';
 import { postService } from '../services/postService';
 import { requireAuth } from '../middlewares/auth';
 import {
-  CreatePostBody,
-  CreatePostResponse,
-  ListPostsResponse,
-  GetPostResponse,
-  RepostPostResponse,
+  CreatePostBodySchema,
+  CreatePostResponseSchema,
+  ListPostsResponseSchema,
+  GetPostResponseSchema,
+  RepostPostResponseSchema,
 } from '@workspace/api-zod';
 
 const router = Router();
@@ -20,7 +20,7 @@ const router = Router();
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const input = CreatePostBody.parse(req.body);
+    const input = CreatePostBodySchema.parse(req.body);
 
     let post;
     
@@ -44,7 +44,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    const response = CreatePostResponse.parse(post);
+    const response = CreatePostResponseSchema.parse(post);
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error && error.name === 'ZodError') {
@@ -81,7 +81,7 @@ router.get('/', async (req: Request, res: Response) => {
       );
     }
 
-    const response = ListPostsResponse.parse({ posts });
+    const response = ListPostsResponseSchema.parse({ posts });
     res.json(response);
   } catch (error) {
     console.error('Error listing posts:', error);
@@ -106,7 +106,7 @@ router.get('/:postId', async (req: Request, res: Response) => {
       return;
     }
 
-    const response = GetPostResponse.parse(post);
+    const response = GetPostResponseSchema.parse(post);
     res.json(response);
   } catch (error) {
     console.error('Error getting post:', error);
@@ -163,7 +163,7 @@ router.post('/:postId/repost', requireAuth, async (req: Request, res: Response) 
       originalPostId: postIdStr,
     });
 
-    const response = RepostPostResponse.parse(repost);
+    const response = RepostPostResponseSchema.parse(repost);
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error && error.message === 'Original post not found') {

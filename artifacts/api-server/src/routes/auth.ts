@@ -3,9 +3,9 @@ import cookieParser from 'cookie-parser';
 import { AuthService } from '../services/authService';
 import { requireAuth } from '../middlewares/auth';
 import {
-  RegisterBody,
-  LoginBody,
-  GetMeResponse,
+  RegisterBodySchema,
+  LoginBodySchema,
+  GetMeResponseSchema,
 } from '@workspace/api-zod';
 
 const router: IRouter = Router();
@@ -20,7 +20,7 @@ router.use(cookieParser());
  */
 router.post('/register', async (req, res) => {
   try {
-    const input = RegisterBody.parse(req.body);
+    const input = RegisterBodySchema.parse(req.body);
 
     const result = await authService.register(input);
 
@@ -33,7 +33,7 @@ router.post('/register', async (req, res) => {
       path: '/',
     });
 
-    const response = GetMeResponse.parse({
+    const response = GetMeResponseSchema.parse({
       user: result.user,
       profile: result.profile,
     });
@@ -57,7 +57,7 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const input = LoginBody.parse(req.body);
+    const input = LoginBodySchema.parse(req.body);
 
     const result = await authService.login(input);
 
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
       path: '/',
     });
 
-    const response = GetMeResponse.parse({
+    const response = GetMeResponseSchema.parse({
       user: result.user,
       profile: result.profile,
     });
@@ -131,7 +131,7 @@ router.get('/me', requireAuth, async (req, res) => {
       return;
     }
 
-    const response = GetMeResponse.parse({
+    const response = GetMeResponseSchema.parse({
       user: result.user,
       profile: result.profile,
     });
@@ -170,7 +170,7 @@ router.post('/refresh', requireAuth, async (req, res) => {
       path: '/',
     });
 
-    const response = GetMeResponse.parse({
+    const response = GetMeResponseSchema.parse({
       user: result.user,
       profile: result.profile,
     });
