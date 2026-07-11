@@ -86,6 +86,45 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
+## [b] FOUNDATIONAL-001: Missing foundational tasks blocking implementation
+
+- **Status:** Blocked
+- **Priority:** Critical
+- **Domain:** FOUNDATIONAL
+- **Behavior:** Given the TODO.md dependency graph, when reviewing task dependencies, then foundational tasks (USR-001, AUTH-001, PST-001) are missing but referenced as dependencies by many tasks.
+- **Related Files:** `TODO.md`
+- **Definition of Done:** Missing foundational tasks are defined and added to TODO.md with proper dependencies.
+- **Out of Scope:** Implementing these tasks (this is a planning/documentation issue).
+- **Rules to Follow:** Add missing tasks with proper dependency chains before proceeding with dependent tasks.
+- **Advanced Coding Pattern:** SDD: foundational tasks drive all subsequent API and implementation work.
+- **Anti-Patterns:** Implementing dependent tasks without completing foundations.
+- **Imports/Exports:** None (documentation only).
+- **Depends On:** None
+- **Blocks:** LIV-002, AUD-002, COL-001, COL-002, MUS-001, MUS-002, LOC-001, LOC-002, GAM-001, GAM-002, MON-001, MON-002, and many others
+
+### Subtasks
+
+- [ ] **FOUNDATIONAL-001.1 [HUMAN]**: Define USR-001 (User identity) task.
+  - Action: Add USR-001 task to TODO.md with proper scope and dependencies.
+  - Validation: USR-001 appears in TODO.md and is referenced by dependent tasks.
+
+- [ ] **FOUNDATIONAL-001.2 [HUMAN]**: Define AUTH-001 (Authentication) task.
+  - Action: Add AUTH-001 task to TODO.md with proper scope and dependencies.
+  - Validation: AUTH-001 appears in TODO.md and is referenced by dependent tasks.
+
+- [ ] **FOUNDATIONAL-001.3 [HUMAN]**: Define PST-001 (Posts) task.
+  - Action: Add PST-001 task to TODO.md with proper scope and dependencies.
+  - Validation: PST-001 appears in TODO.md and is referenced by dependent tasks.
+
+### Notes
+- **Discovered during /todo workflow:** First incomplete task LIV-002 depends on AUTH-003 and MON-001, but these tasks don't exist in TODO.md.
+- Further investigation revealed that many tasks reference USR-001, AUTH-001, and PST-001 as dependencies, but these foundational tasks are not defined in TODO.md.
+- The existing auth implementation (auth routes, authService, requireAuth middleware) suggests AUTH-001 may have been completed but not documented.
+- Need to either add these missing tasks or update dependency references to reflect actual completion status.
+- This is blocking all feature implementation tasks that depend on these foundations.
+
+---
+
 ## [b] TOOL-003: Fix orval codegen path resolution issue
 
 - **Status:** Blocked
@@ -237,9 +276,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] LIV-002: Implement live streaming API
+## [b] LIV-002: Implement live streaming API
 
-- **Status:** Not Started
+- **Status:** Blocked
 - **Priority:** Medium
 - **Domain:** LIV
 - **Behavior:** Given an authenticated user, when they start a live stream, then a stream key is generated and the stream is available to viewers; when viewers send gifts, then the creator's balance is updated.
