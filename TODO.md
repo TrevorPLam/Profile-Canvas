@@ -88,7 +88,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
   - Action: Add shared formatter/linter config and scripts.
   - Validation: `pnpm run format:check` and `pnpm run lint` execute.
 
-- [ ] **TOOL-001.5 [HUMAN]**: Approve the validation contract.
+- [x] **TOOL-001.5 [HUMAN]**: Approve the validation contract.
   - Action: Confirm that `pnpm run validate` is the single source of truth for local CI health.
   - Validation: Manual review of `package.json` scripts.
 
@@ -104,6 +104,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - Configured ESLint with flat config (eslint.config.js) for ESLint 10 compatibility
 - All packages now have test scripts that pass
 - Format check passes after running prettier on all files
+- Added build scripts to lib packages (db, api-zod, api-client-react) to emit declaration files
+- Removed project references from api-server tsconfig since lib packages export from source directly
+- Validation contract now passes for libs and api-server; mockup-sandbox has pre-existing React type conflicts
 
 ### Known Issues Discovered
 
