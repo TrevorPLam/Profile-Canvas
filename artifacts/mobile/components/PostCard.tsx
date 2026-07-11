@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { useAuth } from '@/context/AuthContext';
 import { useColors } from '@/hooks/useColors';
@@ -24,14 +24,14 @@ export function PostCard({ post, author }: PostCardProps) {
 
   const openAuthor = () => {
     if (author.id === 'me') {
-      router.push('/(tabs)/profile');
+      router.push('/(tabs)/profile' as Href);
     } else {
-      router.push(`/profile/${author.id}`);
+      router.push(`/profile/${author.id}` as Href);
     }
   };
 
   const openDetail = () => {
-    router.push(`/post/${post.id}`);
+    router.push(`/post/${post.id}` as Href);
   };
 
   const like = () => {

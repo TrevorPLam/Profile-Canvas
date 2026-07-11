@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { useColors } from '@/hooks/useColors';
 import type { ReelPost, UserProfile } from '@/lib/types';
 
@@ -18,7 +18,7 @@ export function ReelStrip({ reels, authors }: ReelStripProps) {
     <View style={styles.wrap}>
       <View style={styles.headerRow}>
         <Text style={[styles.header, { color: colors.foreground }]}>Reels</Text>
-        <Pressable onPress={() => router.push('/(tabs)/reels')} hitSlop={8}>
+        <Pressable onPress={() => router.push('/(tabs)/reels' as Href)} hitSlop={8}>
           <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
         </Pressable>
       </View>
@@ -33,7 +33,7 @@ export function ReelStrip({ reels, authors }: ReelStripProps) {
             <Pressable
               key={reel.id}
               style={styles.card}
-              onPress={() => router.push('/(tabs)/reels')}
+              onPress={() => router.push('/(tabs)/reels' as Href)}
             >
               <Image source={reel.thumbnail} style={styles.thumb} resizeMode="cover" />
               <View style={styles.overlay}>

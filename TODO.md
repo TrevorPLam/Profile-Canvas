@@ -140,7 +140,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **TOOL-007.1 [AGENT]**: Fix RelativePathString type errors in router navigation.
+- [x] **TOOL-007.1 [AGENT]**: Fix RelativePathString type errors in router navigation.
   - Files: Multiple mobile app files
   - Action: Resolve router navigation type incompatibilities with Expo Router.
   - Validation: `pnpm --filter @workspace/mobile typecheck` shows no router errors.
@@ -149,7 +149,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Discovered during TOOL-006 workflow:** Pre-existing TypeScript errors in mobile app found when running full workspace typecheck.
 - Errors include RelativePathString type incompatibilities in router navigation calls across 22 files.
 - These errors prevent full workspace typecheck from passing but do not affect the main API server or database libraries.
-- **Implementation Notes:** None yet - task created for future resolution.
+- **Implementation Notes:** Added Href type import from expo-router to all affected files. Used type assertions (`as Href`) for router.push, router.replace, and Link href calls to resolve RelativePathString type incompatibilities. This follows Expo Router best practices for typed routes where dynamic routes and grouped routes (with parentheses) require explicit type assertions. All 22 type errors across 12 files have been resolved. Mobile typecheck now passes successfully.
 
 ---
 

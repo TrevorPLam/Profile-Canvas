@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { useColors } from '@/hooks/useColors';
 import type { UserProfile } from '@/lib/types';
@@ -14,7 +14,7 @@ interface FriendRowProps {
 export function FriendRow({ user, rightSlot }: FriendRowProps) {
   const colors = useColors();
   return (
-    <Pressable style={styles.row} onPress={() => router.push(`/profile/${user.id}`)}>
+    <Pressable style={styles.row} onPress={() => router.push(`/profile/${user.id}` as Href)}>
       <Avatar name={user.name} color={user.avatarColor} size={46} />
       <View style={styles.textWrap}>
         <Text style={[styles.name, { color: colors.foreground }]}>{user.name}</Text>

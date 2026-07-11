@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
@@ -34,7 +34,7 @@ export default function LoginScreen() {
         await register(email, password);
       }
       // Navigate to tabs on success
-      router.replace('/(tabs)');
+      router.replace('/(tabs)' as Href);
     } catch {
       Alert.alert(
         'Error',

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/EmptyState';
 import { useColors } from '@/hooks/useColors';
@@ -112,7 +112,7 @@ export default function DiscoverScreen() {
                 <Pressable
                   key={post.id}
                   style={styles.tile}
-                  onPress={() => router.push(`/post/${post.id}`)}
+                  onPress={() => router.push(`/post/${post.id}` as Href)}
                 >
                   {hasMedia ? (
                     <>

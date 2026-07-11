@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { useColors } from '@/hooks/useColors';
 import type { UserProfile } from '@/lib/types';
@@ -19,8 +19,8 @@ export function TopFriendsGrid({ friends }: TopFriendsGridProps) {
           style={styles.item}
           onPress={() =>
             friend.id === 'me'
-              ? router.push('/(tabs)/profile')
-              : router.push(`/profile/${friend.id}`)
+              ? router.push('/(tabs)/profile' as Href)
+              : router.push(`/profile/${friend.id}` as Href)
           }
         >
           <View style={styles.rankBadge}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { PinnedCard } from '@/components/PinnedCard';
 import { PostCard } from '@/components/PostCard';
 import { ProfileHeader } from '@/components/ProfileHeader';
@@ -58,8 +58,8 @@ export default function MyProfileScreen() {
         postCount={myPosts.length}
         isMe
         isFriend={false}
-        onEdit={() => router.push('/edit-profile')}
-        onPressFriends={() => router.push('/friends-list')}
+        onEdit={() => router.push('/edit-profile' as Href)}
+        onPressFriends={() => router.push('/friends-list' as Href)}
       />
 
       <View style={styles.body}>

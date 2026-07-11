@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router, Stack } from 'expo-router';
+import { router, Stack, Href } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { FriendRow } from '@/components/FriendRow';
@@ -122,7 +122,7 @@ export default function FriendsListScreen() {
                 <Pressable
                   key={req.id}
                   style={styles.requestRow}
-                  onPress={() => router.push(`/profile/${profile.handle}`)}
+                  onPress={() => router.push(`/profile/${profile.handle}` as Href)}
                 >
                   <Avatar
                     name={profile.name}
@@ -210,7 +210,7 @@ export default function FriendsListScreen() {
               <Pressable
                 key={person.id}
                 style={styles.requestRow}
-                onPress={() => router.push(`/profile/${person.handle}`)}
+                onPress={() => router.push(`/profile/${person.handle}` as Href)}
               >
                 <Avatar
                   name={person.name}

@@ -3,7 +3,7 @@ import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Avatar } from '@/components/Avatar';
 import { useAuth } from '@/context/AuthContext';
@@ -52,14 +52,14 @@ export function ReelCard({ post, author, height }: ReelCardProps) {
 
   const openAuthor = () => {
     if (author.id === user?.userId) {
-      router.push('/(tabs)/profile');
+      router.push('/(tabs)/profile' as Href);
     } else {
-      router.push(`/profile/${author.id}`);
+      router.push(`/profile/${author.id}` as Href);
     }
   };
 
   const openDetail = () => {
-    router.push(`/post/${post.id}`);
+    router.push(`/post/${post.id}` as Href);
   };
 
   const like = () => {

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
@@ -91,13 +91,13 @@ export default function FeedScreen() {
       style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}
     >
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.push('/(tabs)/profile')} hitSlop={8}>
+        <Pressable onPress={() => router.push('/(tabs)/profile' as Href)} hitSlop={8}>
           <Avatar name={user?.name || 'User'} color={user?.accentColor || '#FF0000'} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
         <View style={styles.iconRow}>
           <Pressable
-            onPress={() => router.push('/notifications')}
+            onPress={() => router.push('/notifications' as Href)}
             hitSlop={8}
             style={styles.iconBtn}
           >
@@ -109,7 +109,7 @@ export default function FeedScreen() {
             ) : null}
           </Pressable>
           <Pressable
-            onPress={() => router.push('/friends-list')}
+            onPress={() => router.push('/friends-list' as Href)}
             hitSlop={8}
             style={styles.iconBtn}
           >
