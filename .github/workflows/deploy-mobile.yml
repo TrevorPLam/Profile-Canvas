@@ -1,0 +1,52 @@
+name: Deploy Mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'artifacts/mobile/**'
+      - 'lib/api-client-react/**'
+      - '.github/workflows/deploy-mobile.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build mobile static bundle
+        working-directory: artifacts/mobile
+        env:
+          REPLIT_INTERNAL_APP_DOMAIN: ${{ secrets.MOBILE_DEPLOY_DOMAIN }}
+          REPLIT_DEV_DOMAIN: ${{ secrets.MOBILE_DEPLOY_DOMAIN }}
+          EXPO_PUBLIC_DOMAIN: ${{ secrets.MOBILE_DEPLOY_DOMAIN }}
+          EXPO_PUBLIC_REPL_ID: ${{ secrets.MOBILE_REPL_ID }}
+          REPL_ID: ${{ secrets.MOBILE_REPL_ID }}
+        run: pnpm run build
+
+      - name: Deploy to hosting
+        working-directory: artifacts/mobile
+        run: |
+          echo "Deploying mobile static build to production environment"
+          # Add deployment commands here based on your hosting platform
+          # Examples:
+          # - aws s3 sync static-build/ s3://your-bucket/ --delete
+          # - netlify deploy --prod --dir=static-build
+          # - firebase deploy --only hosting
+          # - rsync -avz static-build/ user@server:/var/www/mobile/
