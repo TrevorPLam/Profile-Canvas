@@ -1,49 +1,31 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/EmptyState';
-import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
+import { useDiscover } from '@/hooks/useDiscover';
+import { useTrending } from '@/hooks/useTrending';
 import { TOPICS, getTopic } from '@/lib/topics';
 import type { Post } from '@/lib/types';
 
 export default function DiscoverScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { posts, profiles } = useSocialData();
   const [query, setQuery] = useState('');
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
 
-  const trimmedQuery = query.trim().toLowerCase();
+  const isFiltering = Boolean(query.trim() || activeTopic);
 
-  const textOf = (post: Post) =>
-    post.kind === 'text' ? post.text : post.kind === 'video' ? post.title : post.caption;
+  // Use trending when no filters, use discover when filtering
+  const trending = useTrending();
+  const discover = useDiscover(query, activeTopic);
 
-  const results = useMemo(() => {
-    let pool = posts;
-    if (activeTopic) {
-      pool = pool.filter((p) => p.topics.includes(activeTopic));
-    }
-    if (trimmedQuery) {
-      pool = pool.filter((p) => {
-        const author = profiles[p.authorId];
-        const haystack = [
-          textOf(p),
-          ...p.topics.map((t) => getTopic(t)?.label ?? t),
-          author?.name ?? '',
-          author?.handle ?? '',
-        ]
-          .join(' ')
-          .toLowerCase();
-        return haystack.includes(trimmedQuery);
-      });
-    }
-    return [...pool].sort((a, b) => b.likeCount - a.likeCount);
-  }, [posts, profiles, activeTopic, trimmedQuery]);
-
-  const isFiltering = Boolean(trimmedQuery || activeTopic);
+  const posts = isFiltering ? discover.posts : trending.posts;
+  const profiles = isFiltering ? discover.profiles : trending.profiles;
+  const isLoading = isFiltering ? discover.isLoading : trending.isLoading;
+  const error = isFiltering ? discover.error : trending.error;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -101,10 +83,20 @@ export default function DiscoverScreen() {
         </ScrollView>
 
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-          {isFiltering ? `Results (${results.length})` : 'Trending now'}
+          {isFiltering ? `Results (${posts.length})` : 'Trending now'}
         </Text>
 
-        {results.length === 0 ? (
+        {isLoading ? (
+          <View style={styles.centerContainer}>
+            <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>Loading...</Text>
+          </View>
+        ) : error ? (
+          <EmptyState
+            icon="alert-circle"
+            title="Something went wrong"
+            subtitle="Failed to load posts. Please try again."
+          />
+        ) : posts.length === 0 ? (
           <EmptyState
             icon="compass"
             title="Nothing here yet"
@@ -112,7 +104,7 @@ export default function DiscoverScreen() {
           />
         ) : (
           <View style={styles.grid}>
-            {results.map((post) => {
+            {posts.map((post) => {
               const author = profiles[post.authorId];
               if (!author) return null;
               const primaryTopic = getTopic(post.topics[0] ?? '') ?? TOPICS[TOPICS.length - 1]!;
@@ -185,6 +177,16 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 26,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
   },
   searchBar: {
     flexDirection: 'row',

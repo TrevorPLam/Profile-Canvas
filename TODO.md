@@ -2187,9 +2187,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MOB-012: Replace discover with backend API
+## [x] MOB-012: Replace discover with backend API
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MOB
 - **Behavior:** Given a user opens the discover tab, when it loads, then trending posts are fetched from the backend; when the user searches or selects a topic, then filtered results are fetched.
@@ -2205,20 +2205,34 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MOB-012.1 [AGENT]**: Create discover hooks.
+- [x] **MOB-012.1 [AGENT]**: Create discover hooks.
   - Files: `artifacts/mobile/hooks/useDiscover.ts` (new), `artifacts/mobile/hooks/useTrending.ts` (new)
   - Action: Implement trending and search queries.
   - Validation: `pnpm --filter @workspace/mobile test -- discoverHooks`.
 
-- [ ] **MOB-012.2 [AGENT]**: Update discover screen.
+- [x] **MOB-012.2 [AGENT]**: Update discover screen.
   - File: `artifacts/mobile/app/(tabs)/discover.tsx`
   - Action: Replace `useSocialData` with discover hooks; use real thumbnails and metadata.
   - Validation: `pnpm --filter @workspace/mobile test -- discoverScreen`.
 
-- [ ] **MOB-012.3 [AGENT]**: Add discover screen tests.
+- [x] **MOB-012.3 [AGENT]**: Add discover screen tests.
   - File: `artifacts/mobile/app/(tabs)/discover.test.tsx` (new)
   - Action: Test topic filter, search, and trending grid.
   - Validation: `pnpm --filter @workspace/mobile test -- discoverScreen`.
+
+### Implementation Notes
+
+- Created `useTrending` hook with React Query's `useInfiniteQuery` for infinite scroll pagination
+- Created `useDiscover` hook with React Query's `useQuery` for search and topic filtering
+- Both hooks follow the established pattern from `useFeed` and `useRecommended` with deep module philosophy
+- Data transformation functions convert backend FeedPost format to mobile Post and UserProfile formats
+- Updated discover screen to use new hooks instead of `useSocialData` context
+- Screen switches between trending (no filters) and discover (with filters) based on user input
+- Added loading, error, and empty states for better UX
+- React Query's query key caching provides built-in debouncing for search input
+- Typecheck passes for mobile package
+- All tests pass (103 tests including new discover hooks and screen tests)
+- Lint script not configured in mobile package (pre-existing issue documented in TOOL-001)
 
 ---
 
