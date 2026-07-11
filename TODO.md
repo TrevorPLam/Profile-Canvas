@@ -212,9 +212,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] USR-002: Implement user profile repository service
+## [x] USR-002: Implement user profile repository service
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** USR
 - **Behavior:** Given a user ID or handle, when a caller requests the profile, then the service returns the profile with its module configuration; when a profile is updated, then the module settings and public fields are persisted atomically.
@@ -230,25 +230,38 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **USR-002.1 [AGENT]**: Create `ProfileRepository` with read methods.
+- [x] **USR-002.1 [AGENT]**: Create `ProfileRepository` with read methods.
   - File: `lib/db/src/repositories/profileRepository.ts` (new)
   - Action: Implement `getByUserId`, `getByHandle`, `getByUserIds` for batch reads.
   - Validation: `pnpm --filter @workspace/db test -- profileRepository`.
 
-- [ ] **USR-002.2 [AGENT]**: Implement profile creation and update methods.
+- [x] **USR-002.2 [AGENT]**: Implement profile creation and update methods.
   - File: `lib/db/src/repositories/profileRepository.ts`
   - Action: Implement `createDefaultForUser` and `update` with JSONB module settings handling.
   - Validation: `pnpm --filter @workspace/db test -- profileRepository`.
 
-- [ ] **USR-002.3 [AGENT]**: Implement `visibleModulesFor` domain helper.
+- [x] **USR-002.3 [AGENT]**: Implement `visibleModulesFor` domain helper.
   - File: `lib/db/src/repositories/profileRepository.ts`
   - Action: Port logic from `artifacts/mobile/lib/modules.ts` into a backend-safe function that accepts `viewerIsSelf`, `viewerIsFriend`, and module configuration.
   - Validation: `pnpm --filter @workspace/db test -- visibleModulesFor`.
 
-- [ ] **USR-002.4 [AGENT]**: Export repository aggregate.
+- [x] **USR-002.4 [AGENT]**: Export repository aggregate.
   - File: `lib/db/src/repositories/index.ts` (new)
   - Action: Re-export `ProfileRepository` and related types.
   - Validation: `pnpm -w run typecheck:libs`.
+
+### Implementation Notes
+
+- Created `ProfileRepository` class with deep module pattern: hides Drizzle internals, JSONB parsing, and SQL behind simple domain interface
+- Implemented read methods: `getByUserId`, `getByHandle`, `getByUserIds` (batch reads)
+- Implemented write methods: `createDefaultForUser` with default module settings, `update` with atomic JSONB updates
+- Extracted `visibleModulesFor` domain logic into separate `lib/db/src/domain/profileVisibility.ts` to enable testing without database dependency
+- Domain types (`VisibleProfile`, `ProfileUpdateInput`) hide raw table structure from callers
+- All exports aggregated through `lib/db/src/repositories/index.ts` and re-exported from main `lib/db/src/index.ts`
+- Unit tests for `visibleModulesFor` pass (6 tests covering self, friend, stranger, invisible, sorting, and empty cases)
+- Full repository integration tests deferred until DATABASE_URL is provisioned
+- Follows DDD principles: separates data access from domain logic, uses ubiquitous language
+- Follows deep module philosophy: simple interface, complex implementation hidden
 
 ---
 
