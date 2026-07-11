@@ -22,6 +22,8 @@ tags:
     description: Comment operations
   - name: engagement
     description: Engagement operations (likes, saves)
+  - name: friends
+    description: Friend request and friendship operations
 paths:
   /healthz:
     get:
@@ -789,6 +791,319 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /friends/requests:
+    post:
+      operationId: sendFriendRequest
+      tags: [friends]
+      summary: Send a friend request
+      description: Given an authenticated user and a target user ID, when they send a friend request, then a pending request is created if one does not already exist. Duplicate requests are rejected.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendFriendRequestRequest"
+      responses:
+        "201":
+          description: Friend request sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequestResponse"
+        "400":
+          description: Invalid request (validation error or duplicate request)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Target user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Friend request already exists or users are already friends
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: listFriendRequests
+      tags: [friends]
+      summary: List friend requests
+      description: Given an authenticated user, when they request their friend requests, then incoming and outgoing requests are returned with pagination.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [incoming, outgoing]
+            default: incoming
+          description: Filter by request type (incoming or outgoing)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of requests to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of requests to skip for pagination
+      responses:
+        "200":
+          description: Friend requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequestListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /friends/requests/{requestId}:
+    post:
+      operationId: acceptFriendRequest
+      tags: [friends]
+      summary: Accept a friend request
+      description: Given an authenticated user and an incoming friend request, when they accept it, then a symmetric friendship is created and the request is marked as accepted. Only the recipient can accept.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the friend request to accept
+      responses:
+        "200":
+          description: Friend request accepted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendshipResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to accept this request (not the recipient)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Friend request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Request not in pending state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: cancelFriendRequest
+      tags: [friends]
+      summary: Cancel a friend request
+      description: Given an authenticated user and an outgoing friend request, when they cancel it, then the request is removed. Only the sender can cancel pending requests.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the friend request to cancel
+      responses:
+        "204":
+          description: Friend request cancelled successfully
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to cancel this request (not the sender)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Friend request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /friends/requests/{requestId}/decline:
+    post:
+      operationId: declineFriendRequest
+      tags: [friends]
+      summary: Decline a friend request
+      description: Given an authenticated user and an incoming friend request, when they decline it, then the request is marked as declined. Only the recipient can decline.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the friend request to decline
+      responses:
+        "204":
+          description: Friend request declined successfully
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to decline this request (not the recipient)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Friend request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Request not in pending state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /friends:
+    get:
+      operationId: listFriends
+      tags: [friends]
+      summary: List friends
+      description: Given an authenticated user, when they request their friends list, then all friends are returned with pagination and profile information.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of friends to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of friends to skip for pagination
+      responses:
+        "200":
+          description: Friends retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: removeFriend
+      tags: [friends]
+      summary: Remove a friend
+      description: Given an authenticated user and a friend user ID, when they remove the friend, then the symmetric friendship is deleted for both users.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoveFriendRequest"
+      responses:
+        "204":
+          description: Friend removed successfully
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Friendship not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -1221,5 +1536,116 @@ components:
         - viewerHasLiked
         - viewerHasSaved
         - viewerHasReposted
+    FriendRequestStatus:
+      type: string
+      enum: [pending, accepted, declined, cancelled]
+    SendFriendRequestRequest:
+      type: object
+      properties:
+        targetUserId:
+          type: string
+          description: The ID of the user to send a friend request to
+      required:
+        - targetUserId
+    FriendRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the friend request
+        senderId:
+          type: string
+          description: The ID of the user who sent the request
+        receiverId:
+          type: string
+          description: The ID of the user who received the request
+        status:
+          $ref: "#/components/schemas/FriendRequestStatus"
+          description: The current status of the friend request
+        createdAt:
+          type: string
+          description: ISO timestamp when the request was created
+        updatedAt:
+          type: string
+          description: ISO timestamp when the request was last updated
+      required:
+        - id
+        - senderId
+        - receiverId
+        - status
+        - createdAt
+        - updatedAt
+    FriendRequestListResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: "#/components/schemas/FriendRequestResponse"
+          description: Array of friend requests
+        total:
+          type: integer
+          description: Total count of friend requests
+      required:
+        - requests
+        - total
+    FriendshipResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The ID of the user
+        friendId:
+          type: string
+          description: The ID of the friend
+        createdAt:
+          type: string
+          description: ISO timestamp when the friendship was created
+      required:
+        - userId
+        - friendId
+        - createdAt
+    FriendProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The unique identifier for the user
+        handle:
+          type: string
+          description: The user's unique handle
+        name:
+          type: string
+          description: The user's display name
+        avatarUrl:
+          type: string
+          nullable: true
+          description: The URL of the user's avatar image
+      required:
+        - userId
+        - handle
+        - name
+    FriendListResponse:
+      type: object
+      properties:
+        friends:
+          type: array
+          items:
+            $ref: "#/components/schemas/FriendProfile"
+          description: Array of friends with their profile information
+        total:
+          type: integer
+          description: Total count of friends
+      required:
+        - friends
+        - total
+    RemoveFriendRequest:
+      type: object
+      properties:
+        friendUserId:
+          type: string
+          description: The ID of the friend to remove
+      required:
+        - friendUserId
 
 
