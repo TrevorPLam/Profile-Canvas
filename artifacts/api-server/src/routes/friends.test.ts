@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import friendsRouter from './friends';
-import { requireAuth } from '../middlewares/auth';
 
 // Mock the auth middleware
 vi.mock('../middlewares/auth', () => ({

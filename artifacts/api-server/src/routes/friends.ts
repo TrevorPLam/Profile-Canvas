@@ -14,10 +14,6 @@ const removeFriendSchema = z.object({
   friendUserId: z.string().uuid(),
 });
 
-const topFriendsUpdateSchema = z.object({
-  topFriends: z.array(z.string().uuid()),
-});
-
 /**
  * POST /friends/requests
  * 
