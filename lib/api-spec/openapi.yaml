@@ -36,6 +36,8 @@ tags:
     description: Audience list operations
   - name: stories
     description: Ephemeral stories operations
+  - name: safety
+    description: Moderation and safety operations
 paths:
   /healthz:
     get:
@@ -2212,6 +2214,291 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /reports:
+    post:
+      operationId: createReport
+      tags: [safety]
+      summary: Report a user, post, or comment
+      description: Given an authenticated user, when they report content for moderation, then the report is stored with the report type and reason for admin review. Reports are anonymous to the reported user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReportRequest"
+      responses:
+        "201":
+          description: Report created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Target (user/post/comment) not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /blocks:
+    post:
+      operationId: blockUser
+      tags: [safety]
+      summary: Block a user
+      description: Given an authenticated user and a target user ID, when they block the user, then all interactions are prevented. The blocked user cannot send friend requests, messages, or see the blocker's content. Blocking is not visible to the blocked user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockUserRequest"
+      responses:
+        "201":
+          description: User blocked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockResponse"
+        "400":
+          description: Invalid request (validation error or cannot block yourself)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Target user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User already blocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: listBlockedUsers
+      tags: [safety]
+      summary: List blocked users
+      description: Given an authenticated user, when they request their blocked users list, then all users they have blocked are returned with pagination and profile information.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of blocked users to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of blocked users to skip for pagination
+      responses:
+        "200":
+          description: Blocked users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockedListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /blocks/{userId}:
+    delete:
+      operationId: unblockUser
+      tags: [safety]
+      summary: Unblock a user
+      description: Given an authenticated user and a blocked user ID, when they unblock the user, then the block is removed and interactions are allowed again.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the user to unblock
+      responses:
+        "204":
+          description: User unblocked successfully
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Block not found (user not blocked)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mutes:
+    post:
+      operationId: muteUser
+      tags: [safety]
+      summary: Mute a user
+      description: Given an authenticated user and a target user ID, when they mute the user, then the muted user's content is hidden from feeds and notifications without preventing interactions. The muted user can still interact normally. Muting is not visible to the muted user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MuteUserRequest"
+      responses:
+        "201":
+          description: User muted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MuteResponse"
+        "400":
+          description: Invalid request (validation error or cannot mute yourself)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Target user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User already muted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: listMutedUsers
+      tags: [safety]
+      summary: List muted users
+      description: Given an authenticated user, when they request their muted users list, then all users they have muted are returned with pagination and profile information.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of muted users to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of muted users to skip for pagination
+      responses:
+        "200":
+          description: Muted users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MutedListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mutes/{userId}:
+    delete:
+      operationId: unmuteUser
+      tags: [safety]
+      summary: Unmute a user
+      description: Given an authenticated user and a muted user ID, when they unmute the user, then the mute is removed and the user's content appears in feeds and notifications again.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the user to unmute
+      responses:
+        "204":
+          description: User unmuted successfully
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Mute not found (user not muted)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -3421,6 +3708,203 @@ components:
           description: Total count of story groups
       required:
         - groups
+        - total
+    ReportType:
+      type: string
+      enum: [user, post, comment]
+      description: The type of content being reported
+    ReportReason:
+      type: string
+      enum: [harassment, hateSpeech, spam, inappropriateContent, impersonation, violence, selfHarm, other]
+      description: The reason for the report
+    CreateReportRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/ReportType"
+          description: The type of content being reported
+        targetId:
+          type: string
+          description: The ID of the user, post, or comment being reported
+        reason:
+          $ref: "#/components/schemas/ReportReason"
+          description: The reason for the report
+        description:
+          type: string
+          description: Additional details about the report
+          maxLength: 500
+      required:
+        - type
+        - targetId
+        - reason
+    ReportResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the report
+        reporterId:
+          type: string
+          description: The ID of the user who submitted the report
+        type:
+          $ref: "#/components/schemas/ReportType"
+          description: The type of content reported
+        targetId:
+          type: string
+          description: The ID of the reported content
+        reason:
+          $ref: "#/components/schemas/ReportReason"
+          description: The reason for the report
+        description:
+          type: string
+          nullable: true
+          description: Additional details about the report
+        status:
+          type: string
+          enum: [pending, reviewed, resolved, dismissed]
+          description: The moderation status of the report
+        createdAt:
+          type: string
+          description: ISO timestamp when the report was created
+      required:
+        - id
+        - reporterId
+        - type
+        - targetId
+        - reason
+        - status
+        - createdAt
+    BlockUserRequest:
+      type: object
+      properties:
+        targetUserId:
+          type: string
+          description: The ID of the user to block
+      required:
+        - targetUserId
+    BlockResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the block
+        blockerId:
+          type: string
+          description: The ID of the user who blocked
+        blockedUserId:
+          type: string
+          description: The ID of the blocked user
+        createdAt:
+          type: string
+          description: ISO timestamp when the block was created
+      required:
+        - id
+        - blockerId
+        - blockedUserId
+        - createdAt
+    BlockedUser:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The unique identifier for the blocked user
+        handle:
+          type: string
+          description: The user's unique handle
+        name:
+          type: string
+          description: The user's display name
+        avatarUrl:
+          type: string
+          nullable: true
+          description: The URL of the user's avatar image
+        blockedAt:
+          type: string
+          description: ISO timestamp when the user was blocked
+      required:
+        - userId
+        - handle
+        - name
+        - blockedAt
+    BlockedListResponse:
+      type: object
+      properties:
+        blockedUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlockedUser"
+          description: Array of blocked users with their profile information
+        total:
+          type: integer
+          description: Total count of blocked users
+      required:
+        - blockedUsers
+        - total
+    MuteUserRequest:
+      type: object
+      properties:
+        targetUserId:
+          type: string
+          description: The ID of the user to mute
+      required:
+        - targetUserId
+    MuteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the mute
+        muterId:
+          type: string
+          description: The ID of the user who muted
+        mutedUserId:
+          type: string
+          description: The ID of the muted user
+        createdAt:
+          type: string
+          description: ISO timestamp when the mute was created
+      required:
+        - id
+        - muterId
+        - mutedUserId
+        - createdAt
+    MutedUser:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The unique identifier for the muted user
+        handle:
+          type: string
+          description: The user's unique handle
+        name:
+          type: string
+          description: The user's display name
+        avatarUrl:
+          type: string
+          nullable: true
+          description: The URL of the user's avatar image
+        mutedAt:
+          type: string
+          description: ISO timestamp when the user was muted
+      required:
+        - userId
+        - handle
+        - name
+        - mutedAt
+    MutedListResponse:
+      type: object
+      properties:
+        mutedUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/MutedUser"
+          description: Array of muted users with their profile information
+        total:
+          type: integer
+          description: Total count of muted users
+      required:
+        - mutedUsers
         - total
 
 
