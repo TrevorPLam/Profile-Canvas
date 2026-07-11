@@ -6,18 +6,19 @@ import { router } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
 import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
+import { useEngagement } from '@/hooks/useEngagement';
 import { timeAgo } from '@/lib/format';
 import type { Post, UserProfile } from '@/lib/types';
 
 interface PostCardProps {
   post: Extract<Post, { kind: 'text' | 'video' }>;
   author: UserProfile;
-  onToggleLike: (id: string) => void;
 }
 
-export function PostCard({ post, author, onToggleLike }: PostCardProps) {
+export function PostCard({ post, author }: PostCardProps) {
   const colors = useColors();
-  const { me, getProfile, repostPost, hasRepostedByMe, deletePost } = useSocialData();
+  const { me, getProfile, deletePost } = useSocialData();
+  const { toggleLike, repost, isLiking, isReposting } = useEngagement(post.id);
 
   const openAuthor = () => {
     if (author.id === 'me') {
@@ -32,16 +33,15 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
   };
 
   const like = () => {
+    if (isLiking) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    onToggleLike(post.id);
+    toggleLike();
   };
 
-  const reposted = hasRepostedByMe(post.id);
-
-  const repost = () => {
-    if (reposted) return;
+  const handleRepost = () => {
+    if (isReposting) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    repostPost(post.id);
+    repost();
   };
 
   const share = () => {
@@ -136,7 +136,7 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
             {post.commentCount}
           </Text>
         </Pressable>
-        <Pressable style={styles.actionBtn} onPress={repost} hitSlop={8}>
+        <Pressable style={styles.actionBtn} onPress={handleRepost} hitSlop={8}>
           <Feather
             name="repeat"
             size={17}

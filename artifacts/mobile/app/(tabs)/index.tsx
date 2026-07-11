@@ -130,7 +130,7 @@ export default function FeedScreen() {
           }
           const author = profiles[item.post.authorId];
           if (!author) return null;
-          return <PostCard post={item.post} author={author} onToggleLike={toggleLike} />;
+          return <PostCard post={item.post} author={author} />;
         }}
       />
     </View>

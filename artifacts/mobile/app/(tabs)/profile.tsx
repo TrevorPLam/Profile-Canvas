@@ -132,7 +132,7 @@ export default function MyProfileScreen() {
                   </Text>
                 ) : (
                   myPosts.map((post) => (
-                    <PostCard key={post.id} post={post} author={displayMe} onToggleLike={toggleLike} />
+                    <PostCard key={post.id} post={post} author={displayMe} />
                   ))
                 )}
               </View>

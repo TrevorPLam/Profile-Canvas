@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Avatar } from '@/components/Avatar';
 import { useAuth } from '@/context/AuthContext';
+import { useEngagement } from '@/hooks/useEngagement';
 
 interface ReelAuthor {
   id: string;
@@ -43,6 +44,7 @@ interface ReelCardProps {
 
 export function ReelCard({ post, author, height }: ReelCardProps) {
   const { user } = useAuth();
+  const { toggleLike, repost, isLiking, isReposting } = useEngagement(post.id);
   const player = useVideoPlayer(post.thumbnailUrl, (player: any) => {
     player.loop = true;
     player.play();
@@ -61,13 +63,15 @@ export function ReelCard({ post, author, height }: ReelCardProps) {
   };
 
   const like = () => {
+    if (isLiking) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO: Implement like API call
+    toggleLike();
   };
 
-  const repost = () => {
+  const handleRepost = () => {
+    if (isReposting) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    // TODO: Implement repost API call
+    repost();
   };
 
   const share = () => {
@@ -137,7 +141,7 @@ export function ReelCard({ post, author, height }: ReelCardProps) {
               <Feather name="message-circle" size={24} color="#FFFCF5" />
               <Text style={styles.railText}>{post.commentCount}</Text>
             </Pressable>
-            <Pressable style={styles.railBtn} onPress={repost} hitSlop={8}>
+            <Pressable style={styles.railBtn} onPress={handleRepost} hitSlop={8}>
               <Feather name="repeat" size={23} color="#FFFCF5" />
             </Pressable>
             <Pressable style={styles.railBtn} onPress={share} hitSlop={8}>

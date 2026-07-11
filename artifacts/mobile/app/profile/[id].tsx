@@ -160,7 +160,6 @@ export default function OtherProfileScreen() {
                           key={post.id}
                           post={post}
                           author={profile}
-                          onToggleLike={toggleLike}
                         />
                       ))
                     )}

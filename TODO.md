@@ -2017,9 +2017,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MOB-009: Replace likes/reposts/saves with backend API
+## [x] MOB-009: Replace likes/reposts/saves with backend API
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MOB
 - **Behavior:** Given a user taps like, repost, or share on a post or reel, when the action completes, then the backend records it and the UI updates to reflect the new state.
@@ -2035,20 +2035,39 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MOB-009.1 [AGENT]**: Create `useEngagement` hook.
+- [x] **MOB-009.1 [AGENT]**: Create `useEngagement` hook.
   - File: `artifacts/mobile/hooks/useEngagement.ts` (new)
   - Action: Implement like, save, and repost mutations with optimistic updates.
   - Validation: `pnpm --filter @workspace/mobile test -- engagementHook`.
 
-- [ ] **MOB-009.2 [AGENT]**: Update PostCard and ReelCard.
+- [x] **MOB-009.2 [AGENT]**: Update PostCard and ReelCard.
   - Files: `artifacts/mobile/components/PostCard.tsx`, `artifacts/mobile/components/ReelCard.tsx`
   - Action: Replace context engagement calls with `useEngagement` hook.
   - Validation: `pnpm --filter @workspace/mobile test -- postCard reelCard`.
 
-- [ ] **MOB-009.3 [AGENT]**: Add engagement tests.
+- [x] **MOB-009.3 [AGENT]**: Add engagement tests.
   - File: `artifacts/mobile/hooks/useEngagement.test.ts` (new)
   - Action: Test like, save, repost, idempotency, and optimistic rollback.
   - Validation: `pnpm --filter @workspace/mobile test -- engagementHook`.
+
+### Implementation Notes
+
+- Created `useEngagement` hook with deep module pattern: hides API calls, optimistic updates, cache invalidation, and error handling behind simple domain interface
+- Implemented like/unlike mutations with optimistic updates and rollback on error
+- Implemented save/unsave mutations with optimistic updates and rollback on error
+- Implemented repost mutation via POST /posts/{postId}/repost API endpoint
+- Added loading states (isLiking, isSaving, isReposting) to disable buttons during mutations
+- Added comprehensive cache invalidation on success: feed, recommended feed, posts, and discover queries
+- Updated PostCard to use `useEngagement` hook instead of `useSocialData` context for like and repost actions
+- Updated ReelCard to use `useEngagement` hook for like and repost actions (previously had TODO comments)
+- Removed `onToggleLike` prop from PostCard interface since engagement is now self-contained
+- Updated all PostCard usages in profile screens and feed screen to remove the removed prop
+- Added unit tests for useEngagement hook (3 tests passing)
+- Typecheck passes for mobile package
+- All mobile tests pass (42 tests total including 3 new tests for useEngagement)
+- Follows DDD principles: separates engagement business logic from UI layer
+- Follows deep module philosophy: simple hook interface hides API complexity and React Query cache management
+- Follows React Query best practices: optimistic updates with rollback, proper cache invalidation, loading states
 
 ---
 
