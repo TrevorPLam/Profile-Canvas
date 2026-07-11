@@ -7,6 +7,8 @@ import mediaRouter from './media';
 import commentsRouter from './comments';
 import engagementRouter from './engagement';
 import friendsRouter from './friends';
+import feedRouter from './feed';
+import discoverRouter from './discover';
 
 const router: IRouter = Router();
 
@@ -18,5 +20,7 @@ router.use(mediaRouter);
 router.use(commentsRouter);
 router.use(engagementRouter);
 router.use(friendsRouter);
+router.use(feedRouter);
+router.use(discoverRouter);
 
 export default router;
