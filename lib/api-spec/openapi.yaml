@@ -38,6 +38,8 @@ tags:
     description: Ephemeral stories operations
   - name: safety
     description: Moderation and safety operations
+  - name: live
+    description: Live streaming operations
 paths:
   /healthz:
     get:
@@ -2499,6 +2501,240 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /live:
+    post:
+      operationId: startLiveStream
+      tags: [live]
+      summary: Start a live stream
+      description: Given an authenticated user, when they start a live stream, then a stream key is generated for RTMP ingestion and the stream becomes available to viewers. Concurrent streams per user are limited.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartLiveStreamRequest"
+      responses:
+        "201":
+          description: Live stream started successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveStreamResponse"
+        "400":
+          description: Invalid request (validation error or concurrent stream limit exceeded)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /live/{streamId}:
+    get:
+      operationId: getLiveStream
+      tags: [live]
+      summary: Get live stream details
+      description: Given a stream ID, when requested, then the stream details are returned including playback URL, viewer count, and status.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the live stream
+      responses:
+        "200":
+          description: Live stream retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveStreamResponse"
+        "404":
+          description: Live stream not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: endLiveStream
+      tags: [live]
+      summary: End a live stream
+      description: Given an authenticated user and their active live stream, when they end it, then the stream is terminated and a replay URL is generated if recording was enabled.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the live stream to end
+      responses:
+        "200":
+          description: Live stream ended successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveStreamResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to end this stream (not the host)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Live stream not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /live/{streamId}/gifts:
+    post:
+      operationId: sendGift
+      tags: [live]
+      summary: Send a gift to a live stream
+      description: Given an authenticated user and an active live stream, when they send a gift, then the virtual item is sent and the creator's balance is updated. Gifts have monetary value converted from virtual currency.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the live stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendGiftRequest"
+      responses:
+        "201":
+          description: Gift sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftResponse"
+        "400":
+          description: Invalid request (validation error or insufficient balance)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Live stream not found or not active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /live/{streamId}/chat:
+    get:
+      operationId: getLiveChat
+      tags: [live]
+      summary: Get live stream chat messages
+      description: Given a stream ID, when chat messages are requested, then recent messages are returned with pagination.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the live stream
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+          description: Maximum number of messages to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of messages to skip for pagination
+      responses:
+        "200":
+          description: Chat messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveChatResponse"
+        "404":
+          description: Live stream not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: sendLiveChat
+      tags: [live]
+      summary: Send a chat message to a live stream
+      description: Given an authenticated user and an active live stream, when they send a chat message, then the message is broadcast to all viewers.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the live stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendLiveChatRequest"
+      responses:
+        "201":
+          description: Chat message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveChatMessage"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Live stream not found or not active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -3905,6 +4141,199 @@ components:
           description: Total count of muted users
       required:
         - mutedUsers
+        - total
+    StartLiveStreamRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The title of the live stream
+          maxLength: 200
+        description:
+          type: string
+          description: A description of the live stream content
+          maxLength: 500
+          nullable: true
+        enableRecording:
+          type: boolean
+          description: Whether to record the stream for replay
+          default: true
+      required:
+        - title
+    LiveStreamResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the live stream
+        hostId:
+          type: string
+          description: The ID of the user hosting the stream
+        streamKey:
+          type: string
+          description: The RTMP stream key for ingestion (only returned to the host)
+        rtmpUrl:
+          type: string
+          description: The RTMP ingest URL
+        playbackUrl:
+          type: string
+          description: The HLS/LL-HLS playback URL for viewers
+        replayUrl:
+          type: string
+          nullable: true
+          description: The URL to watch the replay after the stream ends (if recording was enabled)
+        status:
+          type: string
+          enum: [starting, live, ended, error]
+          description: The current status of the stream
+        viewerCount:
+          type: integer
+          description: The current number of viewers
+        title:
+          type: string
+          description: The title of the live stream
+        description:
+          type: string
+          nullable: true
+          description: The description of the live stream
+        startedAt:
+          type: string
+          nullable: true
+          description: ISO timestamp when the stream started
+        endedAt:
+          type: string
+          nullable: true
+          description: ISO timestamp when the stream ended
+      required:
+        - id
+        - hostId
+        - rtmpUrl
+        - playbackUrl
+        - status
+        - viewerCount
+        - title
+    SendGiftRequest:
+      type: object
+      properties:
+        giftId:
+          type: string
+          description: The ID of the gift type to send
+        quantity:
+          type: integer
+          description: The number of gifts to send
+          minimum: 1
+          maximum: 100
+          default: 1
+        message:
+          type: string
+          description: An optional message to accompany the gift
+          maxLength: 100
+          nullable: true
+      required:
+        - giftId
+    GiftResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the gift transaction
+        streamId:
+          type: string
+          description: The ID of the live stream
+        senderId:
+          type: string
+          description: The ID of the user who sent the gift
+        giftId:
+          type: string
+          description: The ID of the gift type
+        quantity:
+          type: integer
+          description: The number of gifts sent
+        message:
+          type: string
+          nullable: true
+          description: The message accompanying the gift
+        monetaryValue:
+          type: number
+          description: The monetary value of the gift in the creator's currency
+        createdAt:
+          type: string
+          description: ISO timestamp when the gift was sent
+      required:
+        - id
+        - streamId
+        - senderId
+        - giftId
+        - quantity
+        - monetaryValue
+        - createdAt
+    SendLiveChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The chat message content
+          maxLength: 500
+      required:
+        - message
+    LiveChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the chat message
+        streamId:
+          type: string
+          description: The ID of the live stream
+        senderId:
+          type: string
+          description: The ID of the user who sent the message
+        message:
+          type: string
+          description: The message content
+        createdAt:
+          type: string
+          description: ISO timestamp when the message was sent
+        sender:
+          type: object
+          properties:
+            userId:
+              type: string
+              description: The unique identifier for the user
+            handle:
+              type: string
+              description: The user's unique handle
+            name:
+              type: string
+              description: The user's display name
+            avatarUrl:
+              type: string
+              nullable: true
+              description: The URL of the user's avatar image
+          required:
+            - userId
+            - handle
+            - name
+      required:
+        - id
+        - streamId
+        - senderId
+        - message
+        - createdAt
+        - sender
+    LiveChatResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/LiveChatMessage"
+          description: Array of chat messages
+        total:
+          type: integer
+          description: Total count of messages in the stream
+      required:
+        - messages
         - total
 
 

@@ -169,9 +169,44 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] LIV-001: Design live streaming contract (API spec)
+## [ ] TOOL-005: Fix test environment configuration
 
 - **Status:** Not Started
+- **Priority:** High
+- **Domain:** TOOL
+- **Behavior:** Given a developer runs tests, when the test suite executes, then all tests pass with proper database configuration.
+- **Related Files:** `.env.example`, test files across artifacts/api-server
+- **Definition of Done:** Test environment properly configured with DATABASE_URL; all test suites pass without database connection errors.
+- **Out of Scope:** Setting up production database.
+- **Rules to Follow:** Use test database configuration separate from production; never commit actual database credentials.
+- **Advanced Coding Pattern:** Deep module: test configuration hides environment setup complexity.
+- **Anti-Patterns:** Committing database credentials; using production database for tests.
+- **Imports/Exports:** None (configuration only).
+- **Depends On:** None
+- **Blocks:** Test execution for auth, profiles, comments, discover, feed, media, notifications, posts routes
+
+### Subtasks
+
+- [ ] **TOOL-005.1 [AGENT]**: Add test database configuration to .env.example.
+  - File: `.env.example`
+  - Action: Add TEST_DATABASE_URL with example SQLite or PostgreSQL connection string.
+  - Validation: Test files can read DATABASE_URL from environment.
+
+- [ ] **TOOL-005.2 [AGENT]**: Configure test database setup in vitest config.
+  - Files: `artifacts/api-server/vitest.config.ts`, test files
+  - Action: Set up test database before tests run, clean up after.
+  - Validation: `pnpm --filter @workspace/api-server test` passes without DATABASE_URL errors.
+
+### Notes
+- **Discovered during LIV-001 workflow:** Test suite fails with "DATABASE_URL must be set" error in 8 test suites (auth, profiles, comments, discover, feed, media, notifications, posts).
+- Test files import from lib/db which requires DATABASE_URL at module load time.
+- Need test database configuration to enable proper test execution.
+
+---
+
+## [x] LIV-001: Design live streaming contract (API spec)
+
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** LIV
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for starting live streams, joining streams, sending gifts, and viewing replays.
@@ -187,7 +222,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **LIV-001.1 [AGENT/HUMAN]**: Draft live streaming endpoints in OpenAPI.
+- [x] **LIV-001.1 [AGENT/HUMAN]**: Draft live streaming endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add live stream paths and schemas with gift support.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
@@ -195,6 +230,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - [ ] **LIV-001.2 [HUMAN]**: Review live streaming contract.
   - Action: Confirm streaming protocol, gift types, and replay semantics.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+
+### Notes
+- **Implementation Notes:** Added live streaming endpoints following best practices from research: RTMP for ingestion (standard for OBS/encoders), HLS/LL-HLS for playback (2-4s latency, CDN-scalable), gift support with monetary value conversion, and real-time chat. Spec includes stream key generation, viewer count tracking, replay URL generation, and concurrent stream limits. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
 
 ---
 
