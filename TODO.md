@@ -50,6 +50,41 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
+## [ ] TOOL-004: Fix lint errors and warnings
+
+- **Status:** Not Started
+- **Priority:** Medium
+- **Domain:** TOOL
+- **Behavior:** Given the codebase has lint errors, when a developer runs lint, then all errors and warnings are resolved.
+- **Related Files:** Multiple files across artifacts/api-server, lib/db, lib/api-zod
+- **Definition of Done:** All 17 lint errors and 46 warnings are resolved; `pnpm run lint` passes with no issues.
+- **Out of Scope:** Changing code logic purely to satisfy linter (prefer eslint-disable with justification).
+- **Rules to Follow:** Fix unused imports, unused variables, and explicit any types; add eslint-disable comments only when necessary with justification.
+- **Advanced Coding Pattern:** Deep module: clean code without lint noise improves maintainability.
+- **Anti-Patterns:** Ignoring lint errors; adding blanket eslint-disable.
+- **Imports/Exports:** Fix imports across affected files.
+- **Depends On:** None
+- **Blocks:** None
+
+### Subtasks
+
+- [ ] **TOOL-004.1 [AGENT]**: Fix unused imports and variables.
+  - Files: `artifacts/api-server/src/routes/messages.ts`, `lib/api-zod/src/messages.ts`, `lib/db/src/repositories/commentRepository.ts`, `lib/db/src/repositories/engagementRepository.ts`, `lib/db/src/repositories/messageRepository.ts`, `lib/db/src/repositories/postRepository.test.ts`, `lib/db/src/schema/blocks.ts`, `lib/db/src/schema/comments.ts`, `lib/db/src/schema/conversations.ts`, `lib/db/src/schema/friendships.ts`, `lib/db/src/schema/messages.ts`, `lib/db/src/schema/mutes.ts`, `lib/db/src/schema/reports.ts`, `artifacts/api-server/src/websocket/messageSocket.ts`
+  - Action: Remove unused imports and variables; prefix unused args with underscore.
+  - Validation: `pnpm run lint` shows reduced error count.
+
+- [ ] **TOOL-004.2 [AGENT]**: Fix explicit any types.
+  - Files: Multiple test files and service files
+  - Action: Replace `any` with proper types or unknown where appropriate.
+  - Validation: `pnpm run lint` shows no any warnings.
+
+### Notes
+- **Discovered during DEP-002 workflow:** Pre-existing lint issues (17 errors, 46 warnings) found when running quality assurance checks.
+- Issues include unused imports, unused variables, and explicit any types across multiple files.
+- These issues should be resolved to maintain code quality standards.
+
+---
+
 ## [b] TOOL-003: Fix orval codegen path resolution issue
 
 - **Status:** Blocked
@@ -86,75 +121,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [x] TOOL-004: Fix pre-existing lint errors
+## [h] DEP-002: Configure production secrets and domains
 
-- **Status:** Completed
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given a developer runs the lint command, when it checks the codebase, then there are no lint errors in artifacts/mobile and artifacts/mockup-sandbox.
-- **Related Files:** `artifacts/mobile/**/*`, `artifacts/mockup-sandbox/**/*`
-- **Definition of Done:** All unused variables and any type errors in mobile and mockup-sandbox are fixed; lint passes for all packages.
-- **Out of Scope:** Changing the lint rules themselves.
-- **Rules to Follow:** Fix the actual issues (unused variables, any types) rather than disabling rules.
-- **Advanced Coding Pattern:** Deep module: lint configuration hides rule complexity.
-- **Anti-Patterns:** Disabling lint rules to silence errors.
-- **Imports/Exports:** Export fixed source files.
-- **Depends On:** None
-- **Blocks:** Full validation pipeline
-
-### Subtasks
-
-- [x] **TOOL-004.1 [AGENT]**: Fix lint errors in artifacts/mobile.
-  - Files: `artifacts/mobile/**/*`
-  - Action: Remove unused variables and replace any types with proper types.
-  - Validation: `pnpm --filter @workspace/mobile run lint` passes.
-
-- [x] **TOOL-004.2 [AGENT]**: Fix lint errors in artifacts/mockup-sandbox.
-  - Files: `artifacts/mockup-sandbox/**/*`
-  - Action: Remove unused variables and replace any types with proper types.
-  - Validation: `pnpm --filter @workspace/mockup-sandbox run lint` passes.
-
-### Notes
-- Fixed unused imports: `Image` from ReelCard.tsx, `useQueryClient` from useFriends.ts, `waitFor` from useEngagement.test.tsx, `setBaseUrl` from api.test.ts
-- Fixed unused variables: `useDebounce` function and its parameters in useDiscover.ts, `result` parameter in useUploadAvatar.ts
-- Fixed `any` types: replaced with proper types in ReelCard.tsx (player callback), useCreateMediaPost.ts (FormData)
-- Fixed type-only variable issue in use-toast.ts by converting `actionTypes` from const to type definition
-
----
-
-## [x] TOOL-005: Fix pre-existing typecheck errors
-
-- **Status:** Completed
-- **Priority:** Medium
-- **Domain:** TOOL
-- **Behavior:** Given a developer runs the typecheck command, when it checks the codebase, then there are no type errors in artifacts/mockup-sandbox.
-- **Related Files:** `artifacts/mockup-sandbox/**/*`, `pnpm-workspace.yaml`
-- **Definition of Done:** React type conflicts due to duplicate @types/react versions are resolved; typecheck passes for all packages.
-- **Out of Scope:** Changing the TypeScript configuration to ignore errors.
-- **Rules to Follow:** Resolve duplicate type versions by consolidating dependencies.
-- **Advanced Coding Pattern:** Deep module: dependency management hides type resolution complexity.
-- **Anti-Patterns:** Using // @ts-ignore to silence errors.
-- **Imports/Exports:** Export fixed source files and package.json.
-- **Depends On:** None
-- **Blocks:** Full validation pipeline
-
-### Subtasks
-
-- [x] **TOOL-005.1 [AGENT]**: Investigate React type conflicts in mockup-sandbox.
-  - Files: `artifacts/mockup-sandbox/package.json`, `artifacts/mockup-sandbox/**/*`
-  - Action: Identify duplicate @types/react versions and consolidate to a single version.
-  - Validation: `pnpm --filter @workspace/mockup-sandbox run typecheck` passes.
-
-### Notes
-- Added override in pnpm-workspace.yaml to force all packages to use @types/react from catalog
-- This resolved duplicate @types/react versions (19.1.17 and 19.2.17) causing type conflicts
-- Typecheck now passes for mockup-sandbox
-
----
-
-## [ ] DEP-002: Configure production secrets and domains
-
-- **Status:** Not Started
+- **Status:** Human Action Required
 - **Priority:** High
 - **Domain:** DEP
 - **Behavior:** Given the deployment workflows are set up, when the human configures secrets, then the production deployment succeeds with health checks passing.
@@ -173,10 +142,29 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - [ ] **DEP-002.1 [HUMAN]**: Configure production secrets in GitHub Actions.
   - Action: Add PROD_DATABASE_URL, PROD_SESSION_SECRET, PROD_JWT_SECRET, PROD_AWS_S3_BUCKET, PROD_AWS_REGION, PROD_AWS_ACCESS_KEY_ID, PROD_AWS_SECRET_ACCESS_KEY, PROD_API_URL to GitHub repository secrets.
   - Validation: Production deployment workflow runs successfully with health check passing.
+  - **Implementation Notes:**
+    - Navigate to GitHub repository Settings → Secrets and variables → Actions → New repository secret
+    - Generate secrets using: `openssl rand -base64 32` for SESSION_SECRET and JWT_SECRET
+    - Use IAM roles instead of access keys for AWS when possible (security best practice)
+    - Set up environment protection rules requiring approval for production deployments
+    - Never commit secrets to the repository
+    - Rotate secrets regularly (quarterly)
 
 - [ ] **DEP-002.2 [HUMAN]**: Configure production domain.
   - Action: Set up production domain and configure DNS.
   - Validation: Production API is accessible via configured domain.
+  - **Implementation Notes:**
+    - Purchase domain from registrar (e.g., Namecheap, GoDaddy, Cloudflare Registrar)
+    - Configure DNS records:
+      - A record for API domain (api.yourdomain.com) → load balancer IP: TTL 300s
+      - CNAME for mobile domain (mobile.yourdomain.com) → hosting provider: TTL 3600s
+      - CAA record to restrict certificate authorities: `letsencrypt.org` for free certs
+      - TXT records for SPF/DKIM/DMARC if using email
+    - Set up SSL/TLS certificates (Let's Encrypt recommended for free automated certs)
+    - Configure HSTS header with `max-age=63072000; includeSubDomains; preload`
+    - Use ALIAS/ANAME record for apex domain (never CNAME at apex)
+    - Enable DNSSEC if supported by registrar
+    - Document DNS configuration in infrastructure as code (Terraform/Cloudflare API)
 
 ---
 
@@ -1121,16 +1109,14 @@ Use this summary to find the critical path and unblockers. Each task above lists
 ### Critical path to remaining backend features
 
 1. TOOL-003 (fix orval codegen)
-2. TOOL-004 (fix lint errors)
-3. TOOL-005 (fix typecheck errors)
-4. DEP-002 (configure production secrets)
-5. AUD-002 (audience lists API)
-6. LIV-001 -> LIV-002 (live streaming)
-7. COL-001 -> COL-002 (collaboration)
-8. MUS-001 -> MUS-002 (music integration)
-9. LOC-001 -> LOC-002 (location features)
-10. GAM-001 -> GAM-002 (gamification)
-11. MON-001 -> MON-002 (monetization)
+2. DEP-002 (configure production secrets)
+3. AUD-002 (audience lists API)
+4. LIV-001 -> LIV-002 (live streaming)
+5. COL-001 -> COL-002 (collaboration)
+6. MUS-001 -> MUS-002 (music integration)
+7. LOC-001 -> LOC-002 (location features)
+8. GAM-001 -> GAM-002 (gamification)
+9. MON-001 -> MON-002 (monetization)
 
 ### Critical path to remaining mobile features
 
