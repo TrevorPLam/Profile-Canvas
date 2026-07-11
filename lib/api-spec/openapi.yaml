@@ -16,6 +16,8 @@ tags:
     description: Profile operations
   - name: posts
     description: Post operations
+  - name: media
+    description: Media upload operations
 paths:
   /healthz:
     get:
@@ -485,6 +487,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /media/upload:
+    post:
+      operationId: uploadMedia
+      tags: [media]
+      summary: Upload media file
+      description: Given an authenticated user, when they upload a media file, then the file is stored to object storage and a stable URL is returned for use in posts or avatars. Accepted MIME types: image/jpeg, image/png, image/gif, image/webp, video/mp4, video/webm. Maximum file size: 10MB.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The media file to upload (image or video)
+              required:
+                - file
+      responses:
+        "201":
+          description: Media uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaUploadResponse"
+        "400":
+          description: Invalid request (invalid file type, file too large, or validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "413":
+          description: Payload too large (file exceeds maximum size)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -799,4 +847,25 @@ components:
       required:
         - posts
         - total
+    MediaUploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: The stable URL of the uploaded media file
+        mediaId:
+          type: string
+          description: The unique identifier for the uploaded media
+        mimeType:
+          type: string
+          description: The MIME type of the uploaded file
+        sizeBytes:
+          type: integer
+          description: The size of the uploaded file in bytes
+      required:
+        - url
+        - mediaId
+        - mimeType
+        - sizeBytes
+
 

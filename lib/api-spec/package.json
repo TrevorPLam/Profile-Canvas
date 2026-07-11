@@ -2,11 +2,13 @@
   "name": "@workspace/api-spec",
   "version": "0.0.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "codegen": "orval --config ./orval.config.ts && pnpm -w run typecheck:libs",
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "orval": "^8.20.0",
     "vitest": "catalog:"
   }
