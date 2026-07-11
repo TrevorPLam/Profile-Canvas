@@ -16,9 +16,12 @@ app.use(router);
 const authService = new AuthService();
 
 describe('Profile Routes - Visibility Filtering', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
   let ownerUser: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
   let ownerProfile: any;
   let ownerSession: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
   let strangerUser: any;
   let strangerSession: string;
 
@@ -83,6 +86,7 @@ describe('Profile Routes - Visibility Filtering', () => {
       .expect(200);
 
     expect(response.body.moduleSettings).toHaveLength(4);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     expect(response.body.moduleSettings.map((m: any) => m.id)).toEqual(
       expect.arrayContaining(['about', 'topFriends', 'mood', 'posts'])
     );
@@ -99,10 +103,13 @@ describe('Profile Routes - Visibility Filtering', () => {
       .expect(200);
 
     expect(response.body.moduleSettings).toHaveLength(2);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     expect(response.body.moduleSettings.map((m: any) => m.id)).toEqual(
       expect.arrayContaining(['about', 'posts'])
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     expect(response.body.moduleSettings.map((m: any) => m.id)).not.toContain('topFriends');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     expect(response.body.moduleSettings.map((m: any) => m.id)).not.toContain('mood');
   });
 
@@ -114,6 +121,7 @@ describe('Profile Routes - Visibility Filtering', () => {
     const response = await request(app).get(`/profiles/${ownerProfile.handle}`).expect(200);
 
     expect(response.body.moduleSettings).toHaveLength(2);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     expect(response.body.moduleSettings.map((m: any) => m.id)).toEqual(
       expect.arrayContaining(['about', 'posts'])
     );

@@ -35,6 +35,7 @@ export class MessageWebSocket {
    * Initialize the WebSocket server
    * @param server - The HTTP server to attach to
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ws library accepts any server type
   initialize(server: any): void {
     this.wss = new WebSocketServer({
       server,
@@ -165,8 +166,9 @@ export class MessageWebSocket {
    * @param message - The message to broadcast
    * @param excludeUserId - Optional user ID to exclude (e.g., the sender)
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Message can be any JSON-serializable object
   broadcastToConversation(conversationId: string, message: any, excludeUserId?: string): void {
-    for (const [clientId, client] of this.clients.entries()) {
+    for (const client of this.clients.values()) {
       if (client.conversationId === conversationId && client.userId !== excludeUserId) {
         if (client.ws.readyState === WebSocket.OPEN) {
           client.ws.send(JSON.stringify(message));

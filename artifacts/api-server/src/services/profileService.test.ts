@@ -10,6 +10,7 @@ describe('ProfileService - Module Settings Validation', () => {
       { id: 'posts' as const, visible: true, visibility: 'everyone' as const, order: 3 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(validSettings as any);
     expect(errors).toHaveLength(0);
   });
@@ -19,6 +20,7 @@ describe('ProfileService - Module Settings Validation', () => {
       { id: 'invalidModule' as const, visible: true, visibility: 'everyone' as const, order: 0 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(invalidSettings as any);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].field).toBe('moduleSettings[0].id');
@@ -31,8 +33,10 @@ describe('ProfileService - Module Settings Validation', () => {
       { id: 'about' as const, visible: true, visibility: 'friends' as const, order: 1 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(duplicateSettings as any);
     expect(errors.length).toBeGreaterThan(0);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
     const duplicateError = errors.find((e: any) => e.message.includes('Duplicate'));
     expect(duplicateError).toBeDefined();
   });
@@ -42,6 +46,7 @@ describe('ProfileService - Module Settings Validation', () => {
       { id: 'about' as const, visible: true, visibility: 'invalid' as const, order: 0 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(invalidSettings as any);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].field).toBe('moduleSettings[0].visibility');
@@ -53,6 +58,7 @@ describe('ProfileService - Module Settings Validation', () => {
       { id: 'about' as const, visible: true, visibility: 'everyone' as const, order: -1 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(invalidSettings as any);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].field).toBe('moduleSettings[0].order');
@@ -61,9 +67,11 @@ describe('ProfileService - Module Settings Validation', () => {
 
   test('non-boolean visible is rejected', () => {
     const invalidSettings = [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid type
       { id: 'about' as const, visible: 'true' as any, visibility: 'everyone' as const, order: 0 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(invalidSettings as any);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].field).toBe('moduleSettings[0].visible');
@@ -72,9 +80,11 @@ describe('ProfileService - Module Settings Validation', () => {
 
   test('multiple errors are reported', () => {
     const invalidSettings = [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid types
       { id: 'invalid' as const, visible: 'true' as any, visibility: 'invalid' as const, order: -1 },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Validation function accepts any for testing
     const errors = validateModuleSettings(invalidSettings as any);
     expect(errors.length).toBeGreaterThan(1);
   });

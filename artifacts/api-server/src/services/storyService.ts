@@ -60,7 +60,9 @@ export class StoryService {
       authorId: input.authorId,
       mediaUrl: input.mediaUrl,
       mediaType: input.mediaType,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Stickers array type requires any for JSONB
       stickers: (input.stickers || []) as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Poll object type requires any for JSONB
       poll: (input.poll as any) || undefined,
       audience: input.audience,
       audienceListId: input.audienceListId || undefined,

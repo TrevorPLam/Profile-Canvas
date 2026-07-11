@@ -4,7 +4,6 @@ import { requireAuth } from '../middlewares/auth';
 import {
   CreateConversationRequestSchema,
   ConversationListResponseSchema,
-  ConversationResponseSchema,
   SendMessageRequestSchema,
   MessageResponseSchema,
   MessageListResponseSchema,

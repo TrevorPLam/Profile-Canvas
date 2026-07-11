@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { postRepository, type PostCreateInput } from './postRepository';
+import { postRepository } from './postRepository';
 
 // Mock the database connection
 vi.mock('../index', () => ({

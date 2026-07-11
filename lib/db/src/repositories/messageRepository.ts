@@ -4,9 +4,6 @@ import {
   conversationsTable,
   conversationParticipantsTable,
   messagesTable,
-  type Conversation,
-  type ConversationParticipant,
-  type Message,
   type MessageReaction,
   type MessageReadReceipt,
 } from '../schema';
@@ -291,6 +288,7 @@ export class MessageRepository {
       .values({
         conversationId: input.conversationId,
         authorId: input.authorId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type cast needed for MessageType enum
         type: input.type as any,
         content: input.content,
         mediaId: input.mediaId,

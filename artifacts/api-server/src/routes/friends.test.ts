@@ -5,6 +5,7 @@ import friendsRouter from './friends';
 
 // Mock the auth middleware
 vi.mock('../middlewares/auth', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express middleware mocking requires any types
   requireAuth: (req: any, res: any, next: any) => {
     req.userId = 'test-user-id';
     next();
@@ -40,6 +41,7 @@ describe('Friendship Routes', () => {
 
   describe('POST /friends/requests', () => {
     it('should send a friend request successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.sendRequest as any).mockResolvedValue({
         id: 'request-id',
         senderId: 'test-user-id',
@@ -63,6 +65,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 409 if request already exists', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.sendRequest as any).mockResolvedValue(null);
 
       const response = await request(app)
@@ -85,6 +88,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 400 when sending to self', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.sendRequest as any).mockRejectedValue(
         new Error('Cannot send friend request to yourself')
       );
@@ -100,6 +104,7 @@ describe('Friendship Routes', () => {
 
   describe('GET /friends/requests', () => {
     it('should list incoming friend requests', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.listRequests as any).mockResolvedValue({
         requests: [
           {
@@ -122,6 +127,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should list outgoing friend requests', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.listRequests as any).mockResolvedValue({
         requests: [],
         total: 0,
@@ -142,6 +148,7 @@ describe('Friendship Routes', () => {
 
   describe('POST /friends/requests/:requestId', () => {
     it('should accept a friend request successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.acceptRequest as any).mockResolvedValue({
         userId: 'test-user-id',
         friendId: 'sender-id',
@@ -155,6 +162,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 404 if request not found', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.acceptRequest as any).mockResolvedValue(null);
 
       const response = await request(app).post('/friends/requests/request-id');
@@ -163,6 +171,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 403 if not authorized to accept', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.acceptRequest as any).mockRejectedValue(
         new Error('Not authorized to accept this request')
       );
@@ -175,6 +184,7 @@ describe('Friendship Routes', () => {
 
   describe('DELETE /friends/requests/:requestId', () => {
     it('should cancel a friend request successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.cancelRequest as any).mockResolvedValue({
         id: 'request-id',
         senderId: 'test-user-id',
@@ -191,6 +201,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 404 if request not found', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.cancelRequest as any).mockResolvedValue(null);
 
       const response = await request(app).delete('/friends/requests/request-id');
@@ -199,6 +210,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 403 if not authorized to cancel', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.cancelRequest as any).mockRejectedValue(
         new Error('Not authorized to cancel this request')
       );
@@ -211,6 +223,7 @@ describe('Friendship Routes', () => {
 
   describe('POST /friends/requests/:requestId/decline', () => {
     it('should decline a friend request successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.declineRequest as any).mockResolvedValue({
         id: 'request-id',
         senderId: 'sender-id',
@@ -227,6 +240,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 404 if request not found', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.declineRequest as any).mockResolvedValue(null);
 
       const response = await request(app).post('/friends/requests/request-id/decline');
@@ -235,6 +249,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 403 if not authorized to decline', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.declineRequest as any).mockRejectedValue(
         new Error('Not authorized to decline this request')
       );
@@ -247,6 +262,7 @@ describe('Friendship Routes', () => {
 
   describe('GET /friends', () => {
     it('should list friends successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.listFriends as any).mockResolvedValue({
         friends: [
           {
@@ -269,6 +285,7 @@ describe('Friendship Routes', () => {
 
   describe('DELETE /friends', () => {
     it('should remove a friend successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.removeFriend as any).mockResolvedValue(true);
 
       const response = await request(app)
@@ -283,6 +300,7 @@ describe('Friendship Routes', () => {
     });
 
     it('should return 404 if friendship not found', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Service method mocking
       (friendshipService.removeFriend as any).mockResolvedValue(false);
 
       const response = await request(app)

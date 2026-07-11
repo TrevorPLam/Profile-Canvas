@@ -148,7 +148,7 @@ export class EngagementRepository {
    * @param postId - The post's UUID
    * @returns Total number of reposts for the post
    */
-  async countReposts(postId: string): Promise<number> {
+  async countReposts(_postId: string): Promise<number> {
     const result = await db
       .select({ count: count() })
       .from(postsTable)

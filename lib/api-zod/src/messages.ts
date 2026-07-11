@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuthorProfileSchema, AuthorProfile } from './comments';
+import { AuthorProfileSchema } from './comments';
 
 /**
  * Message reaction schema
