@@ -15,6 +15,13 @@
       "when": 1783802729198,
       "tag": "0001_material_roughhouse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783806138082,
+      "tag": "0002_add_monetization",
+      "breakpoints": true
     }
   ]
 }

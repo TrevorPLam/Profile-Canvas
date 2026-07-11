@@ -19,3 +19,6 @@ export * from './locations';
 export * from './polls';
 export * from './streaks';
 export * from './badges';
+export * from './subscriptions';
+export * from './tips';
+export * from './gifts';

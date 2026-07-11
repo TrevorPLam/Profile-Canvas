@@ -18,6 +18,7 @@ import audienceRouter from './audience';
 import musicRouter from './music';
 import locationRouter from './location';
 import gamificationRouter from './gamification';
+import monetizationRouter from './monetization';
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(audienceRouter);
 router.use(musicRouter);
 router.use(locationRouter);
 router.use(gamificationRouter);
+router.use(monetizationRouter);
 
 export default router;
