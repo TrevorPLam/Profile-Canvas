@@ -113,6 +113,8 @@ describe('profiles schema', () => {
         moodLabel: 'happy',
         moodIcon: '😊',
         nowPlaying: 'Test Song',
+        profileSongId: 'spotify:track:123',
+        profileSongUpdatedAt: new Date(),
         moduleSettings: [
           { id: 'about', visible: true, visibility: 'everyone', order: 0 },
         ] as ProfileModule[],
@@ -135,6 +137,8 @@ describe('profiles schema', () => {
         moodLabel: null,
         moodIcon: null,
         nowPlaying: null,
+        profileSongId: null,
+        profileSongUpdatedAt: null,
         moduleSettings: [] as ProfileModule[],
         joinedAt: new Date(),
       };
