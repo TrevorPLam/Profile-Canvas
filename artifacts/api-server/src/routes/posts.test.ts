@@ -13,7 +13,10 @@ app.use(cookieParser());
 app.use('/api/auth', authRouter);
 app.use('/api/posts', postsRouter);
 
-describe('Posts Routes', () => {
+// Skip tests if DATABASE_URL is not set
+const runTests = !!process.env.DATABASE_URL;
+
+describe.runIf(runTests)('Posts Routes', () => {
   let authCookie: string;
   let userId: string;
 

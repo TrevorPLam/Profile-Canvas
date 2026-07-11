@@ -11,7 +11,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/api', authRouter);
 
-describe('Auth Routes', () => {
+// Skip tests if DATABASE_URL is not set
+const runTests = !!process.env.DATABASE_URL;
+
+describe.runIf(runTests)('Auth Routes', () => {
   beforeAll(async () => {
     // Clean up any existing test data
     await db.delete(sessionsTable);

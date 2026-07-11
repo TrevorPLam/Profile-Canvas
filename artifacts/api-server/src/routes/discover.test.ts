@@ -23,7 +23,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/friends', friendsRouter);
 app.use('/api/discover', discoverRouter);
 
-describe('Discover Routes', () => {
+// Skip tests if DATABASE_URL is not set
+const runTests = !!process.env.DATABASE_URL;
+
+describe.runIf(runTests)('Discover Routes', () => {
   let authCookie: string;
 
   beforeAll(async () => {

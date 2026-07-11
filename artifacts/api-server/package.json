@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/client-s3": "^3.1085.0",
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",
     "argon2": "^0.40.3",
@@ -20,8 +20,8 @@
     "cors": "^2.8.6",
     "drizzle-orm": "catalog:",
     "express": "^5.2.1",
-    "multer": "^1.4.5-lts.1",
-    "pino": "^9.14.0",
+    "multer": "^2.2.0",
+    "pino": "^10.3.1",
     "pino-http": "^10.5.0",
     "ws": "^8.18.0",
     "zod": "catalog:"

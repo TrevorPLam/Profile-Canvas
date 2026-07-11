@@ -7,12 +7,18 @@ import { setBaseUrl, customFetch } from '@workspace/api-client-react';
  * - Base URL from environment variable
  * - Cookie-based session management (credentials: include)
  *
- * NOTE: React Native's fetch does not automatically handle cookies like browsers do.
- * For production apps, consider using a cookie manager library like:
- * - expo-cookies (requires dev build)
- * - @preeternal/react-native-cookie-manager (requires dev build)
+ * IMPORTANT: React Native's fetch does not automatically handle cookies like browsers do.
+ * For production builds, you MUST use a cookie manager library:
+ * - expo-cookies (requires dev build): https://docs.expo.dev/versions/latest/sdk/cookies/
+ * - @react-native-cookies/cookies (requires dev build)
  *
- * For development with Expo Go, cookies may not persist across requests.
+ * SETUP INSTRUCTIONS:
+ * 1. Install cookie manager: npx expo install expo-cookies
+ * 2. Add to app.json plugins: ["expo-cookies"]
+ * 3. Create a development build (not Expo Go)
+ * 4. Initialize cookies in your app entry point
+ *
+ * For development with Expo Go, cookies will not persist across requests.
  * The backend uses HTTP-only cookies for session management.
  */
 
@@ -31,7 +37,7 @@ export async function apiFetch<T = unknown>(
   input: RequestInfo | URL,
   options?: RequestInit
 ): Promise<T> {
-  return customFetch<T>(input, {
+  return await customFetch<T>(input, {
     ...options,
     credentials: 'include',
   });

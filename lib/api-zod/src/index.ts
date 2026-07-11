@@ -1,5 +1,5 @@
-// Note: Generated API types are not available due to pre-existing orval codegen issue
-// See MDA-001 implementation notes for details
+// Note: Run `pnpm --filter @workspace/api-spec run codegen` to generate API types
+// Generated API types are currently commented out until codegen is run successfully
 // export * from './generated/api';
 // export * from './generated/types';
 export * from './topics';

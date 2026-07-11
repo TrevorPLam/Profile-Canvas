@@ -20,12 +20,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -58,24 +58,29 @@ jobs:
 
       - name: Deploy to production
         run: |
-          echo "Deploying API server to production environment"
-          # Add deployment commands here based on your hosting platform
-          # Examples:
-          # - kubectl apply -f k8s/api-server.yaml
-          # - docker-compose up -d
-          # - aws ecs update-service --cluster my-cluster --service api-server
-          #
-          # When deploying, ensure the following environment variables are set:
-          # - DATABASE_URL (from ${{ secrets.PROD_DATABASE_URL }})
-          # - SESSION_SECRET (from ${{ secrets.PROD_SESSION_SECRET }})
-          # - JWT_SECRET (from ${{ secrets.PROD_JWT_SECRET }})
-          # - AWS_S3_BUCKET (from ${{ secrets.PROD_AWS_S3_BUCKET }})
-          # - AWS_REGION (from ${{ secrets.PROD_AWS_REGION }})
-          # - AWS_ACCESS_KEY_ID (from ${{ secrets.PROD_AWS_ACCESS_KEY_ID }})
-          # - AWS_SECRET_ACCESS_KEY (from ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }})
-          #
-          # For platforms like Kubernetes, use secrets management:
-          # kubectl create secret generic corkboard-secrets \
-          #   --from-literal=database-url="${{ secrets.PROD_DATABASE_URL }}" \
-          #   --from-literal=session-secret="${{ secrets.PROD_SESSION_SECRET }}" \
-          #   --from-literal=jwt-secret="${{ secrets.PROD_JWT_SECRET }}"
+          echo "Deployment configuration needed - choose one of the following options:"
+          echo ""
+          echo "Option 1: Docker Compose (simple)"
+          echo "  docker-compose -f docker-compose.prod.yml up -d"
+          echo ""
+          echo "Option 2: Kubernetes"
+          echo "  kubectl set image deployment/api-server api-server=\${{ secrets.DOCKER_REGISTRY }}/\${{ secrets.DOCKER_IMAGE_NAME }}:\${{ github.sha }}"
+          echo "  kubectl rollout status deployment/api-server"
+          echo ""
+          echo "Option 3: AWS ECS"
+          echo "  aws ecs update-service --cluster corkboard --service api-server --force-new-deployment"
+          echo ""
+          echo "Option 4: Railway/Render/Other PaaS"
+          echo "  Use their CLI or webhook integration"
+          echo ""
+          echo "Required environment variables for deployment:"
+          echo "  - DATABASE_URL"
+          echo "  - SESSION_SECRET"
+          echo "  - JWT_SECRET"
+          echo "  - AWS_S3_BUCKET (for media storage)"
+          echo "  - AWS_REGION"
+          echo "  - AWS_ACCESS_KEY_ID"
+          echo "  - AWS_SECRET_ACCESS_KEY"
+          echo ""
+          echo "To enable deployment, uncomment and configure one of the options above."
+          echo "For now, deployment is disabled - this workflow only builds and pushes the Docker image."

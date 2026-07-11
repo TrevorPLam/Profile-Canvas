@@ -15,7 +15,10 @@ app.use(router);
 
 const authService = new AuthService();
 
-describe('Profile Routes - Visibility Filtering', () => {
+// Skip tests if DATABASE_URL is not set
+const runTests = !!process.env.DATABASE_URL;
+
+describe.runIf(runTests)('Profile Routes - Visibility Filtering', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
   let ownerUser: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test data requires any types
