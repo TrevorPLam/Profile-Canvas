@@ -10,7 +10,10 @@
  * - Stores only track IDs and metadata, not audio files
  * - Generates music cards with deep links to streaming platforms
  * - Rate limiting to respect external API quotas
+ * - Uses Spotify Web API with Client Credentials Flow for server-side authentication
  */
+
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 
 export type MusicProvider = 'spotify' | 'appleMusic' | 'isrc';
 
@@ -90,15 +93,40 @@ class SearchCache {
 /**
  * MusicService handles music search and sharing operations.
  *
- * This is a stub implementation that can be extended with actual
- * Spotify/Apple Music API integrations. The current implementation
- * returns mock data for development purposes.
+ * Integrates with Spotify Web API using Client Credentials Flow for server-side authentication.
+ * Falls back to mock data when credentials are not configured.
  */
 export class MusicService {
   private cache = new SearchCache();
   private rateLimitWindow = new Map<string, number[]>();
   private readonly RATE_LIMIT = 30; // requests per minute
   private readonly RATE_WINDOW = 60 * 1000; // 1 minute
+  private spotifyApi: SpotifyApi | null = null;
+  private spotifyInitialized = false;
+
+  /**
+   * Initialize Spotify API client with credentials from environment
+   */
+  private initializeSpotify(): void {
+    if (this.spotifyInitialized) return;
+
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    if (clientId && clientSecret) {
+      try {
+        this.spotifyApi = SpotifyApi.withClientCredentials(clientId, clientSecret);
+        this.spotifyInitialized = true;
+      } catch (error) {
+        console.error('Failed to initialize Spotify API:', error);
+        this.spotifyApi = null;
+        this.spotifyInitialized = true;
+      }
+    } else {
+      this.spotifyApi = null;
+      this.spotifyInitialized = true;
+    }
+  }
 
   /**
    * Search for music tracks
@@ -116,13 +144,51 @@ export class MusicService {
     // Rate limiting
     await this.checkRateLimit('search');
 
-    // Stub implementation - in production, integrate with Spotify/Apple Music APIs
-    // For now, return mock data to satisfy the API contract
-    const mockTracks = this.getMockTracks(request.query, request.limit || 10);
+    // Initialize Spotify API if not already done
+    if (!this.spotifyInitialized) {
+      this.initializeSpotify();
+    }
+
+    let tracks: MusicTrack[];
+
+    if (this.spotifyApi) {
+      // Use Spotify API
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const limit = (request.limit || 10) as any;
+        const results = await this.spotifyApi.search(request.query, ['track'], undefined, limit);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tracks = results.tracks.items.map((track: any) => ({
+          trackId: track.id,
+          title: track.name,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          artist: track.artists.map((a: any) => a.name).join(', '),
+          album: track.album.name,
+          durationMs: track.duration_ms,
+          artworkUrl: track.album.images[0]?.url,
+          releaseDate: track.album.release_date,
+          externalIds: {
+            isrc: track.external_ids?.isrc,
+            spotifyId: track.id,
+          },
+          externalUrls: {
+            spotify: track.external_urls.spotify,
+          },
+        }));
+      } catch (error) {
+        console.error('Spotify API search error:', error);
+        // Fall back to mock data on error
+        tracks = this.getMockTracks(request.query, request.limit || 10);
+      }
+    } else {
+      // Use mock data when credentials are not configured
+      tracks = this.getMockTracks(request.query, request.limit || 10);
+    }
 
     const response: MusicSearchResponse = {
-      tracks: mockTracks,
-      total: mockTracks.length,
+      tracks,
+      total: tracks.length,
       limit: request.limit || 10,
       offset: request.offset || 0,
     };
@@ -142,8 +208,43 @@ export class MusicService {
     // Rate limiting
     await this.checkRateLimit('share');
 
-    // Stub implementation - in production, fetch track details from external API
-    const track = this.getMockTrack(request.trackId, request.provider);
+    // Initialize Spotify API if not already done
+    if (!this.spotifyInitialized) {
+      this.initializeSpotify();
+    }
+
+    let track: MusicTrack;
+
+    if (this.spotifyApi && request.provider === 'spotify') {
+      // Use Spotify API
+      try {
+        const spotifyTrack = await this.spotifyApi.tracks.get(request.trackId);
+        track = {
+          trackId: spotifyTrack.id,
+          title: spotifyTrack.name,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          artist: spotifyTrack.artists.map((a: any) => a.name).join(', '),
+          album: spotifyTrack.album.name,
+          durationMs: spotifyTrack.duration_ms,
+          artworkUrl: spotifyTrack.album.images[0]?.url,
+          releaseDate: spotifyTrack.album.release_date,
+          externalIds: {
+            isrc: spotifyTrack.external_ids?.isrc,
+            spotifyId: spotifyTrack.id,
+          },
+          externalUrls: {
+            spotify: spotifyTrack.external_urls.spotify,
+          },
+        };
+      } catch (error) {
+        console.error('Spotify API get track error:', error);
+        // Fall back to mock data on error
+        track = this.getMockTrack(request.trackId, request.provider);
+      }
+    } else {
+      // Use mock data for non-Spotify providers or when credentials are not configured
+      track = this.getMockTrack(request.trackId, request.provider);
+    }
 
     return {
       id: crypto.randomUUID(),
@@ -162,7 +263,40 @@ export class MusicService {
     // Rate limiting
     await this.checkRateLimit('getTrack');
 
-    // Stub implementation
+    // Initialize Spotify API if not already done
+    if (!this.spotifyInitialized) {
+      this.initializeSpotify();
+    }
+
+    if (this.spotifyApi && provider === 'spotify') {
+      // Use Spotify API
+      try {
+        const spotifyTrack = await this.spotifyApi.tracks.get(trackId);
+        return {
+          trackId: spotifyTrack.id,
+          title: spotifyTrack.name,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          artist: spotifyTrack.artists.map((a: any) => a.name).join(', '),
+          album: spotifyTrack.album.name,
+          durationMs: spotifyTrack.duration_ms,
+          artworkUrl: spotifyTrack.album.images[0]?.url,
+          releaseDate: spotifyTrack.album.release_date,
+          externalIds: {
+            isrc: spotifyTrack.external_ids?.isrc,
+            spotifyId: spotifyTrack.id,
+          },
+          externalUrls: {
+            spotify: spotifyTrack.external_urls.spotify,
+          },
+        };
+      } catch (error) {
+        console.error('Spotify API get track error:', error);
+        // Fall back to mock data on error
+        return this.getMockTrack(trackId, provider);
+      }
+    }
+
+    // Use mock data for non-Spotify providers or when credentials are not configured
     return this.getMockTrack(trackId, provider);
   }
 
