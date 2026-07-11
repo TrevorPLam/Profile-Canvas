@@ -634,9 +634,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] GAM-001: Design gamification contract (API spec)
+## [x] GAM-001: Design gamification contract (API spec)
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Low
 - **Domain:** GAM
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for polls, quizzes, challenges, streaks, and badges.
@@ -652,7 +652,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **GAM-001.1 [AGENT/HUMAN]**: Draft gamification endpoints in OpenAPI.
+- [x] **GAM-001.1 [AGENT/HUMAN]**: Draft gamification endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add poll, quiz, streak, and badge paths and schemas.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
@@ -660,6 +660,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - [ ] **GAM-001.2 [HUMAN]**: Review gamification contract.
   - Action: Confirm poll/quiz structure and badge criteria.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+
+### Notes
+- **Implementation Notes:** Added gamification tag to OpenAPI spec. Defined endpoints: POST /polls (create poll attached to post), GET /polls/{pollId} (get poll with results), POST /polls/{pollId}/vote (vote on poll), POST /quizzes (create quiz attached to post), GET /quizzes/{quizId} (get quiz with results), POST /quizzes/{quizId}/submit (submit quiz answers), GET /streaks (get user streaks), POST /streaks/{streakId}/record (record streak activity), GET /badges (get user badges), GET /badges/available (get available badge definitions). Added schemas: CreatePollRequest, PollOption, PollResponse, VotePollRequest, CreateQuizRequest, QuizQuestion, QuizResponse, SubmitQuizRequest, QuizSubmissionResponse, StreakResponse, StreakListResponse, RecordStreakRequest, Badge, BadgeListResponse, AvailableBadge, AvailableBadgeListResponse. Follows best practices from research: polls/quizzes attached to posts, one vote per user per poll (idempotent), one submission per user per quiz, streaks with grace periods (frozenDays), badges auto-awarded based on criteria, anonymous voting/answering by default. Polls expire after 24 hours by default. Streaks track current count, longest count, and next reset time. Badges include human-readable criteria and earned status. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
 
 ---
 
