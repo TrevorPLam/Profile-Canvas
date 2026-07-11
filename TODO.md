@@ -122,13 +122,13 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] TOOL-005: Fix pre-existing typecheck errors
+## [x] TOOL-005: Fix pre-existing typecheck errors
 
-- **Status:** Not Started
+- **Status:** Completed
 - **Priority:** Medium
 - **Domain:** TOOL
 - **Behavior:** Given a developer runs the typecheck command, when it checks the codebase, then there are no type errors in artifacts/mockup-sandbox.
-- **Related Files:** `artifacts/mockup-sandbox/**/*`
+- **Related Files:** `artifacts/mockup-sandbox/**/*`, `pnpm-workspace.yaml`
 - **Definition of Done:** React type conflicts due to duplicate @types/react versions are resolved; typecheck passes for all packages.
 - **Out of Scope:** Changing the TypeScript configuration to ignore errors.
 - **Rules to Follow:** Resolve duplicate type versions by consolidating dependencies.
@@ -140,10 +140,15 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **TOOL-005.1 [AGENT]**: Investigate React type conflicts in mockup-sandbox.
+- [x] **TOOL-005.1 [AGENT]**: Investigate React type conflicts in mockup-sandbox.
   - Files: `artifacts/mockup-sandbox/package.json`, `artifacts/mockup-sandbox/**/*`
   - Action: Identify duplicate @types/react versions and consolidate to a single version.
   - Validation: `pnpm --filter @workspace/mockup-sandbox run typecheck` passes.
+
+### Notes
+- Added override in pnpm-workspace.yaml to force all packages to use @types/react from catalog
+- This resolved duplicate @types/react versions (19.1.17 and 19.2.17) causing type conflicts
+- Typecheck now passes for mockup-sandbox
 
 ---
 

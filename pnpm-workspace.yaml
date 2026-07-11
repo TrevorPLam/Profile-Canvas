@@ -79,6 +79,8 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
+  # Force all packages to use the same @types/react version from catalog
+  "@types/react": "catalog:"
   # replit uses linux-x64 only, we can exclude all other platforms
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
