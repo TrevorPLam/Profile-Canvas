@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
@@ -8,6 +8,8 @@ import { useMyProfile } from '@/hooks/useProfile';
 import { useUpdateProfile, useUpdateTopFriends } from '@/hooks/useUpdateProfile';
 import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { useColors } from '@/hooks/useColors';
+import { useFriends } from '@/hooks/useFriends';
+import { useTopFriends } from '@/hooks/useFriends';
 import { ACCENT_COLORS, MODULE_LABELS, MOOD_OPTIONS, WALLPAPER_PRESETS } from '@/lib/theme';
 import type { ModuleId, Visibility } from '@/lib/types';
 
@@ -29,6 +31,8 @@ const AUDIENCE_OPTIONS: { id: Visibility; label: string }[] = [
 export default function EditProfileScreen() {
   const colors = useColors();
   const { data: apiMe } = useMyProfile();
+  const { data: friendsData } = useFriends();
+  const { data: topFriendsData } = useTopFriends();
   const { friendIds, profiles } = useSocialData();
   const updateProfile = useUpdateProfile();
   const updateTopFriends = useUpdateTopFriends();
@@ -43,9 +47,40 @@ export default function EditProfileScreen() {
   const [nowPlaying, setNowPlaying] = useState(me.nowPlaying ?? '');
 
   const sortedModules = [...me.modules].sort((a, b) => a.order - b.order);
-  const friends = friendIds
-    .map((id) => profiles[id])
-    .filter((p): p is NonNullable<typeof p> => !!p);
+
+  // Use API friends data if available, fall back to local data
+  const apiFriends = friendsData?.friends || [];
+  const friends = useMemo(() => {
+    if (apiFriends.length > 0) {
+      // Transform API friend data to mobile UserProfile format
+      return apiFriends.map((friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
+        id: friend.userId,
+        name: friend.name,
+        handle: friend.handle,
+        bio: '',
+        avatarColor: '#6366f1', // Default color since API doesn't provide it
+        avatarUrl: friend.avatarUrl,
+        wallpaper: '',
+        accentColor: '#6366f1',
+        moodLabel: null,
+        moodIcon: null,
+        nowPlaying: null,
+        joinedLabel: '',
+        topFriendIds: [],
+        friendCount: 0,
+        modules: [],
+      }));
+    }
+    // Fall back to local data
+    return friendIds
+      .map((id) => profiles[id])
+      .filter((p): p is NonNullable<typeof p> => !!p);
+  }, [apiFriends, friendIds, profiles]);
+
+  // Use API top friends data if available
+  const topFriendIds = useMemo(() => {
+    return topFriendsData?.topFriendIds || me.topFriendIds;
+  }, [topFriendsData, me.topFriendIds]);
 
   // Helper to update profile via API
   const handleUpdateProfile = (patch: Record<string, unknown>) => {
@@ -357,7 +392,7 @@ export default function EditProfileScreen() {
               </Text>
             ) : (
               friends.map((friend) => {
-                const rank = me.topFriendIds.indexOf(friend.id);
+                const rank = topFriendIds.indexOf(friend.id);
                 const selected = rank >= 0;
                 return (
                   <Pressable
@@ -365,13 +400,13 @@ export default function EditProfileScreen() {
                     style={styles.friendPickRow}
                     onPress={() => {
                       if (selected) {
-                        setTopFriends(me.topFriendIds.filter((id) => id !== friend.id));
+                        setTopFriends(topFriendIds.filter((id) => id !== friend.id));
                       } else {
-                        setTopFriends([...me.topFriendIds, friend.id]);
+                        setTopFriends([...topFriendIds, friend.id]);
                       }
                     }}
                   >
-                    <Avatar name={friend.name} color={friend.avatarColor} size={40} />
+                    <Avatar name={friend.name} color={friend.avatarColor} size={40} avatarUrl={friend.avatarUrl} />
                     <Text style={[styles.friendPickName, { color: colors.foreground }]}>
                       {friend.name}
                     </Text>

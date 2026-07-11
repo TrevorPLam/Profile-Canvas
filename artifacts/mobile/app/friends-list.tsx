@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router, Stack } from 'expo-router';
@@ -7,43 +7,75 @@ import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { FriendRow } from '@/components/FriendRow';
 import { TopFriendsGrid } from '@/components/TopFriendsGrid';
-import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
-import { ME_ID } from '@/lib/mockData';
+import { useFriends } from '@/hooks/useFriends';
+import { useTopFriends } from '@/hooks/useFriends';
+import { useIncomingFriendRequests } from '@/hooks/useFriendRequests';
+import { useSendFriendRequest } from '@/hooks/useFriendship';
+import { useAcceptFriendRequest } from '@/hooks/useFriendRequests';
+import { useDeclineFriendRequest } from '@/hooks/useFriendRequests';
+import { useRemoveFriend } from '@/hooks/useFriendship';
+import { usePeopleSuggestions } from '@/hooks/usePeopleDiscovery';
+import { useMyProfile } from '@/hooks/useProfile';
 
 export default function FriendsListScreen() {
   const colors = useColors();
-  const {
-    me,
-    profiles,
-    friendIds,
-    requests,
-    removeFriend,
-    acceptFriendRequest,
-    declineFriendRequest,
-    sendFriendRequest,
-  } = useSocialData();
+  const { data: friendsData, isLoading: friendsLoading } = useFriends();
+  const { data: topFriendsData } = useTopFriends();
+  const { data: requestsData, isLoading: requestsLoading } = useIncomingFriendRequests();
+  const { data: suggestionsData, isLoading: suggestionsLoading } = usePeopleSuggestions();
+  const { data: myProfile } = useMyProfile();
 
-  const friends = useMemo(
-    () => friendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [friendIds, profiles]
-  );
+  const sendFriendRequest = useSendFriendRequest();
+  const acceptFriendRequest = useAcceptFriendRequest();
+  const declineFriendRequest = useDeclineFriendRequest();
+  const removeFriend = useRemoveFriend();
 
-  const topFriends = useMemo(
-    () => me.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [me.topFriendIds, profiles]
-  );
+  const friends = useMemo(() => friendsData?.friends || [], [friendsData]);
 
-  const suggested = useMemo(
-    () =>
-      Object.values(profiles).filter(
-        (p) =>
-          p.id !== ME_ID &&
-          !friendIds.includes(p.id) &&
-          !requests.some((r) => r.fromUserId === p.id)
-      ),
-    [profiles, friendIds, requests]
-  );
+  const topFriends = useMemo(() => {
+    if (!topFriendsData?.topFriendIds || !friendsData?.friends) return [];
+    const friendMap = new Map(friendsData.friends.map((f) => [f.userId, f]));
+    return topFriendsData.topFriendIds
+      .map((id) => friendMap.get(id))
+      .filter((p): p is NonNullable<typeof p> => !!p);
+  }, [topFriendsData, friendsData]);
+
+  const requests = useMemo(() => requestsData?.requests || [], [requestsData]);
+
+  const suggested = useMemo(() => suggestionsData?.suggestions || [], [suggestionsData]);
+
+  // Transform API friend request to mobile format
+  const transformedRequests = useMemo(() => {
+    return requests.map((req) => ({
+      id: req.id,
+      fromUserId: req.senderId,
+      createdAt: new Date(req.createdAt).getTime(),
+    }));
+  }, [requests]);
+
+  // Transform API friend profile to mobile UserProfile format
+  const transformFriendToProfile = (friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
+    id: friend.userId,
+    name: friend.name,
+    handle: friend.handle,
+    bio: '',
+    avatarColor: '#6366f1', // Default color since API doesn't provide it
+    avatarUrl: friend.avatarUrl,
+    wallpaper: '',
+    accentColor: '#6366f1',
+    moodLabel: null,
+    moodIcon: null,
+    nowPlaying: null,
+    joinedLabel: '',
+    topFriendIds: [],
+    friendCount: 0,
+    modules: [],
+  });
+
+  const transformedFriends = useMemo(() => friends.map(transformFriendToProfile), [friends]);
+  const transformedTopFriends = useMemo(() => topFriends.map(transformFriendToProfile), [topFriends]);
+  const transformedSuggested = useMemo(() => suggested.map(transformFriendToProfile), [suggested]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -62,22 +94,34 @@ export default function FriendsListScreen() {
         }}
       />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {requests.length > 0 ? (
+        {friendsLoading || requestsLoading || suggestionsLoading ? (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : null}
+
+        {transformedRequests.length > 0 ? (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Friend requests</Text>
-            {requests.map((req) => {
-              const requester = profiles[req.fromUserId];
+            {transformedRequests.map((req) => {
+              const requester = requests.find((r) => r.id === req.id);
               if (!requester) return null;
+              const profile = transformFriendToProfile({
+                userId: requester.senderId,
+                handle: requester.senderHandle,
+                name: requester.senderName,
+                avatarUrl: requester.senderAvatarUrl,
+              });
               return (
                 <Pressable
                   key={req.id}
                   style={styles.requestRow}
-                  onPress={() => router.push(`/profile/${requester.id}`)}
+                  onPress={() => router.push(`/profile/${profile.handle}`)}
                 >
-                  <Avatar name={requester.name} color={requester.avatarColor} size={44} />
+                  <Avatar name={profile.name} color={profile.avatarColor} size={44} avatarUrl={profile.avatarUrl} />
                   <View style={styles.requestText}>
                     <Text style={[styles.requestName, { color: colors.foreground }]}>
-                      {requester.name}
+                      {profile.name}
                     </Text>
                     <Text style={[styles.requestHandle, { color: colors.mutedForeground }]}>
                       wants to be friends
@@ -87,14 +131,14 @@ export default function FriendsListScreen() {
                     style={[styles.circleBtn, { backgroundColor: colors.primary }]}
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-                      acceptFriendRequest(req.id);
+                      acceptFriendRequest.mutate(req.id);
                     }}
                   >
                     <Feather name="check" size={16} color="#FFFCF5" />
                   </Pressable>
                   <Pressable
                     style={[styles.circleBtn, { backgroundColor: colors.secondary }]}
-                    onPress={() => declineFriendRequest(req.id)}
+                    onPress={() => declineFriendRequest.mutate(req.id)}
                   >
                     <Feather name="x" size={16} color={colors.mutedForeground} />
                   </Pressable>
@@ -104,31 +148,31 @@ export default function FriendsListScreen() {
           </View>
         ) : null}
 
-        {topFriends.length > 0 ? (
+        {transformedTopFriends.length > 0 ? (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Top friends</Text>
-            <TopFriendsGrid friends={topFriends} />
+            <TopFriendsGrid friends={transformedTopFriends} />
           </View>
         ) : null}
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            All friends ({friends.length})
+            All friends ({transformedFriends.length})
           </Text>
-          {friends.length === 0 ? (
+          {transformedFriends.length === 0 ? (
             <EmptyState
               icon="users"
               title="No friends yet"
               subtitle="Add people from the suggestions below or their profile page."
             />
           ) : (
-            friends.map((friend) => (
+            transformedFriends.map((friend) => (
               <FriendRow
                 key={friend.id}
                 user={friend}
                 rightSlot={
                   <Pressable
-                    onPress={() => removeFriend(friend.id)}
+                    onPress={() => removeFriend.mutate(friend.id)}
                     hitSlop={8}
                     style={[styles.removeBtn, { backgroundColor: colors.secondary }]}
                   >
@@ -144,20 +188,20 @@ export default function FriendsListScreen() {
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             People you may know
           </Text>
-          {suggested.length === 0 ? (
+          {transformedSuggested.length === 0 ? (
             <EmptyState
               icon="user-check"
               title="You're all caught up"
               subtitle="Check back later for more people to add."
             />
           ) : (
-            suggested.map((person) => (
+            transformedSuggested.map((person) => (
               <Pressable
                 key={person.id}
                 style={styles.requestRow}
-                onPress={() => router.push(`/profile/${person.id}`)}
+                onPress={() => router.push(`/profile/${person.handle}`)}
               >
-                <Avatar name={person.name} color={person.avatarColor} size={44} />
+                <Avatar name={person.name} color={person.avatarColor} size={44} avatarUrl={person.avatarUrl} />
                 <View style={styles.requestText}>
                   <Text style={[styles.requestName, { color: colors.foreground }]}>
                     {person.name}
@@ -166,14 +210,14 @@ export default function FriendsListScreen() {
                     style={[styles.requestHandle, { color: colors.mutedForeground }]}
                     numberOfLines={1}
                   >
-                    {person.bio}
+                    {person.bio || `@${person.handle}`}
                   </Text>
                 </View>
                 <Pressable
                   style={[styles.addBtn, { backgroundColor: colors.secondary }]}
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-                    sendFriendRequest(person.id);
+                    sendFriendRequest.mutate(person.id);
                   }}
                 >
                   <Feather name="user-plus" size={14} color={colors.foreground} />

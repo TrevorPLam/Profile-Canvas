@@ -59,6 +59,8 @@ export function useSendFriendRequest() {
     onSuccess: () => {
       // Invalidate friends list to refresh friendship status
       queryClient.invalidateQueries({ queryKey: ['friends'] });
+      // Invalidate friend requests to refresh outgoing requests
+      queryClient.invalidateQueries({ queryKey: ['friends', 'requests'] });
     },
   });
 }
@@ -81,6 +83,8 @@ export function useRemoveFriend() {
     onSuccess: () => {
       // Invalidate friends list to refresh friendship status
       queryClient.invalidateQueries({ queryKey: ['friends'] });
+      // Invalidate friend requests to refresh requests
+      queryClient.invalidateQueries({ queryKey: ['friends', 'requests'] });
       // Invalidate profile queries to update friend counts
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
