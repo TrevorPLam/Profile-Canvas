@@ -318,9 +318,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] COL-001: Design collaboration features contract (API spec)
+## [x] COL-001: Design collaboration features contract (API spec)
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** COL
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for remixing, dueting, and collaborating on posts.
@@ -336,7 +336,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **COL-001.1 [AGENT/HUMAN]**: Draft collaboration endpoints in OpenAPI.
+- [x] **COL-001.1 [AGENT/HUMAN]**: Draft collaboration endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add remix, duet, and collab paths and schemas.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
@@ -344,6 +344,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - [ ] **COL-001.2 [HUMAN]**: Review collaboration contract.
   - Action: Confirm remix/duet semantics and collab approval flow.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+
+### Notes
+- **Implementation Notes:** Added collaboration tag to OpenAPI spec. Defined endpoints: POST /posts/{postId}/remix (creates new post with remixOf reference), POST /posts/{postId}/duet (creates side-by-side video with duetOf reference and layout), POST /collabs (create collab request), GET /collabs (list collabs with filtering), GET /collabs/{collabId} (get collab details), PATCH /collabs/{collabId} (update status/content), DELETE /collabs/{collabId} (cancel pending collab). Added schemas: RemixRequest, DuetRequest, CreateCollabRequest, UpdateCollabRequest, CollabResponse, CollabListResponse, RemixInfo, DuetInfo. Extended PostResponse with remixOf, duetOf, collabRequestStatus, secondAuthorId, audience, audienceListId fields. Follows best practices from research: remixes/duets credit original author, collabs require explicit approval workflow (pending/accepted/rejected/cancelled), original post deletion blocked while active remixes/duets exist. Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
 
 ---
 

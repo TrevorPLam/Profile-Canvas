@@ -40,6 +40,8 @@ tags:
     description: Moderation and safety operations
   - name: live
     description: Live streaming operations
+  - name: collab
+    description: Collaboration operations (remix, duet, collab)
 paths:
   /healthz:
     get:
@@ -2735,6 +2737,327 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /posts/{postId}/remix:
+    post:
+      operationId: remixPost
+      tags: [collab]
+      summary: Remix a post
+      description: Given an authenticated user and an existing post, when they remix it, then a new post is created with a reference to the original post. Remixes credit the original author and are visible in the original post's remixes list. The original post cannot be deleted while active remixes exist.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to remix
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemixRequest"
+      responses:
+        "201":
+          description: Remix created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Original post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /posts/{postId}/duet:
+    post:
+      operationId: duetPost
+      tags: [collab]
+      summary: Duet a post
+      description: Given an authenticated user and an existing video or reel post, when they duet it, then a side-by-side video response is created with a reference to the original post. Duets credit the original author and are visible in the original post's duets list. The original post cannot be deleted while active duets exist.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to duet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DuetRequest"
+      responses:
+        "201":
+          description: Duet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Invalid request (validation error or post is not a video/reel)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Original post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /collabs:
+    post:
+      operationId: createCollab
+      tags: [collab]
+      summary: Request a collaboration
+      description: Given an authenticated user and a target user, when they request a collaboration, then a pending collab request is created. The target user must explicitly accept before the collab post is created. Both authors are credited on the final post.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCollabRequest"
+      responses:
+        "201":
+          description: Collab request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollabResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Target user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Collab request already exists or users are not friends
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /collabs/{collabId}:
+    get:
+      operationId: getCollab
+      tags: [collab]
+      summary: Get a collaboration
+      description: Given a collab ID, when requested, then the collab details are returned including status and both authors' information.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: collabId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the collaboration
+      responses:
+        "200":
+          description: Collab retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollabResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Collab not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateCollab
+      tags: [collab]
+      summary: Update a collaboration
+      description: Given an authenticated user and a collab they are part of, when they update it, then the collab status or post content is updated. Only the target user can accept a pending collab request.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: collabId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the collaboration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCollabRequest"
+      responses:
+        "200":
+          description: Collab updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollabResponse"
+        "400":
+          description: Invalid request (validation error or unauthorized action)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to update this collab
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Collab not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteCollab
+      tags: [collab]
+      summary: Delete a collaboration
+      description: Given an authenticated user and a pending collab they requested, when they delete it, then the collab request is cancelled. Completed collabs cannot be deleted (the post must be deleted instead).
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: collabId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the collaboration
+      responses:
+        "204":
+          description: Collab deleted successfully
+        "400":
+          description: Invalid request (cannot delete completed collab)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to delete this collab
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Collab not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /collabs:
+    get:
+      operationId: listCollabs
+      tags: [collab]
+      summary: List collaborations
+      description: Given an authenticated user, when they request their collabs, then incoming and outgoing collab requests are returned with pagination.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [incoming, outgoing, all]
+            default: all
+          description: Filter by collab type (incoming, outgoing, or all)
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, accepted, rejected, cancelled]
+          description: Filter by collab status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of collabs to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of collabs to skip for pagination
+      responses:
+        "200":
+          description: Collabs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollabListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -2929,6 +3252,30 @@ components:
       required:
         - originalPostId
         - originalAuthorId
+    RemixInfo:
+      type: object
+      properties:
+        originalPostId:
+          type: string
+        originalAuthorId:
+          type: string
+      required:
+        - originalPostId
+        - originalAuthorId
+    DuetInfo:
+      type: object
+      properties:
+        originalPostId:
+          type: string
+        originalAuthorId:
+          type: string
+        layout:
+          type: string
+          enum: [side-by-side, picture-in-picture, split]
+      required:
+        - originalPostId
+        - originalAuthorId
+        - layout
     TextPostContent:
       type: object
       properties:
@@ -3018,10 +3365,30 @@ components:
         repostOf:
           $ref: "#/components/schemas/RepostInfo"
           nullable: true
+        remixOf:
+          $ref: "#/components/schemas/RemixInfo"
+          nullable: true
+        duetOf:
+          $ref: "#/components/schemas/DuetInfo"
+          nullable: true
+        collabRequestStatus:
+          type: string
+          enum: [pending, accepted, rejected, cancelled]
+          nullable: true
+        secondAuthorId:
+          type: string
+          nullable: true
         topics:
           type: array
           items:
             type: string
+        audience:
+          type: string
+          enum: [everyone, friends, custom]
+          nullable: true
+        audienceListId:
+          type: string
+          nullable: true
         createdAt:
           type: string
         updatedAt:
@@ -4334,6 +4701,181 @@ components:
           description: Total count of messages in the stream
       required:
         - messages
+        - total
+    RemixRequest:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [text, video, reel]
+          description: The kind of post to create for the remix
+        content:
+          type: object
+          description: The content of the remix post (follows PostContent schema based on kind)
+        caption:
+          type: string
+          maxLength: 500
+          description: Optional caption for the remix
+      required:
+        - kind
+        - content
+    DuetRequest:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [video, reel]
+          description: The kind of post to create for the duet (must be video or reel)
+        content:
+          type: object
+          description: The content of the duet post (follows VideoPostContent or ReelPostContent schema)
+        caption:
+          type: string
+          maxLength: 500
+          description: Optional caption for the duet
+        layout:
+          type: string
+          enum: [side-by-side, picture-in-picture, split]
+          default: side-by-side
+          description: The layout for the side-by-side video
+      required:
+        - kind
+        - content
+    CreateCollabRequest:
+      type: object
+      properties:
+        targetUserId:
+          type: string
+          description: The ID of the user to collaborate with
+        kind:
+          type: string
+          enum: [text, video, reel]
+          description: The kind of post to create for the collaboration
+        content:
+          type: object
+          description: The initial content draft for the collaboration
+        message:
+          type: string
+          maxLength: 500
+          description: Optional message to send with the collab request
+      required:
+        - targetUserId
+        - kind
+        - content
+    UpdateCollabRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected, cancelled]
+          description: The new status of the collaboration (only target user can accept/reject, requester can cancel)
+        content:
+          type: object
+          description: Updated content for the collaboration post
+        message:
+          type: string
+          maxLength: 500
+          description: Optional message to send with the update
+    CollabResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the collaboration
+        requesterId:
+          type: string
+          description: The ID of the user who requested the collaboration
+        targetUserId:
+          type: string
+          description: The ID of the user who was requested to collaborate
+        status:
+          type: string
+          enum: [pending, accepted, rejected, cancelled]
+          description: The current status of the collaboration
+        kind:
+          type: string
+          enum: [text, video, reel]
+          description: The kind of post for the collaboration
+        content:
+          type: object
+          description: The content draft for the collaboration post
+        postId:
+          type: string
+          nullable: true
+          description: The ID of the created post (null until accepted)
+        message:
+          type: string
+          nullable: true
+          description: The message sent with the collaboration
+        createdAt:
+          type: string
+          description: ISO timestamp when the collaboration was created
+        updatedAt:
+          type: string
+          description: ISO timestamp when the collaboration was last updated
+        requester:
+          type: object
+          properties:
+            userId:
+              type: string
+              description: The unique identifier for the user
+            handle:
+              type: string
+              description: The user's unique handle
+            name:
+              type: string
+              description: The user's display name
+            avatarUrl:
+              type: string
+              nullable: true
+              description: The URL of the user's avatar image
+          required:
+            - userId
+            - handle
+            - name
+        target:
+          type: object
+          properties:
+            userId:
+              type: string
+              description: The unique identifier for the user
+            handle:
+              type: string
+              description: The user's unique handle
+            name:
+              type: string
+              description: The user's display name
+            avatarUrl:
+              type: string
+              nullable: true
+              description: The URL of the user's avatar image
+          required:
+            - userId
+            - handle
+            - name
+      required:
+        - id
+        - requesterId
+        - targetUserId
+        - status
+        - kind
+        - createdAt
+        - updatedAt
+        - requester
+        - target
+    CollabListResponse:
+      type: object
+      properties:
+        collabs:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollabResponse"
+          description: Array of collaborations
+        total:
+          type: integer
+          description: Total count of collaborations
+      required:
+        - collabs
         - total
 
 
