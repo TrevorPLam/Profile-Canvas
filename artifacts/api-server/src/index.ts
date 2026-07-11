@@ -1,5 +1,7 @@
+import http from 'http';
 import app from './app';
 import { logger } from './lib/logger';
+import { messageWebSocket } from './websocket/messageSocket';
 
 const rawPort = process.env['PORT'];
 
@@ -13,11 +15,17 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, 'Error listening on port');
-    process.exit(1);
-  }
+// Create HTTP server for Express and WebSocket
+const server = http.createServer(app);
 
+// Initialize WebSocket server
+messageWebSocket.initialize(server);
+
+server.on('error', (err: Error) => {
+  logger.error({ err }, 'Server error');
+  process.exit(1);
+});
+
+server.listen(port, () => {
   logger.info({ port }, 'Server listening');
 });

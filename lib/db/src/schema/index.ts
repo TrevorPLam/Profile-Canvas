@@ -7,3 +7,5 @@ export * from './comments';
 export * from './engagement';
 export * from './friendships';
 export * from './notifications';
+export * from './conversations';
+export * from './messages';

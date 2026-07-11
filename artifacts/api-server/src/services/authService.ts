@@ -223,3 +223,6 @@ export class AuthService {
     return session;
   }
 }
+
+// Export a singleton instance for convenience
+export const authService = new AuthService();

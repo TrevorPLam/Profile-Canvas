@@ -5,7 +5,7 @@ import { usersTable } from './users';
 import { postsTable } from './posts';
 
 export type NotificationType =
-  'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save';
+  'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save' | 'message';
 
 export const notificationsTable = pgTable(
   'notifications',
@@ -35,7 +35,7 @@ export const notificationsTable = pgTable(
 export const insertNotificationSchema = z.object({
   recipientId: z.string().uuid(),
   actorId: z.string().uuid(),
-  type: z.enum(['like', 'comment', 'friendRequest', 'friendAccepted', 'repost', 'save']),
+  type: z.enum(['like', 'comment', 'friendRequest', 'friendAccepted', 'repost', 'save', 'message']),
   postId: z.string().uuid().nullable(),
 });
 
@@ -46,6 +46,7 @@ export const notificationTypeSchema = z.enum([
   'friendAccepted',
   'repost',
   'save',
+  'message',
 ]);
 
 export const selectNotificationSchema = createSelectSchema(notificationsTable);

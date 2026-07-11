@@ -5,3 +5,4 @@ export * from './commentRepository';
 export * from './engagementRepository';
 export * from './friendshipRepository';
 export * from './notificationRepository';
+export * from './messageRepository';

@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 export interface CreateNotificationInput {
   recipientId: string;
   actorId: string;
-  type: 'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save';
+  type: 'like' | 'comment' | 'friendRequest' | 'friendAccepted' | 'repost' | 'save' | 'message';
   postId?: string;
 }
 

@@ -5,3 +5,4 @@
 export * from './topics';
 export * from './comments';
 export * from './schemas';
+export * from './messages';

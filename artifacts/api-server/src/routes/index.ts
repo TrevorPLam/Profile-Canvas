@@ -10,6 +10,7 @@ import friendsRouter from './friends';
 import feedRouter from './feed';
 import discoverRouter from './discover';
 import notificationsRouter from './notifications';
+import messagesRouter from './messages';
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(friendsRouter);
 router.use(feedRouter);
 router.use(discoverRouter);
 router.use(notificationsRouter);
+router.use(messagesRouter);
 
 export default router;
