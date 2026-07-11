@@ -12,6 +12,7 @@ import discoverRouter from './discover';
 import notificationsRouter from './notifications';
 import messagesRouter from './messages';
 import storiesRouter from './stories';
+import safetyRouter from './safety';
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(discoverRouter);
 router.use(notificationsRouter);
 router.use(messagesRouter);
 router.use(storiesRouter);
+router.use(safetyRouter);
 
 export default router;

@@ -1,12 +1,12 @@
 import {
   ProfileRepository,
-  type VisibleProfile,
   type ProfileUpdateInput,
   visibleModulesFor,
   type ProfileModule,
 } from '@workspace/db';
 import { validateModuleSettings, type ModuleValidationError } from './profileValidation';
 import { friendshipService } from './friendshipService';
+import { safetyService } from './safetyService';
 
 /**
  * Domain types for profile service
@@ -54,6 +54,14 @@ export class ProfileService {
     const profile = await this.profileRepo.getByHandle(handle);
     if (!profile) {
       return null;
+    }
+
+    // Check if viewer is blocked by profile owner (bidirectional)
+    if (viewerId) {
+      const isBlocked = await safetyService.areBlocked(viewerId, profile.userId);
+      if (isBlocked) {
+        return null;
+      }
     }
 
     // Determine viewer relationship

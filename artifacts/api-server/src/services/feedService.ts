@@ -8,6 +8,7 @@ import {
 } from '@workspace/db';
 import type { PostWithAuthor, EngagementSummary } from '@workspace/db';
 import { or, and, desc, sql, inArray } from 'drizzle-orm';
+import { safetyService } from './safetyService';
 
 /**
  * Domain types for feed service
@@ -109,13 +110,19 @@ export class FeedService {
     // Include self in the list
     const authorIds = [userId, ...friendIds];
 
+    // Get blocked/muted user IDs to filter out
+    const filteredUserIds = await safetyService.getFilteredUserIds(userId);
+
+    // Filter out blocked/muted users from author list
+    const visibleAuthorIds = authorIds.filter((id) => !filteredUserIds.has(id));
+
     // Query posts from friends and self
     const results = await db
       .select()
       .from(postsTable)
       .where(
         and(
-          inArray(postsTable.authorId, authorIds),
+          inArray(postsTable.authorId, visibleAuthorIds),
           // Only return non-deleted posts
           or(
             sql`${postsTable.deletedAt} IS NULL`,
@@ -134,7 +141,7 @@ export class FeedService {
       .from(postsTable)
       .where(
         and(
-          inArray(postsTable.authorId, authorIds),
+          inArray(postsTable.authorId, visibleAuthorIds),
           or(
             sql`${postsTable.deletedAt} IS NULL`,
             // @ts-ignore - Drizzle ORM type limitation for null checks

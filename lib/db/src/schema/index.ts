@@ -10,3 +10,6 @@ export * from './notifications';
 export * from './conversations';
 export * from './messages';
 export * from './stories';
+export * from './reports';
+export * from './blocks';
+export * from './mutes';
