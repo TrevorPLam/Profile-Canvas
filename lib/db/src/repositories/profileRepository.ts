@@ -104,6 +104,16 @@ export class ProfileRepository {
   }
 
   /**
+   * Get all profiles
+   * @returns Array of all profiles
+   * Note: In production, this should be paginated at the database level
+   */
+  async listAll(): Promise<VisibleProfile[]> {
+    const results = await db.select().from(profilesTable);
+    return results.map((profile) => this.toVisibleProfile(profile));
+  }
+
+  /**
    * Create a default profile for a new user
    * @param userId - The user's UUID
    * @param handle - The unique handle for the profile
