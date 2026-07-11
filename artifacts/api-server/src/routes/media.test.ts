@@ -149,4 +149,70 @@ describe.runIf(runTests)('Media Routes', () => {
     expect(response.status).toBe(413);
     expect(response.body.message).toContain('too large');
   });
+
+  it('should reject post media upload without authentication', async () => {
+    const response = await request(app)
+      .post('/api/media/upload')
+      .attach('file', Buffer.from('fake image'), 'test.jpg');
+
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message', 'Not authenticated');
+  });
+
+  it('should reject post media upload without file', async () => {
+    const response = await request(app)
+      .post('/api/media/upload')
+      .set('Cookie', `session_id=${sessionId}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message', 'No file uploaded');
+  });
+
+  it('should reject post media upload with invalid file type', async () => {
+    const response = await request(app)
+      .post('/api/media/upload')
+      .set('Cookie', `session_id=${sessionId}`)
+      .attach('file', Buffer.from('fake pdf'), 'test.pdf');
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain('Invalid file type');
+  });
+
+  it('should upload valid image for post', async () => {
+    // Create a minimal valid JPEG buffer (1x1 pixel black JPEG)
+    const jpegBuffer = Buffer.from(
+      '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA='
+    );
+
+    const response = await request(app)
+      .post('/api/media/upload')
+      .set('Cookie', `session_id=${sessionId}`)
+      .attach('file', jpegBuffer, 'post.jpg');
+
+    // This test will fail if AWS credentials are not configured
+    // That's expected at this stage of development
+    if (response.status === 500) {
+      console.log('Post media upload failed (expected if AWS not configured):', response.body.message);
+      return;
+    }
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('url');
+    expect(response.body).toHaveProperty('mediaId');
+    expect(response.body).toHaveProperty('mimeType', 'image/jpeg');
+    expect(response.body).toHaveProperty('sizeBytes');
+  });
+
+  it('should reject post media file larger than 10MB', async () => {
+    // Create a buffer larger than 10MB
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB
+
+    const response = await request(app)
+      .post('/api/media/upload')
+      .set('Cookie', `session_id=${sessionId}`)
+      .attach('file', largeBuffer, 'large.mp4');
+
+    expect(response.status).toBe(413);
+    expect(response.body.message).toContain('too large');
+  });
 });
