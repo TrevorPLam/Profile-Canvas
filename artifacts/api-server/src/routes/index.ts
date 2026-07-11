@@ -15,6 +15,7 @@ import storiesRouter from './stories';
 import safetyRouter from './safety';
 import liveRouter from './live';
 import audienceRouter from './audience';
+import musicRouter from './music';
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(storiesRouter);
 router.use(safetyRouter);
 router.use(liveRouter);
 router.use(audienceRouter);
+router.use(musicRouter);
 
 export default router;

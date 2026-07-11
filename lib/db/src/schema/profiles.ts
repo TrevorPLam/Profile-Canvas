@@ -28,6 +28,8 @@ export const profilesTable = pgTable('profiles', {
   moodLabel: text('mood_label'),
   moodIcon: text('mood_icon'),
   nowPlaying: text('now_playing'),
+  profileSongId: text('profile_song_id'),
+  profileSongUpdatedAt: timestamp('profile_song_updated_at', { withTimezone: true }),
   moduleSettings: jsonb('module_settings').$type<ProfileModule[]>().notNull().default([]),
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
 });
