@@ -11,6 +11,17 @@ export interface RepostInfo {
   originalAuthorId: string;
 }
 
+export interface RemixInfo {
+  originalPostId: string;
+  originalAuthorId: string;
+}
+
+export interface DuetInfo {
+  originalPostId: string;
+  originalAuthorId: string;
+  layout?: 'side-by-side' | 'vertical' | 'horizontal';
+}
+
 export interface TextPostContent {
   kind: 'text';
   text: string;
@@ -42,9 +53,13 @@ export const postsTable = pgTable('posts', {
   kind: text('kind').notNull().$type<PostKind>(),
   content: jsonb('content').$type<PostContent>().notNull(),
   repostOf: jsonb('repost_of').$type<RepostInfo>(),
+  remixOf: jsonb('remix_of').$type<RemixInfo>(),
+  duetOf: jsonb('duet_of').$type<DuetInfo>(),
   topics: text('topics').array().notNull().default([]),
   audience: text('audience').notNull().$type<PostAudience>().default('everyone'),
   audienceListId: uuid('audience_list_id'),
+  collabRequestStatus: text('collab_request_status').$type<'pending' | 'accepted' | 'rejected' | 'cancelled'>(),
+  secondAuthorId: uuid('second_author_id').references(() => usersTable.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -54,6 +69,17 @@ export const postsTable = pgTable('posts', {
 export const repostInfoSchema = z.object({
   originalPostId: z.string(),
   originalAuthorId: z.string(),
+});
+
+export const remixInfoSchema = z.object({
+  originalPostId: z.string(),
+  originalAuthorId: z.string(),
+});
+
+export const duetInfoSchema = z.object({
+  originalPostId: z.string(),
+  originalAuthorId: z.string(),
+  layout: z.enum(['side-by-side', 'vertical', 'horizontal']).optional(),
 });
 
 export const textPostContentSchema = z.object({

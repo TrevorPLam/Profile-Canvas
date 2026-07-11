@@ -13,8 +13,12 @@ export interface PostCreateInput {
   content: PostContent;
   topics: string[];
   repostOf?: RepostInfo;
+  remixOf?: { originalPostId: string; originalAuthorId: string };
+  duetOf?: { originalPostId: string; originalAuthorId: string; layout?: 'side-by-side' | 'vertical' | 'horizontal' };
   audience?: 'everyone' | 'friends' | 'custom';
   audienceListId?: string;
+  collabRequestStatus?: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  secondAuthorId?: string;
 }
 
 export interface PostUpdateInput {
@@ -29,9 +33,13 @@ export interface PostWithAuthor {
   kind: 'text' | 'video' | 'reel';
   content: PostContent;
   repostOf: RepostInfo | null;
+  remixOf: { originalPostId: string; originalAuthorId: string } | null;
+  duetOf: { originalPostId: string; originalAuthorId: string; layout?: 'side-by-side' | 'vertical' | 'horizontal' } | null;
   topics: string[];
   audience: 'everyone' | 'friends' | 'custom';
   audienceListId: string | null;
+  collabRequestStatus: 'pending' | 'accepted' | 'rejected' | 'cancelled' | null;
+  secondAuthorId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -246,9 +254,13 @@ export class PostRepository {
       kind: post.kind,
       content: post.content,
       repostOf: post.repostOf,
+      remixOf: post.remixOf,
+      duetOf: post.duetOf,
       topics: post.topics,
       audience: post.audience || 'everyone',
       audienceListId: post.audienceListId || null,
+      collabRequestStatus: post.collabRequestStatus || null,
+      secondAuthorId: post.secondAuthorId || null,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       deletedAt: post.deletedAt,
