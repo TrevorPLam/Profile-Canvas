@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Image,
@@ -17,10 +18,12 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
-import { useSocialData } from '@/context/SocialDataContext';
+import { useAuth } from '@/context/AuthContext';
 import { useColors } from '@/hooks/useColors';
 import { useComments } from '@/hooks/useComments';
 import { useCreateComment } from '@/hooks/useCreateComment';
+import { useDeletePost } from '@/hooks/useDeletePost';
+import { usePost } from '@/hooks/usePost';
 import { timeAgo } from '@/lib/format';
 
 export default function PostDetailScreen() {
@@ -28,17 +31,14 @@ export default function PostDetailScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { posts, profiles, getProfile, deletePost, me } = useSocialData();
+  const { user } = useAuth();
+  const deletePost = useDeletePost();
   const [draft, setDraft] = useState('');
 
   // Use backend API hooks for comments
   const { comments } = useComments(id);
   const { createComment } = useCreateComment();
-
-  const post = useMemo(() => posts.find((p) => p.id === id), [posts, id]);
-  const author = post ? profiles[post.authorId] : undefined;
-  const originalAuthor = post?.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
-  const isMine = post?.authorId === me.id;
+  const { data: post, isLoading: postLoading } = usePost(id);
 
   const submit = async () => {
     if (!id || !draft.trim()) return;
@@ -54,15 +54,15 @@ export default function PostDetailScreen() {
   const confirmDelete = () => {
     if (!post) return;
     Alert.alert(
-      post.repostOf ? 'Undo repost?' : 'Delete post?',
-      post.repostOf ? 'This will remove it from your profile and feed.' : 'This cannot be undone.',
+      'Delete post?',
+      'This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: post.repostOf ? 'Undo repost' : 'Delete',
+          text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            deletePost(post.id);
+            deletePost.mutate(post.id);
             router.back();
           },
         },
@@ -70,7 +70,16 @@ export default function PostDetailScreen() {
     );
   };
 
-  if (!post || !author) {
+  if (postLoading) {
+    return (
+      <View style={[styles.notFound, { backgroundColor: colors.background }]}>
+        <Stack.Screen options={{ title: 'Post' }} />
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!post) {
     return (
       <View style={[styles.notFound, { backgroundColor: colors.background }]}>
         <Stack.Screen options={{ title: 'Post' }} />
@@ -78,6 +87,9 @@ export default function PostDetailScreen() {
       </View>
     );
   }
+
+  const isMine = user ? post.authorId === user.userId : false;
+  const author = { name: 'User', handle: 'user', avatarColor: '#6366f1' }; // Placeholder
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -123,7 +135,7 @@ export default function PostDetailScreen() {
                 <View style={styles.repostBanner}>
                   <Feather name="repeat" size={12} color={colors.mutedForeground} />
                   <Text style={[styles.repostBannerText, { color: colors.mutedForeground }]}>
-                    Reposted from {originalAuthor?.name ?? 'someone'}
+                    Reposted
                   </Text>
                 </View>
               ) : null}
@@ -193,7 +205,7 @@ export default function PostDetailScreen() {
             },
           ]}
         >
-          <Avatar name={me.name} color={me.avatarColor} size={32} />
+          <Avatar name={user?.name || 'User'} color={user ? '#6366f1' : '#6366f1'} size={32} />
           <TextInput
             value={draft}
             onChangeText={setDraft}

@@ -8,7 +8,6 @@ import { useColors } from '@/hooks/useColors';
 import { useDiscover } from '@/hooks/useDiscover';
 import { useTrending } from '@/hooks/useTrending';
 import { TOPICS, getTopic } from '@/lib/topics';
-import type { Post } from '@/lib/types';
 
 export default function DiscoverScreen() {
   const colors = useColors();

@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
-import { useSocialData } from '@/context/SocialDataContext';
 import { useMyProfile } from '@/hooks/useProfile';
 import { useUpdateProfile, useUpdateTopFriends } from '@/hooks/useUpdateProfile';
 import { useUploadAvatar } from '@/hooks/useUploadAvatar';
@@ -30,17 +29,23 @@ const AUDIENCE_OPTIONS: { id: Visibility; label: string }[] = [
 
 export default function EditProfileScreen() {
   const colors = useColors();
-  const { data: apiMe } = useMyProfile();
+  const { data: apiMe, isLoading: profileLoading } = useMyProfile();
   const { data: friendsData } = useFriends();
   const { data: topFriendsData } = useTopFriends();
-  const { friendIds, profiles } = useSocialData();
   const updateProfile = useUpdateProfile();
   const updateTopFriends = useUpdateTopFriends();
   const { pickAndUploadAvatar, isUploading } = useUploadAvatar();
 
-  // Use API data if available, fall back to local data
-  const localMe = useSocialData().me;
-  const me = apiMe || localMe;
+  // Show loading state while profile loads
+  if (profileLoading || !apiMe) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  const me = apiMe;
 
   const [tab, setTab] = useState<Tab>('appearance');
   const [bio, setBio] = useState(me.bio);
@@ -48,36 +53,29 @@ export default function EditProfileScreen() {
 
   const sortedModules = [...me.modules].sort((a, b) => a.order - b.order);
 
-  // Use API friends data if available, fall back to local data
+  // Transform API friend data to mobile UserProfile format
   const apiFriends = friendsData?.friends || [];
   const friends = useMemo(() => {
-    if (apiFriends.length > 0) {
-      // Transform API friend data to mobile UserProfile format
-      return apiFriends.map((friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
-        id: friend.userId,
-        name: friend.name,
-        handle: friend.handle,
-        bio: '',
-        avatarColor: '#6366f1', // Default color since API doesn't provide it
-        avatarUrl: friend.avatarUrl,
-        wallpaper: '',
-        accentColor: '#6366f1',
-        moodLabel: null,
-        moodIcon: null,
-        nowPlaying: null,
-        joinedLabel: '',
-        topFriendIds: [],
-        friendCount: 0,
-        modules: [],
-      }));
-    }
-    // Fall back to local data
-    return friendIds
-      .map((id) => profiles[id])
-      .filter((p): p is NonNullable<typeof p> => !!p);
-  }, [apiFriends, friendIds, profiles]);
+    return apiFriends.map((friend: { userId: string; handle: string; name: string; avatarUrl: string | null }) => ({
+      id: friend.userId,
+      name: friend.name,
+      handle: friend.handle,
+      bio: '',
+      avatarColor: '#6366f1', // Default color since API doesn't provide it
+      avatarUrl: friend.avatarUrl,
+      wallpaper: '',
+      accentColor: '#6366f1',
+      moodLabel: null,
+      moodIcon: null,
+      nowPlaying: null,
+      joinedLabel: '',
+      topFriendIds: [],
+      friendCount: 0,
+      modules: [],
+    }));
+  }, [apiFriends]);
 
-  // Use API top friends data if available
+  // Use API top friends data
   const topFriendIds = useMemo(() => {
     return topFriendsData?.topFriendIds || me.topFriendIds;
   }, [topFriendsData, me.topFriendIds]);

@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { PostCard } from '@/components/PostCard';
 import { ReelStrip } from '@/components/ReelStrip';
 import { useAuth } from '@/context/AuthContext';
+import { useNotificationsContext } from '@/context/NotificationsContext';
 import { useFeed } from '@/hooks/useFeed';
 import { useRecommended } from '@/hooks/useRecommended';
 import { useIncomingFriendRequests } from '@/hooks/useFriendRequests';
@@ -27,6 +28,7 @@ const MODE_OPTIONS: { id: FeedMode; label: string }[] = [
 
 export default function FeedScreen() {
   const { user } = useAuth();
+  const { unreadCount } = useNotificationsContext();
   const { posts: feedPosts, profiles: feedProfiles, isLoading: feedLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
   const { posts: recommendedPosts, profiles: recommendedProfiles, isLoading: recommendedLoading } = useRecommended();
   const { data: requestsData } = useIncomingFriendRequests();
@@ -82,18 +84,32 @@ export default function FeedScreen() {
           <Avatar name={user?.name || 'User'} color={user?.accentColor || '#FF0000'} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
-        <Pressable
-          onPress={() => router.push('/friends-list')}
-          hitSlop={8}
-          style={styles.friendsBtn}
-        >
-          <Feather name="users" size={22} color={colors.foreground} />
-          {requests.length > 0 ? (
-            <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
-              <Text style={styles.badgeText}>{requests.length}</Text>
-            </View>
-          ) : null}
-        </Pressable>
+        <View style={styles.iconRow}>
+          <Pressable
+            onPress={() => router.push('/notifications')}
+            hitSlop={8}
+            style={styles.iconBtn}
+          >
+            <Feather name="bell" size={22} color={colors.foreground} />
+            {unreadCount && unreadCount > 0 ? (
+              <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/friends-list')}
+            hitSlop={8}
+            style={styles.iconBtn}
+          >
+            <Feather name="users" size={22} color={colors.foreground} />
+            {requests.length > 0 ? (
+              <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
+                <Text style={styles.badgeText}>{requests.length}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.modeRow}>
@@ -173,6 +189,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
     letterSpacing: 0.2,
+  },
+  iconRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  iconBtn: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   friendsBtn: {
     width: 34,

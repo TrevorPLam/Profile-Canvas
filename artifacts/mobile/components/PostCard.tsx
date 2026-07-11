@@ -4,8 +4,9 @@ import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
-import { useSocialData } from '@/context/SocialDataContext';
+import { useAuth } from '@/context/AuthContext';
 import { useColors } from '@/hooks/useColors';
+import { useDeletePost } from '@/hooks/useDeletePost';
 import { useEngagement } from '@/hooks/useEngagement';
 import { timeAgo } from '@/lib/format';
 import type { Post, UserProfile } from '@/lib/types';
@@ -17,7 +18,8 @@ interface PostCardProps {
 
 export function PostCard({ post, author }: PostCardProps) {
   const colors = useColors();
-  const { me, getProfile, deletePost } = useSocialData();
+  const { user } = useAuth();
+  const deletePost = useDeletePost();
   const { toggleLike, repost, isLiking, isReposting } = useEngagement(post.id);
 
   const openAuthor = () => {
@@ -49,8 +51,7 @@ export function PostCard({ post, author }: PostCardProps) {
     Share.share({ message: `${author.name}: ${summary}` }).catch(() => {});
   };
 
-  const originalAuthor = post.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
-  const isMine = post.authorId === me.id;
+  const isMine = user ? post.authorId === user.userId : false;
 
   const confirmDelete = () => {
     Alert.alert(
@@ -61,7 +62,7 @@ export function PostCard({ post, author }: PostCardProps) {
         {
           text: post.repostOf ? 'Undo repost' : 'Delete',
           style: 'destructive',
-          onPress: () => deletePost(post.id),
+          onPress: () => deletePost.mutate(post.id),
         },
       ]
     );

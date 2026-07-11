@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -6,23 +6,17 @@ import { PinnedCard } from '@/components/PinnedCard';
 import { PostCard } from '@/components/PostCard';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { TopFriendsGrid } from '@/components/TopFriendsGrid';
-import { useSocialData } from '@/context/SocialDataContext';
 import { useMyProfile } from '@/hooks/useProfile';
 import { useColors } from '@/hooks/useColors';
 import { MODULE_LABELS } from '@/lib/theme';
 import { visibleModulesFor } from '@/lib/modules';
-import type { Post } from '@/lib/types';
+import type { Post, UserProfile } from '@/lib/types';
 
 export default function MyProfileScreen() {
   const colors = useColors();
   const { data: me, isLoading: profileLoading, error: profileError } = useMyProfile();
-  const { posts, profiles, toggleLike } = useSocialData();
 
-  // Fall back to local data if API fails or not ready
-  const localMe = useSocialData().me;
-  const displayMe = me || localMe;
-
-  if (profileLoading && !displayMe) {
+  if (profileLoading && !me) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -30,7 +24,7 @@ export default function MyProfileScreen() {
     );
   }
 
-  if (profileError && !displayMe) {
+  if (profileError && !me) {
     return (
       <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorText, { color: colors.foreground }]}>
@@ -40,21 +34,17 @@ export default function MyProfileScreen() {
     );
   }
 
-  const myPosts = useMemo(
-    () =>
-      posts
-        .filter(
-          (p): p is Extract<Post, { kind: 'text' | 'video' }> =>
-            p.authorId === displayMe.id && p.kind !== 'reel'
-        )
-        .sort((a, b) => b.createdAt - a.createdAt),
-    [posts, displayMe.id]
-  );
+  if (!me) {
+    return null;
+  }
 
-  const topFriends = useMemo(
-    () => displayMe.topFriendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [displayMe.topFriendIds, profiles]
-  );
+  const displayMe = me;
+
+  // Posts will be fetched from API in a future task
+  const myPosts: Extract<Post, { kind: 'text' | 'video' }>[] = [];
+
+  // Top friends will be fetched from API in a future task
+  const topFriends: UserProfile[] = [];
 
   const modules = visibleModulesFor(displayMe, true, false);
 

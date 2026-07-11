@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { SocialDataProvider } from '@/context/SocialDataContext';
+import { NotificationsProvider } from '@/context/NotificationsContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import {
   Inter_400Regular,
@@ -38,6 +38,7 @@ function RootLayoutNav() {
           <Stack.Screen name="profile/[id]" options={{ headerShown: true, headerTitle: '' }} />
           <Stack.Screen name="post/[id]" options={{ headerShown: true, headerTitle: '' }} />
           <Stack.Screen name="friends-list" options={{ headerShown: true, headerTitle: '' }} />
+          <Stack.Screen name="notifications" options={{ headerShown: true, headerTitle: '' }} />
           <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: true }} />
           <Stack.Screen name="compose" options={{ presentation: 'modal', headerShown: true }} />
         </>
@@ -67,13 +68,13 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <GestureHandlerRootView>
-              <KeyboardProvider>
-                <SocialDataProvider>
+            <NotificationsProvider>
+              <GestureHandlerRootView>
+                <KeyboardProvider>
                   <RootLayoutNav />
-                </SocialDataProvider>
-              </KeyboardProvider>
-            </GestureHandlerRootView>
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </NotificationsProvider>
           </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>

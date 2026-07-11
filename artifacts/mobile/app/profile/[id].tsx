@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,7 +6,6 @@ import { EmptyState } from '@/components/EmptyState';
 import { PinnedCard } from '@/components/PinnedCard';
 import { PostCard } from '@/components/PostCard';
 import { ProfileHeader } from '@/components/ProfileHeader';
-import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsFriend, useRemoveFriend, useSendFriendRequest } from '@/hooks/useFriendship';
@@ -18,26 +17,15 @@ export default function OtherProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const router = useRouter();
-  const { posts, toggleLike } = useSocialData();
 
   // Fetch profile from backend by handle (id is actually the handle)
   const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(id);
-  const { data: isFriend, isLoading: friendLoading } = useIsFriend(profile?.id);
+  const { data: isFriend } = useIsFriend(profile?.id);
   const sendFriendRequest = useSendFriendRequest();
   const removeFriendMutation = useRemoveFriend();
 
-  const theirPosts = useMemo(
-    () =>
-      profile
-        ? posts
-            .filter(
-              (p): p is Extract<Post, { kind: 'text' | 'video' }> =>
-                p.authorId === profile.id && p.kind !== 'reel'
-            )
-            .sort((a, b) => b.createdAt - a.createdAt)
-        : [],
-    [posts, profile]
-  );
+  // Posts will be fetched from API in a future task
+  const theirPosts: Extract<Post, { kind: 'text' | 'video' }>[] = [];
 
   const friend = isFriend ?? false;
 

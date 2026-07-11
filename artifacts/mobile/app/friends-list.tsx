@@ -16,7 +16,6 @@ import { useAcceptFriendRequest } from '@/hooks/useFriendRequests';
 import { useDeclineFriendRequest } from '@/hooks/useFriendRequests';
 import { useRemoveFriend } from '@/hooks/useFriendship';
 import { usePeopleSuggestions } from '@/hooks/usePeopleDiscovery';
-import { useMyProfile } from '@/hooks/useProfile';
 
 export default function FriendsListScreen() {
   const colors = useColors();
@@ -24,7 +23,6 @@ export default function FriendsListScreen() {
   const { data: topFriendsData } = useTopFriends();
   const { data: requestsData, isLoading: requestsLoading } = useIncomingFriendRequests();
   const { data: suggestionsData, isLoading: suggestionsLoading } = usePeopleSuggestions();
-  const { data: myProfile } = useMyProfile();
 
   const sendFriendRequest = useSendFriendRequest();
   const acceptFriendRequest = useAcceptFriendRequest();
