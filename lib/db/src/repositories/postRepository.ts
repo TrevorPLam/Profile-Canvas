@@ -13,6 +13,8 @@ export interface PostCreateInput {
   content: PostContent;
   topics: string[];
   repostOf?: RepostInfo;
+  audience?: 'everyone' | 'friends' | 'custom';
+  audienceListId?: string;
 }
 
 export interface PostUpdateInput {
@@ -28,6 +30,8 @@ export interface PostWithAuthor {
   content: PostContent;
   repostOf: RepostInfo | null;
   topics: string[];
+  audience: 'everyone' | 'friends' | 'custom';
+  audienceListId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -243,6 +247,8 @@ export class PostRepository {
       content: post.content,
       repostOf: post.repostOf,
       topics: post.topics,
+      audience: post.audience || 'everyone',
+      audienceListId: post.audienceListId || null,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       deletedAt: post.deletedAt,

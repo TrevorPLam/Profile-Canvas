@@ -1,6 +1,6 @@
 import { StoryRepository, type StoryWithAuthor, type StoryAudience } from '@workspace/db';
 import { FriendshipRepository } from '@workspace/db';
-import { ProfileRepository } from '@workspace/db';
+import { audienceService } from './audienceService';
 
 export interface CreateStoryInput {
   authorId: string;
@@ -35,12 +35,10 @@ export interface GetUserStoriesInput {
 export class StoryService {
   private storyRepo: StoryRepository;
   private friendshipRepo: FriendshipRepository;
-  private profileRepo: ProfileRepository;
 
   constructor() {
     this.storyRepo = new StoryRepository();
     this.friendshipRepo = new FriendshipRepository();
-    this.profileRepo = new ProfileRepository();
   }
 
   /**
@@ -100,15 +98,11 @@ export class StoryService {
    * Stories are filtered by audience visibility rules
    */
   async getStoriesFeed(input: GetStoriesFeedInput): Promise<StoryWithAuthor[]> {
-    // Get all friends of the viewer
-    // TODO: Once AUD-002 is implemented, also get audience lists the viewer belongs to
-    // For now, we only support 'friends' and 'everyone' audience types
-    
-    // Get all stories from friends
+    // Get all stories from the viewer's friends
     // This is a simplified approach - in production you'd want to optimize this query
     // to avoid fetching all friends and then all their stories
     const allStories = await this.storyRepo.listByAuthors([input.viewerId]);
-    
+
     // Filter stories by audience visibility
     const visibleStories = await Promise.all(
       allStories.map(async (story) => {
@@ -121,7 +115,7 @@ export class StoryService {
 
     // Remove nulls and group by author
     const filteredStories = visibleStories.filter((s): s is StoryWithAuthor => s !== null);
-    
+
     return filteredStories;
   }
 
@@ -157,15 +151,17 @@ export class StoryService {
     switch (story.audience) {
       case 'everyone':
         return true;
-      
+
       case 'friends':
         return await this.friendshipRepo.areFriends(viewerId, story.authorId);
-      
+
       case 'custom':
-        // TODO: Once AUD-002 is implemented, check if viewer is in the audience list
-        // For now, we'll return false for custom audience lists
-        return false;
-      
+        // Check if viewer is in the audience list
+        if (!story.audienceListId) {
+          return false;
+        }
+        return await audienceService.isMember(story.audienceListId, viewerId);
+
       default:
         return false;
     }

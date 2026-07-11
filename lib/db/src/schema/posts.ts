@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { usersTable } from './users';
 
 export type PostKind = 'text' | 'video' | 'reel';
+export type PostAudience = 'everyone' | 'friends' | 'custom';
 
 export interface RepostInfo {
   originalPostId: string;
@@ -42,6 +43,8 @@ export const postsTable = pgTable('posts', {
   content: jsonb('content').$type<PostContent>().notNull(),
   repostOf: jsonb('repost_of').$type<RepostInfo>(),
   topics: text('topics').array().notNull().default([]),
+  audience: text('audience').notNull().$type<PostAudience>().default('everyone'),
+  audienceListId: uuid('audience_list_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),

@@ -1,20 +1,28 @@
 import { PostRepository, type PostWithAuthor } from '@workspace/db';
 import { inferTopics } from '@workspace/api-zod';
 import type { TextPostContent, VideoPostContent, ReelPostContent } from '@workspace/api-zod';
+import { audienceService } from './audienceService';
+import { FriendshipRepository } from '@workspace/db';
 
 export interface CreateTextPostInput {
   authorId: string;
   content: TextPostContent;
+  audience?: 'everyone' | 'friends' | 'custom';
+  audienceListId?: string;
 }
 
 export interface CreateVideoPostInput {
   authorId: string;
   content: VideoPostContent;
+  audience?: 'everyone' | 'friends' | 'custom';
+  audienceListId?: string;
 }
 
 export interface CreateReelPostInput {
   authorId: string;
   content: ReelPostContent;
+  audience?: 'everyone' | 'friends' | 'custom';
+  audienceListId?: string;
 }
 
 export interface CreateRepostInput {
@@ -30,14 +38,16 @@ export interface DeletePostInput {
 /**
  * PostService encapsulates post business logic.
  *
- * Deep module: Hides topic inference, repost chain resolution, and duplicate
- * repost guards behind a simple interface of domain operations.
+ * Deep module: Hides topic inference, repost chain resolution, duplicate
+ * repost guards, and audience filtering behind a simple interface of domain operations.
  */
 export class PostService {
   private postRepo: PostRepository;
+  private friendshipRepo: FriendshipRepository;
 
   constructor() {
     this.postRepo = new PostRepository();
+    this.friendshipRepo = new FriendshipRepository();
   }
 
   /**
@@ -51,6 +61,8 @@ export class PostService {
       kind: 'text',
       content: input.content,
       topics,
+      audience: input.audience || 'everyone',
+      audienceListId: input.audienceListId,
     });
   }
 
@@ -63,6 +75,8 @@ export class PostService {
       kind: 'video',
       content: input.content,
       topics: [], // Video posts don't auto-infer topics
+      audience: input.audience || 'everyone',
+      audienceListId: input.audienceListId,
     });
   }
 
@@ -75,6 +89,8 @@ export class PostService {
       kind: 'reel',
       content: input.content,
       topics: [], // Reel posts don't auto-infer topics
+      audience: input.audience || 'everyone',
+      audienceListId: input.audienceListId,
     });
   }
 
@@ -156,10 +172,54 @@ export class PostService {
   }
 
   /**
-   * List all posts
+   * List all posts with audience filtering
    */
-  async listPosts(limit: number = 20, offset: number = 0): Promise<PostWithAuthor[]> {
-    return this.postRepo.list(limit, offset);
+  async listPosts(
+    viewerId: string,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<PostWithAuthor[]> {
+    const allPosts = await this.postRepo.list(limit, offset);
+
+    // Filter posts by audience visibility
+    const visiblePosts = await Promise.all(
+      allPosts.map(async (post) => {
+        if (await this.canViewPost(viewerId, post)) {
+          return post;
+        }
+        return null;
+      })
+    );
+
+    return visiblePosts.filter((p): p is PostWithAuthor => p !== null);
+  }
+
+  /**
+   * Check if a viewer can see a post based on audience rules
+   */
+  private async canViewPost(viewerId: string, post: PostWithAuthor): Promise<boolean> {
+    // Viewer can always see their own posts
+    if (post.authorId === viewerId) {
+      return true;
+    }
+
+    switch (post.audience) {
+      case 'everyone':
+        return true;
+
+      case 'friends':
+        return await this.friendshipRepo.areFriends(viewerId, post.authorId);
+
+      case 'custom':
+        // Check if viewer is in the audience list
+        if (!post.audienceListId) {
+          return false;
+        }
+        return await audienceService.isMember(post.audienceListId, viewerId);
+
+      default:
+        return false;
+    }
   }
 }
 

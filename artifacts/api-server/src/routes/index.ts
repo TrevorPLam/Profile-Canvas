@@ -14,6 +14,7 @@ import messagesRouter from './messages';
 import storiesRouter from './stories';
 import safetyRouter from './safety';
 import liveRouter from './live';
+import audienceRouter from './audience';
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(messagesRouter);
 router.use(storiesRouter);
 router.use(safetyRouter);
 router.use(liveRouter);
+router.use(audienceRouter);
 
 export default router;

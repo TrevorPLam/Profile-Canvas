@@ -228,6 +228,8 @@ describe('posts schema', () => {
           },
           repostOf: null,
           topics: ['lifestyle'],
+          audience: 'everyone' as const,
+          audienceListId: null,
           createdAt: new Date(),
           updatedAt: new Date(),
           deletedAt: null,

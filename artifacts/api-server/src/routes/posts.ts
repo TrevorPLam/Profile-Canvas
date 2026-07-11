@@ -65,20 +65,38 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { authorId, limit, offset } = req.query;
+    const viewerId = req.userId || null; // Use authenticated user ID if available
 
     let posts;
 
     if (authorId && typeof authorId === 'string') {
+      // When filtering by author, return all posts by that author
+      // (author's own posts are always visible to them)
       posts = await postService.listPostsByAuthor(
         authorId,
         limit ? parseInt(limit as string, 10) : 20,
         offset ? parseInt(offset as string, 10) : 0
       );
     } else {
-      posts = await postService.listPosts(
-        limit ? parseInt(limit as string, 10) : 20,
-        offset ? parseInt(offset as string, 10) : 0
-      );
+      // When listing all posts, filter by audience visibility
+      // If not authenticated, only show 'everyone' posts
+      if (!viewerId) {
+        // For unauthenticated users, only show posts with audience 'everyone'
+        // This is a simplified approach - in production you'd want to filter at the DB level
+        const allPosts = await postService.listPosts(
+          'anonymous', // Placeholder ID for anonymous viewers
+          limit ? parseInt(limit as string, 10) : 20,
+          offset ? parseInt(offset as string, 10) : 0
+        );
+        // Filter to only show 'everyone' posts for anonymous users
+        posts = allPosts.filter((p) => p.audience === 'everyone');
+      } else {
+        posts = await postService.listPosts(
+          viewerId,
+          limit ? parseInt(limit as string, 10) : 20,
+          offset ? parseInt(offset as string, 10) : 0
+        );
+      }
     }
 
     const response = ListPostsResponseSchema.parse({ posts });
