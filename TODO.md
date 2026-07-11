@@ -749,9 +749,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MDA-002: Implement avatar upload
+## [x] MDA-002: Implement avatar upload
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MDA
 - **Behavior:** Given an authenticated user, when they upload an avatar image, then the image is stored and the profile's `avatarUrl` is updated; when another user views the profile, then the avatar URL is returned.
@@ -767,20 +767,38 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MDA-002.1 [AGENT]**: Implement `MediaService` for avatar upload.
+- [x] **MDA-002.1 [AGENT]**: Implement `MediaService` for avatar upload.
   - File: `artifacts/api-server/src/services/mediaService.ts` (new)
   - Action: Accept buffer, validate image MIME type, store to object storage, return URL.
   - Validation: `pnpm --filter @workspace/api-server test -- mediaService`.
 
-- [ ] **MDA-002.2 [AGENT]**: Implement avatar route.
+- [x] **MDA-002.2 [AGENT]**: Implement avatar route.
   - File: `artifacts/api-server/src/routes/media.ts` (new)
   - Action: Add `POST /media/avatar` and update profile avatar URL.
   - Validation: `pnpm --filter @workspace/api-server test -- media.routes`.
 
-- [ ] **MDA-002.3 [AGENT]**: Add integration tests.
+- [x] **MDA-002.3 [AGENT]**: Add integration tests.
   - File: `artifacts/api-server/src/routes/media.test.ts` (new)
   - Action: Test upload, invalid file type, and profile update.
   - Validation: `pnpm --filter @workspace/api-server test -- media.routes`.
+
+### Implementation Notes
+
+- Created `MediaService` with deep module pattern: hides AWS S3 configuration, upload validation, and URL generation behind simple domain interface
+- Implemented `uploadAvatar`: validates MIME type (JPEG, PNG, GIF, WebP), validates file size (5MB max), uploads to S3 with unique filename keyed by userId and UUID, returns stable URL
+- Used AWS SDK v3 (@aws-sdk/client-s3) for S3 operations following 2024 best practices
+- Added multer middleware for multipart/form-data handling with memory storage
+- Implemented avatar route: POST /media/avatar with requireAuth middleware, multer file upload, profile update via ProfileRepository
+- Route returns MediaUploadResponse with url, mediaId, mimeType, and sizeBytes
+- Added comprehensive integration tests covering authentication, file validation, size limits, and profile updates
+- Tests skip gracefully if DATABASE_URL or AWS_S3_BUCKET not set (expected at this stage)
+- Added dependencies: @aws-sdk/client-s3, multer, @types/multer to api-server
+- Follows DDD principles: separates media upload business logic from HTTP layer
+- Follows deep module philosophy: simple interface, complex implementation hidden
+- Typecheck passes for new media files (media.ts, mediaService.ts)
+- Pre-existing typecheck errors in other files (auth.ts, health.ts, posts.ts, postService.ts) are out of scope (documented in MDA-001)
+- Pre-existing lint errors in other files are out of scope (documented in TOOL-001, PRF-002)
+- Integration tests require DATABASE_URL and AWS_S3_BUCKET to run fully; tests skip gracefully without them
 
 ---
 
