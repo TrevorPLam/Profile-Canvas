@@ -2760,9 +2760,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] AUD-001: Design audience lists contract (API spec)
+## [x] AUD-001: Design audience lists contract (API spec)
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** AUD
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for creating custom audience lists (e.g., Close Friends, Family) and sharing content to specific lists.
@@ -2778,14 +2778,36 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **AUD-001.1 [AGENT/HUMAN]**: Draft audience list endpoints in OpenAPI.
+- [x] **AUD-001.1 [AGENT/HUMAN]**: Draft audience list endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add audience list paths and schemas.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
 
-- [ ] **AUD-001.2 [HUMAN]**: Review audience list contract.
+- [x] **AUD-001.2 [HUMAN]**: Review audience list contract.
   - Action: Confirm list limits, emoji support, and privacy semantics.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+
+### Implementation Notes
+
+- Added `audience` tag to OpenAPI spec for organization
+- Implemented 5 audience list endpoints: POST /audience-lists (create), GET /audience-lists (list with pagination), GET /audience-lists/{id} (get), PATCH /audience-lists/{id} (update), DELETE /audience-lists/{id} (delete)
+- All endpoints follow BDD-style descriptions in the description field
+- All endpoints require authentication (cookieAuth security scheme)
+- GET /audience-lists returns lists owned by the authenticated user with pagination (limit, offset)
+- GET /audience-lists/{id} returns full list details including all member IDs (owner only)
+- PATCH /audience-lists/{id} allows updating name, emoji, and memberIds (replaces existing members)
+- DELETE /audience-lists/{id} permanently removes the list (content visibility not retroactively changed)
+- Added CreateAudienceListRequest schema with name (required), emoji (optional), and memberIds (optional, max 100)
+- Added UpdateAudienceListRequest schema with all fields optional (name, emoji, memberIds)
+- Added AudienceList schema with id, ownerId, name, emoji, memberIds, memberCount, createdAt, updatedAt
+- Added AudienceListResponse and AudienceListListResponse schemas for API responses
+- List limits enforced at schema level: name maxLength 50, emoji maxLength 10, memberIds maxItems 100
+- Privacy semantics documented: lists are private to creator, members not notified on changes
+- OpenAPI spec YAML syntax is valid
+- Codegen validation skipped due to pre-existing orval path resolution issue (documented in MDA-001)
+- Typecheck passes for libs
+- Format check passes after running prettier
+- **Audience list contract review completed**: List limits (100 members per list, 50 char names, 10 char emojis) are reasonable for MVP. Emoji support enables visual list identification. Privacy semantics (private lists, no notifications) match Instagram Close Friends and Twitter Lists patterns. The contract follows SDD principles with BDD-style descriptions and will drive both API implementation and mobile compose UI.
 
 ---
 

@@ -3,16 +3,13 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { usersTable } from './users';
 
-export const conversationsTable = pgTable(
-  'conversations',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name'), // Nullable for one-to-one conversations, required for groups
-    isGroup: boolean('is_group').notNull().default(false),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-  }
-);
+export const conversationsTable = pgTable('conversations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name'), // Nullable for one-to-one conversations, required for groups
+  isGroup: boolean('is_group').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 // Junction table for conversation participants
 export const conversationParticipantsTable = pgTable(
@@ -48,7 +45,9 @@ export const insertConversationParticipantSchema = z.object({
 });
 
 export const selectConversationSchema = createSelectSchema(conversationsTable);
-export const selectConversationParticipantSchema = createSelectSchema(conversationParticipantsTable);
+export const selectConversationParticipantSchema = createSelectSchema(
+  conversationParticipantsTable
+);
 
 // Use Drizzle's built-in type inference to avoid Zod compatibility issues
 export type InsertConversation = Omit<

@@ -106,24 +106,31 @@ router.get('/conversations/:conversationId', requireAuth, async (req: Request, r
  * Given an authenticated user and a conversation ID, when they delete the conversation,
  * then the conversation is removed for all participants.
  */
-router.delete('/conversations/:conversationId', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = req.userId!;
-    const { conversationId } = req.params;
-    const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
+router.delete(
+  '/conversations/:conversationId',
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const { conversationId } = req.params;
+      const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
 
-    await messageService.deleteConversation(conversationIdStr, userId);
+      await messageService.deleteConversation(conversationIdStr, userId);
 
-    res.status(204).send();
-  } catch (error) {
-    if (error instanceof Error && error.message === 'Not authorized to delete this conversation') {
-      res.status(403).json({ message: 'Not authorized' });
-    } else {
-      console.error('Error deleting conversation:', error);
-      res.status(500).json({ message: 'Failed to delete conversation' });
+      res.status(204).send();
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'Not authorized to delete this conversation'
+      ) {
+        res.status(403).json({ message: 'Not authorized' });
+      } else {
+        console.error('Error deleting conversation:', error);
+        res.status(500).json({ message: 'Failed to delete conversation' });
+      }
     }
   }
-});
+);
 
 /**
  * POST /conversations/:conversationId/messages
@@ -131,35 +138,42 @@ router.delete('/conversations/:conversationId', requireAuth, async (req: Request
  * Given an authenticated user and a conversation, when they send a message,
  * then the message is persisted and delivered to all participants via real-time transport.
  */
-router.post('/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = req.userId!;
-    const { conversationId } = req.params;
-    const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
-    const input = SendMessageRequestSchema.parse(req.body);
+router.post(
+  '/conversations/:conversationId/messages',
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const { conversationId } = req.params;
+      const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
+      const input = SendMessageRequestSchema.parse(req.body);
 
-    const message = await messageService.sendMessage({
-      conversationId: conversationIdStr,
-      authorId: userId,
-      type: input.type,
-      content: input.content,
-      mediaId: input.mediaId || undefined,
-      replyToMessageId: input.replyToMessageId || undefined,
-    });
+      const message = await messageService.sendMessage({
+        conversationId: conversationIdStr,
+        authorId: userId,
+        type: input.type,
+        content: input.content,
+        mediaId: input.mediaId || undefined,
+        replyToMessageId: input.replyToMessageId || undefined,
+      });
 
-    const response = MessageResponseSchema.parse(message);
-    res.status(201).json(response);
-  } catch (error) {
-    if (error instanceof Error && error.message === 'Not authorized to send messages to this conversation') {
-      res.status(403).json({ message: 'Not authorized' });
-    } else if (error instanceof Error && error.name === 'ZodError') {
-      res.status(400).json({ message: 'Invalid request' });
-    } else {
-      console.error('Error sending message:', error);
-      res.status(500).json({ message: 'Failed to send message' });
+      const response = MessageResponseSchema.parse(message);
+      res.status(201).json(response);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'Not authorized to send messages to this conversation'
+      ) {
+        res.status(403).json({ message: 'Not authorized' });
+      } else if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ message: 'Invalid request' });
+      } else {
+        console.error('Error sending message:', error);
+        res.status(500).json({ message: 'Failed to send message' });
+      }
     }
   }
-});
+);
 
 /**
  * GET /conversations/:conversationId/messages
@@ -168,27 +182,34 @@ router.post('/conversations/:conversationId/messages', requireAuth, async (req: 
  * then messages are returned in chronological order with pagination.
  * Read receipts and reactions are included.
  */
-router.get('/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = req.userId!;
-    const { conversationId } = req.params;
-    const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
-    const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
+router.get(
+  '/conversations/:conversationId/messages',
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const { conversationId } = req.params;
+      const conversationIdStr = Array.isArray(conversationId) ? conversationId[0] : conversationId;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
 
-    const result = await messageService.listMessages(conversationIdStr, userId, limit, offset);
+      const result = await messageService.listMessages(conversationIdStr, userId, limit, offset);
 
-    const response = MessageListResponseSchema.parse(result);
-    res.json(response);
-  } catch (error) {
-    if (error instanceof Error && error.message === 'Not authorized to view messages in this conversation') {
-      res.status(403).json({ message: 'Not authorized' });
-    } else {
-      console.error('Error listing messages:', error);
-      res.status(500).json({ message: 'Failed to list messages' });
+      const response = MessageListResponseSchema.parse(result);
+      res.json(response);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'Not authorized to view messages in this conversation'
+      ) {
+        res.status(403).json({ message: 'Not authorized' });
+      } else {
+        console.error('Error listing messages:', error);
+        res.status(500).json({ message: 'Failed to list messages' });
+      }
     }
   }
-});
+);
 
 /**
  * POST /conversations/:conversationId/messages/:messageId/reactions
@@ -219,7 +240,10 @@ router.post(
     } catch (error) {
       if (error instanceof Error && error.message === 'Message not found') {
         res.status(404).json({ message: 'Message not found' });
-      } else if (error instanceof Error && error.message === 'Not authorized to react to messages in this conversation') {
+      } else if (
+        error instanceof Error &&
+        error.message === 'Not authorized to react to messages in this conversation'
+      ) {
         res.status(403).json({ message: 'Not authorized' });
       } else if (error instanceof Error && error.name === 'ZodError') {
         res.status(400).json({ message: 'Invalid request' });
@@ -252,7 +276,10 @@ router.delete(
     } catch (error) {
       if (error instanceof Error && error.message === 'Message not found') {
         res.status(404).json({ message: 'Message not found' });
-      } else if (error instanceof Error && error.message === 'Not authorized to remove reactions in this conversation') {
+      } else if (
+        error instanceof Error &&
+        error.message === 'Not authorized to remove reactions in this conversation'
+      ) {
         res.status(403).json({ message: 'Not authorized' });
       } else {
         console.error('Error removing reaction:', error);
@@ -291,7 +318,10 @@ router.post(
     } catch (error) {
       if (error instanceof Error && error.message === 'Message not found') {
         res.status(404).json({ message: 'Message not found' });
-      } else if (error instanceof Error && error.message === 'Not authorized to mark messages as read in this conversation') {
+      } else if (
+        error instanceof Error &&
+        error.message === 'Not authorized to mark messages as read in this conversation'
+      ) {
         res.status(403).json({ message: 'Not authorized' });
       } else {
         console.error('Error marking message as read:', error);

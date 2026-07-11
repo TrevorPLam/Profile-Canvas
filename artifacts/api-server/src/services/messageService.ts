@@ -1,4 +1,8 @@
-import { messageRepository, type ConversationWithLastMessage, type MessageWithAuthor } from '@workspace/db';
+import {
+  messageRepository,
+  type ConversationWithLastMessage,
+  type MessageWithAuthor,
+} from '@workspace/db';
 import { notificationService } from './notificationService';
 
 export interface CreateConversationInput {
@@ -61,7 +65,11 @@ export class MessageService {
   /**
    * List conversations for a user with last message preview and unread count
    */
-  async listConversations(userId: string, limit: number = 20, offset: number = 0): Promise<{
+  async listConversations(
+    userId: string,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<{
     conversations: ConversationWithLastMessage[];
     total: number;
   }> {
@@ -78,7 +86,10 @@ export class MessageService {
    * Get a single conversation by ID
    * Validates that the user is a participant
    */
-  async getConversation(conversationId: string, userId: string): Promise<ConversationWithLastMessage | null> {
+  async getConversation(
+    conversationId: string,
+    userId: string
+  ): Promise<ConversationWithLastMessage | null> {
     // Check if user is a participant
     const isParticipant = await messageRepository.isParticipant(conversationId, userId);
     if (!isParticipant) {
@@ -127,7 +138,10 @@ export class MessageService {
    */
   async sendMessage(input: SendMessageInput): Promise<MessageWithAuthor> {
     // Validate that the sender is a participant
-    const isParticipant = await messageRepository.isParticipant(input.conversationId, input.authorId);
+    const isParticipant = await messageRepository.isParticipant(
+      input.conversationId,
+      input.authorId
+    );
     if (!isParticipant) {
       throw new Error('Not authorized to send messages to this conversation');
     }
@@ -136,7 +150,9 @@ export class MessageService {
     const message = await messageRepository.createMessage(input);
 
     // Get conversation participants to notify them
-    const conversation = await messageRepository.getConversationWithParticipants(input.conversationId);
+    const conversation = await messageRepository.getConversationWithParticipants(
+      input.conversationId
+    );
     if (conversation) {
       // Notify all participants except the sender
       for (const participant of conversation.participants) {

@@ -32,6 +32,8 @@ tags:
     description: Notification operations
   - name: conversations
     description: Messaging and conversation operations
+  - name: audience
+    description: Audience list operations
 paths:
   /healthz:
     get:
@@ -1877,6 +1879,207 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /audience-lists:
+    post:
+      operationId: createAudienceList
+      tags: [audience]
+      summary: Create an audience list
+      description: Given an authenticated user, when they create an audience list, then the list is stored with a unique ID and can be used for sharing content to specific groups. Each user can create multiple lists (e.g., Close Friends, Family). Members are not notified when added to a list.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAudienceListRequest"
+      responses:
+        "201":
+          description: Audience list created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudienceListResponse"
+        "400":
+          description: Invalid request (validation error or list limit exceeded)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: listAudienceLists
+      tags: [audience]
+      summary: List audience lists
+      description: Given an authenticated user, when they request their audience lists, then all lists they own are returned with member counts. Lists are private to the creator and cannot be viewed by other users.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of lists to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of lists to skip for pagination
+      responses:
+        "200":
+          description: Audience lists retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudienceListListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /audience-lists/{id}:
+    get:
+      operationId: getAudienceList
+      tags: [audience]
+      summary: Get an audience list
+      description: Given an authenticated user and an audience list ID they own, when they request the list, then the full list details including all member IDs are returned.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the audience list
+      responses:
+        "200":
+          description: Audience list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudienceListResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (list belongs to another user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Audience list not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateAudienceList
+      tags: [audience]
+      summary: Update an audience list
+      description: Given an authenticated user and an audience list ID they own, when they update the list, then the name, emoji, or member IDs are updated. Members are not notified when added or removed.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the audience list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAudienceListRequest"
+      responses:
+        "200":
+          description: Audience list updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudienceListResponse"
+        "400":
+          description: Invalid request (validation error or member limit exceeded)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (list belongs to another user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Audience list not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteAudienceList
+      tags: [audience]
+      summary: Delete an audience list
+      description: Given an authenticated user and an audience list ID they own, when they delete the list, then the list is permanently removed. Content previously shared to this list remains visible to members who already saw it.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the audience list
+      responses:
+        "204":
+          description: Audience list deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (list belongs to another user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Audience list not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -2796,5 +2999,102 @@ components:
           description: The emoji reaction to remove
       required:
         - emoji
+    CreateAudienceListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the audience list (e.g., "Close Friends", "Family")
+          minLength: 1
+          maxLength: 50
+        emoji:
+          type: string
+          description: An emoji to represent the list (e.g., "❤️", "👨‍👩‍👧‍👦")
+          maxLength: 10
+        memberIds:
+          type: array
+          items:
+            type: string
+          description: Array of user IDs to add as initial members
+          maxItems: 100
+      required:
+        - name
+    UpdateAudienceListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The updated name of the audience list
+          minLength: 1
+          maxLength: 50
+        emoji:
+          type: string
+          description: The updated emoji for the list
+          maxLength: 10
+        memberIds:
+          type: array
+          items:
+            type: string
+          description: Updated array of member user IDs (replaces existing members)
+          maxItems: 100
+    AudienceList:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the audience list
+        ownerId:
+          type: string
+          description: The ID of the user who owns this list
+        name:
+          type: string
+          description: The name of the audience list
+        emoji:
+          type: string
+          description: The emoji representing the list
+        memberIds:
+          type: array
+          items:
+            type: string
+          description: Array of user IDs who are members of this list
+        memberCount:
+          type: integer
+          description: The count of members in this list
+        createdAt:
+          type: string
+          description: ISO timestamp when the list was created
+        updatedAt:
+          type: string
+          description: ISO timestamp when the list was last updated
+      required:
+        - id
+        - ownerId
+        - name
+        - memberIds
+        - memberCount
+        - createdAt
+        - updatedAt
+    AudienceListResponse:
+      type: object
+      properties:
+        list:
+          $ref: "#/components/schemas/AudienceList"
+          description: The audience list details
+      required:
+        - list
+    AudienceListListResponse:
+      type: object
+      properties:
+        lists:
+          type: array
+          items:
+            $ref: "#/components/schemas/AudienceList"
+          description: Array of audience lists owned by the user
+        total:
+          type: integer
+          description: Total count of audience lists owned by the user
+      required:
+        - lists
+        - total
 
 

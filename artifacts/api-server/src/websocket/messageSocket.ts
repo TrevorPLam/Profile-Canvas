@@ -141,11 +141,15 @@ export class MessageWebSocket {
       switch (message.type) {
         case 'typing':
           // Broadcast typing indicator to other participants
-          this.broadcastToConversation(client.conversationId, {
-            type: 'typing',
-            userId: client.userId,
-            conversationId: client.conversationId,
-          }, client.userId);
+          this.broadcastToConversation(
+            client.conversationId,
+            {
+              type: 'typing',
+              userId: client.userId,
+              conversationId: client.conversationId,
+            },
+            client.userId
+          );
           break;
         default:
           logger.warn({ type: message.type }, 'Unknown message type');

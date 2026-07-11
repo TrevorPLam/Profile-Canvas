@@ -429,10 +429,7 @@ export class MessageRepository {
       });
     }
 
-    await db
-      .update(messagesTable)
-      .set({ reactions })
-      .where(eq(messagesTable.id, messageId));
+    await db.update(messagesTable).set({ reactions }).where(eq(messagesTable.id, messageId));
   }
 
   /**
@@ -493,10 +490,7 @@ export class MessageRepository {
       });
     }
 
-    await db
-      .update(messagesTable)
-      .set({ readReceipts })
-      .where(eq(messagesTable.id, messageId));
+    await db.update(messagesTable).set({ readReceipts }).where(eq(messagesTable.id, messageId));
   }
 }
 
