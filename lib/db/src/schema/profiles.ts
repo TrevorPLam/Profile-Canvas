@@ -12,6 +12,7 @@ export interface ProfileModule {
   visible: boolean;
   visibility: Visibility;
   order: number;
+  data?: Record<string, unknown>;
 }
 
 export const profilesTable = pgTable('profiles', {

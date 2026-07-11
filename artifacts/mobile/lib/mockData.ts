@@ -28,6 +28,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: 'Sunday Static — Field Notes',
       joinedLabel: `Joined ${new Date(now - 220 * 24 * HOUR).toLocaleString('en-US', { month: 'long', year: 'numeric' })}`,
       topFriendIds: ['u1', 'u2', 'u3'],
+      friendCount: 3,
       modules: defaultModules(),
     },
     u1: {
@@ -43,6 +44,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: 'Nocturnal Bloom — Cassette Dreams',
       joinedLabel: 'Joined March 2022',
       topFriendIds: ['me', 'u3'],
+      friendCount: 2,
       modules: defaultModules(),
     },
     u2: {
@@ -58,6 +60,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: null,
       joinedLabel: 'Joined June 2021',
       topFriendIds: ['me'],
+      friendCount: 1,
       modules: defaultModules(),
     },
     u3: {
@@ -73,6 +76,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: null,
       joinedLabel: 'Joined January 2023',
       topFriendIds: ['u1'],
+      friendCount: 1,
       modules: defaultModules(),
     },
     u4: {
@@ -88,6 +92,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: null,
       joinedLabel: 'Joined October 2023',
       topFriendIds: [],
+      friendCount: 0,
       modules: defaultModules(),
     },
     u5: {
@@ -103,6 +108,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: null,
       joinedLabel: 'Joined May 2022',
       topFriendIds: [],
+      friendCount: 0,
       modules: defaultModules(),
     },
     u6: {
@@ -118,6 +124,7 @@ export function createSeedProfiles(now: number): Record<string, UserProfile> {
       nowPlaying: null,
       joinedLabel: 'Joined August 2023',
       topFriendIds: [],
+      friendCount: 0,
       modules: defaultModules(),
     },
   };

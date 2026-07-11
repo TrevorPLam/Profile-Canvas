@@ -6,6 +6,7 @@ import postsRouter from './posts';
 import mediaRouter from './media';
 import commentsRouter from './comments';
 import engagementRouter from './engagement';
+import friendsRouter from './friends';
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(postsRouter);
 router.use(mediaRouter);
 router.use(commentsRouter);
 router.use(engagementRouter);
+router.use(friendsRouter);
 
 export default router;

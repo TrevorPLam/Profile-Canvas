@@ -76,7 +76,7 @@ export default function OtherProfileScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ProfileHeader
           profile={profile}
-          friendCount={friendIds.includes(profile.id) ? friendIds.length : friendIds.length}
+          friendCount={profile.friendCount}
           postCount={theirPosts.length}
           isMe={false}
           isFriend={friend}

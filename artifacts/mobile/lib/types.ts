@@ -24,6 +24,7 @@ export interface UserProfile {
   nowPlaying: string | null;
   joinedLabel: string;
   topFriendIds: string[];
+  friendCount: number;
   modules: ProfileModule[];
 }
 

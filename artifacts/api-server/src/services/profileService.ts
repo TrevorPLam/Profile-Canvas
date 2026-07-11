@@ -1,5 +1,6 @@
 import { ProfileRepository, type VisibleProfile, type ProfileUpdateInput, visibleModulesFor, type ProfileModule } from '@workspace/db';
 import { validateModuleSettings, type ModuleValidationError } from './profileValidation';
+import { friendshipService } from './friendshipService';
 
 /**
  * Domain types for profile service
@@ -51,7 +52,10 @@ export class ProfileService {
 
     // Determine viewer relationship
     const viewerIsSelf = viewerId === profile.userId;
-    const viewerIsFriend = false; // TODO: Implement friendship check in SOC-003
+    let viewerIsFriend = false;
+    if (viewerId && !viewerIsSelf) {
+      viewerIsFriend = await friendshipService.areFriends(viewerId, profile.userId);
+    }
 
     // Filter modules by visibility
     const filteredModules = visibleModulesFor(
