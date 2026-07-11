@@ -7,26 +7,33 @@ import {
   Text,
   TextInput,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router, Stack } from 'expo-router';
 import { Avatar } from '@/components/Avatar';
-import { useSocialData } from '@/context/SocialDataContext';
+import { useAuth } from '@/context/AuthContext';
+import { useCreatePost } from '@/hooks/useCreatePost';
 import { useColors } from '@/hooks/useColors';
 
 const MAX_LENGTH = 280;
 
 export default function ComposeScreen() {
   const colors = useColors();
-  const { me, addTextPost } = useSocialData();
+  const { user } = useAuth();
+  const { createPost, isCreating } = useCreatePost();
   const [text, setText] = useState('');
 
-  const submit = () => {
+  const submit = async () => {
     if (!text.trim()) return;
-    addTextPost(text);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    router.back();
+    try {
+      await createPost({ text });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      router.back();
+    } catch (error) {
+      console.error('Failed to create post:', error);
+    }
   };
 
   return (
@@ -47,20 +54,24 @@ export default function ComposeScreen() {
           headerRight: () => (
             <Pressable
               onPress={submit}
-              disabled={!text.trim()}
+              disabled={!text.trim() || isCreating}
               style={[
                 styles.postBtn,
-                { backgroundColor: text.trim() ? colors.primary : colors.secondary },
+                { backgroundColor: text.trim() && !isCreating ? colors.primary : colors.secondary },
               ]}
             >
-              <Text
-                style={[
-                  styles.postBtnText,
-                  { color: text.trim() ? '#FFFCF5' : colors.mutedForeground },
-                ]}
-              >
-                Post
-              </Text>
+              {isCreating ? (
+                <ActivityIndicator size="small" color="#FFFCF5" />
+              ) : (
+                <Text
+                  style={[
+                    styles.postBtnText,
+                    { color: text.trim() ? '#FFFCF5' : colors.mutedForeground },
+                  ]}
+                >
+                  Post
+                </Text>
+              )}
             </Pressable>
           ),
         }}
@@ -71,7 +82,7 @@ export default function ComposeScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <View style={styles.body}>
-          <Avatar name={me.name} color={me.avatarColor} size={44} />
+          <Avatar name={user?.name || 'User'} color={user?.accentColor || '#6366f1'} size={44} />
           <TextInput
             value={text}
             onChangeText={(v) => setText(v.slice(0, MAX_LENGTH))}
