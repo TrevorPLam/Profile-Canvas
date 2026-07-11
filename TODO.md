@@ -153,13 +153,13 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] TOOL-008: Fix api-server and mobile typecheck errors
+## [x] TOOL-008: Fix api-server and mobile typecheck errors
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** TOOL
 - **Behavior:** Given the codebase has typecheck errors, when a developer runs typecheck, then all errors are resolved.
-- **Related Files:** `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/collabService.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`, `artifacts/api-server/src/routes/collab.ts`, `artifacts/mobile/src/middlewares/auth.ts`
+- **Related Files:** `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/collabService.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`, `artifacts/api-server/src/routes/collab.ts`
 - **Definition of Done:** All TypeScript errors in api-server and mobile are resolved; `pnpm -r run typecheck` passes for all packages.
 - **Out of Scope:** Changing code logic purely to satisfy typechecker.
 - **Rules to Follow:** Fix unused variables by prefixing with underscore; fix null type assertions; fix string array type handling.
@@ -171,17 +171,17 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **TOOL-008.1 [AGENT]**: Fix unused variables in api-server and mobile.
-  - Files: `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`, `artifacts/mobile/src/middlewares/auth.ts`
+- [x] **TOOL-008.1 [AGENT]**: Fix unused variables in api-server and mobile.
+  - Files: `artifacts/api-server/src/middlewares/auth.ts`, `artifacts/api-server/src/routes/engagement.test.ts`, `artifacts/api-server/src/routes/friends.test.ts`, `artifacts/api-server/src/routes/media.ts`, `artifacts/api-server/src/services/feedService.ts`, `artifacts/api-server/src/services/liveService.ts`
   - Action: Prefix unused variables with underscore.
   - Validation: `pnpm --filter @workspace/api-server typecheck` shows reduced error count.
 
-- [ ] **TOOL-008.2 [AGENT]**: Fix null type assertions in collabService.
+- [x] **TOOL-008.2 [AGENT]**: Fix null type assertions in collabService.
   - File: `artifacts/api-server/src/services/collabService.ts`
   - Action: Add null checks or non-null assertions for PostWithAuthor.
   - Validation: `pnpm --filter @workspace/api-server typecheck` shows no null errors.
 
-- [ ] **TOOL-008.3 [AGENT]**: Fix string array type handling in collab routes.
+- [x] **TOOL-008.3 [AGENT]**: Fix string array type handling in collab routes.
   - File: `artifacts/api-server/src/routes/collab.ts`
   - Action: Handle string | string[] types properly for Express req.params.
   - Validation: `pnpm --filter @workspace/api-server typecheck` shows no type errors.
@@ -190,6 +190,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - **Discovered during LOC-001 workflow:** Pre-existing TypeScript errors in api-server and mobile found when running `pnpm -r run typecheck`.
 - Errors include unused variables (res, req, postRepo, giftId), null type assertions in collabService.ts, and string array type handling in collab.ts.
 - These errors prevent full workspace typecheck from passing but do not affect the OpenAPI spec changes made in LOC-001.
+- **Implementation Notes:** Fixed unused variables by prefixing with underscore (auth.ts, engagement.test.ts, friends.test.ts, media.ts, feedService.ts, liveService.ts). Fixed null type assertions in collabService by adding await keyword and null checks before returning. Fixed string array type handling in collab routes by adding Array.isArray checks for req.params values. Removed unused PostRepository from feedService. Note: mobile/src/middlewares/auth.ts does not exist, so no changes were needed there. Quality assurance: typecheck passes for all packages, lint passes. Pre-existing test failures in lib/db (profiles.test.ts) are unrelated to this task.
 
 ---
 

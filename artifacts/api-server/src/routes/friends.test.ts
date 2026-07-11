@@ -6,7 +6,7 @@ import friendsRouter from './friends';
 // Mock the auth middleware
 vi.mock('../middlewares/auth', () => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express middleware mocking requires any types
-  requireAuth: (req: any, res: any, next: any) => {
+  requireAuth: (req: any, _res: any, next: any) => {
     req.userId = 'test-user-id';
     next();
   },

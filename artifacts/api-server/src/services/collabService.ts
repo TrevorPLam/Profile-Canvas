@@ -196,7 +196,11 @@ export class CollabService {
       updates.content = input.content;
     }
 
-    return this.postRepo.update(input.collabId, updates);
+    const updated = await this.postRepo.update(input.collabId, updates);
+    if (!updated) {
+      throw new Error('Failed to update collab');
+    }
+    return updated;
   }
 
   /**
@@ -222,7 +226,11 @@ export class CollabService {
       throw new Error('Can only delete pending collabs');
     }
 
-    return this.postRepo.softDelete(input.collabId);
+    const deleted = await this.postRepo.softDelete(input.collabId);
+    if (!deleted) {
+      throw new Error('Failed to delete collab');
+    }
+    return deleted;
   }
 
   /**

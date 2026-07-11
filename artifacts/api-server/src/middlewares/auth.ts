@@ -41,7 +41,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
  * Attaches userId to request if session is valid, but doesn't require it
  * Useful for endpoints that work for both authenticated and unauthenticated users
  */
-export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const sessionId = req.cookies?.session_id;
 
   if (sessionId) {

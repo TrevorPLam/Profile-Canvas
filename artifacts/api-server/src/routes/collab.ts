@@ -12,6 +12,7 @@ const router = Router();
 router.post('/posts/:postId/remix', requireAuth, async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
+    const postIdStr = Array.isArray(postId) ? postId[0] : postId;
     const userId = req.userId!;
 
     const { content, caption } = req.body;
@@ -23,7 +24,7 @@ router.post('/posts/:postId/remix', requireAuth, async (req: Request, res: Respo
 
     const remix = await collabService.createRemix({
       authorId: userId,
-      originalPostId: postId,
+      originalPostId: postIdStr,
       content: content as TextPostContent | VideoPostContent | ReelPostContent,
       caption: caption ? String(caption) : undefined,
     });
@@ -49,6 +50,7 @@ router.post('/posts/:postId/remix', requireAuth, async (req: Request, res: Respo
 router.post('/posts/:postId/duet', requireAuth, async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
+    const postIdStr = Array.isArray(postId) ? postId[0] : postId;
     const userId = req.userId!;
 
     const { content, layout, caption } = req.body;
@@ -60,7 +62,7 @@ router.post('/posts/:postId/duet', requireAuth, async (req: Request, res: Respon
 
     const duet = await collabService.createDuet({
       authorId: userId,
-      originalPostId: postId,
+      originalPostId: postIdStr,
       content: content as VideoPostContent | ReelPostContent,
       layout: layout ? (layout as 'side-by-side' | 'vertical' | 'horizontal') : undefined,
       caption: caption ? String(caption) : undefined,
@@ -132,8 +134,9 @@ router.post('/collabs', requireAuth, async (req: Request, res: Response) => {
 router.get('/collabs/:collabId', requireAuth, async (req: Request, res: Response) => {
   try {
     const { collabId } = req.params;
+    const collabIdStr = Array.isArray(collabId) ? collabId[0] : collabId;
 
-    const collab = await collabService.getCollab(collabId);
+    const collab = await collabService.getCollab(collabIdStr);
 
     if (!collab) {
       res.status(404).json({ message: 'Collab not found' });
@@ -153,6 +156,7 @@ router.get('/collabs/:collabId', requireAuth, async (req: Request, res: Response
 router.patch('/collabs/:collabId', requireAuth, async (req: Request, res: Response) => {
   try {
     const { collabId } = req.params;
+    const collabIdStr = Array.isArray(collabId) ? collabId[0] : collabId;
     const userId = req.userId!;
 
     const { status, content } = req.body;
@@ -166,7 +170,7 @@ router.patch('/collabs/:collabId', requireAuth, async (req: Request, res: Respon
 
     const collab = await collabService.updateCollab({
       userId,
-      collabId,
+      collabId: collabIdStr,
       status: statusValue,
       content: content as TextPostContent | VideoPostContent | ReelPostContent | undefined,
     });
@@ -212,11 +216,12 @@ router.patch('/collabs/:collabId', requireAuth, async (req: Request, res: Respon
 router.delete('/collabs/:collabId', requireAuth, async (req: Request, res: Response) => {
   try {
     const { collabId } = req.params;
+    const collabIdStr = Array.isArray(collabId) ? collabId[0] : collabId;
     const userId = req.userId!;
 
     const collab = await collabService.deleteCollab({
       userId,
-      collabId,
+      collabId: collabIdStr,
     });
 
     res.status(200).json(collab);

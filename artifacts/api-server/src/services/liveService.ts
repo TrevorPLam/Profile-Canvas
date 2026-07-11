@@ -333,7 +333,7 @@ export class LiveService {
    * Calculate monetary value of a gift
    * Stub implementation - in production, look up from gifts table
    */
-  private calculateGiftValue(giftId: string, quantity: number): number {
+  private calculateGiftValue(_giftId: string, quantity: number): number {
     // Stub: Assume each gift is worth $0.01
     // In production, this would look up the gift type's value
     return quantity * 0.01;

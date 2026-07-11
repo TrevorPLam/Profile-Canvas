@@ -10,7 +10,7 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit for avatars
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
@@ -26,7 +26,7 @@ const uploadPostMedia = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit for post media
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     const allowedTypes = [
       'image/jpeg',
       'image/png',

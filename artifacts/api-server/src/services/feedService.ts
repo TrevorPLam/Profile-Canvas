@@ -1,5 +1,4 @@
 import {
-  PostRepository,
   EngagementRepository,
   FriendshipRepository,
   ProfileRepository,
@@ -83,13 +82,11 @@ export interface SearchInput {
  * - Respects post visibility (public only for now, can add friend visibility later)
  */
 export class FeedService {
-  private postRepo: PostRepository;
   private engagementRepo: EngagementRepository;
   private friendshipRepo: FriendshipRepository;
   private profileRepo: ProfileRepository;
 
   constructor() {
-    this.postRepo = new PostRepository();
     this.engagementRepo = new EngagementRepository();
     this.friendshipRepo = new FriendshipRepository();
     this.profileRepo = new ProfileRepository();
