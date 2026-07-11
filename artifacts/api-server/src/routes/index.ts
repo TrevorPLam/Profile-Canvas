@@ -13,6 +13,7 @@ import notificationsRouter from './notifications';
 import messagesRouter from './messages';
 import storiesRouter from './stories';
 import safetyRouter from './safety';
+import liveRouter from './live';
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(notificationsRouter);
 router.use(messagesRouter);
 router.use(storiesRouter);
 router.use(safetyRouter);
+router.use(liveRouter);
 
 export default router;
