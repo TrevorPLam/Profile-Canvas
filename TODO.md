@@ -86,6 +86,42 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
+## [ ] TOOL-006: Fix mockup-sandbox TypeScript errors
+
+- **Status:** Pending
+- **Priority:** Medium
+- **Domain:** TOOL
+- **Behavior:** Given the mockup-sandbox has TypeScript errors, when a developer runs typecheck, then all type errors are resolved.
+- **Related Files:** `artifacts/mockup-sandbox/src/components/ui/calendar.tsx`, `artifacts/mockup-sandbox/src/components/ui/chart.tsx`, `artifacts/mockup-sandbox/src/components/ui/spinner.tsx`
+- **Definition of Done:** All TypeScript errors in mockup-sandbox are resolved; `pnpm -r run typecheck` passes for all packages.
+- **Out of Scope:** Changing component functionality purely to satisfy typechecker.
+- **Rules to Follow:** Fix Ref type incompatibilities, add proper type annotations, ensure chart component types are correct.
+- **Advanced Coding Pattern:** Deep module: type-safe UI components improve maintainability.
+- **Anti-Patterns:** Using `@ts-ignore` without justification; suppressing type errors.
+- **Imports/Exports:** Fix imports across affected UI components.
+- **Depends On:** None
+- **Blocks:** Full workspace typecheck validation
+
+### Subtasks
+
+- [ ] **TOOL-006.1 [AGENT]**: Fix Ref type incompatibilities in calendar and spinner components.
+  - Files: `artifacts/mockup-sandbox/src/components/ui/calendar.tsx`, `artifacts/mockup-sandbox/src/components/ui/spinner.tsx`
+  - Action: Resolve React Ref type conflicts between different @types/react versions.
+  - Validation: `pnpm --filter @workspace/mockup-sandbox typecheck` shows no Ref errors.
+
+- [ ] **TOOL-006.2 [AGENT]**: Fix chart component type errors.
+  - File: `artifacts/mockup-sandbox/src/components/ui/chart.tsx`
+  - Action: Add proper type annotations for payload, label, and item parameters; fix property access errors.
+  - Validation: `pnpm --filter @workspace/mockup-sandbox typecheck` shows no chart errors.
+
+### Notes
+- **Discovered during MUS-001 workflow:** Pre-existing TypeScript errors in mockup-sandbox found when running `pnpm -r run typecheck`.
+- Errors include Ref type incompatibilities in calendar.tsx and spinner.tsx, and missing type annotations in chart.tsx.
+- These errors prevent full workspace typecheck from passing but do not affect the main API server or database libraries.
+- **Implementation Notes:** None yet - task created for future resolution.
+
+---
+
 ## [b] TOOL-003: Fix orval codegen path resolution issue
 
 - **Status:** Blocked
@@ -388,9 +424,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MUS-001: Design music integration contract (API spec)
+## [x] MUS-001: Design music integration contract (API spec)
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MUS
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for sharing music tracks, attaching songs to posts, and displaying profile songs.
@@ -406,7 +442,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MUS-001.1 [AGENT/HUMAN]**: Draft music endpoints in OpenAPI.
+- [x] **MUS-001.1 [AGENT/HUMAN]**: Draft music endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add music search and share paths and schemas.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
@@ -415,7 +451,8 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
   - Action: Confirm music service choice and preview URL semantics.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
 
----
+### Notes
+- **Implementation Notes:** Added music tag to OpenAPI spec. Defined endpoints: GET /music/search (search for tracks with pagination), POST /music/share (share a track and generate music card). Added schemas: MusicSearchResponse, MusicTrack (with trackId, title, artist, album, durationMs, externalIds for ISRC/Spotify/Apple Music, externalUrls for deep links, artworkUrl, releaseDate), MusicShareRequest (trackId + provider enum), MusicShareResponse. Extended ProfileResponse with profileSongId and profileSongUpdatedAt fields. Follows best practices from research: no audio previews due to Spotify/Apple licensing restrictions (Spotify removed 30s previews for new apps in Dec 2024, requires 250k MAUs for extended access), store only track IDs and metadata, use cross-platform identifiers (ISRC) for resolution, support multiple providers (Spotify, Apple Music, ISRC lookup). Note: codegen validation skipped due to TOOL-003 orval path resolution issue (blocked).
 
 ## [ ] MUS-002: Implement music integration API
 
