@@ -1,25 +1,40 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Dimensions, FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/EmptyState';
 import { ReelCard } from '@/components/ReelCard';
-import { useSocialData } from '@/context/SocialDataContext';
-import type { ReelPost } from '@/lib/types';
+import { useReels } from '@/hooks/useReels';
 
 const { height: screenHeight } = Dimensions.get('window');
 
 export default function ReelsScreen() {
-  const { posts, profiles, toggleLike } = useSocialData();
+  const { reels, isLoading, error } = useReels();
   const insets = useSafeAreaInsets();
   const cardHeight = screenHeight;
 
-  const reels = useMemo<ReelPost[]>(
-    () =>
-      [...posts]
-        .filter((p): p is ReelPost => p.kind === 'reel')
-        .sort((a, b) => b.createdAt - a.createdAt),
-    [posts]
-  );
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <EmptyState
+          icon="film"
+          title="Loading reels..."
+          subtitle="Fetching short vertical videos."
+        />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <EmptyState
+          icon="film"
+          title="Error loading reels"
+          subtitle="Please check your connection and try again."
+        />
+      </View>
+    );
+  }
 
   if (reels.length === 0) {
     return (
@@ -43,13 +58,9 @@ export default function ReelsScreen() {
         snapToInterval={cardHeight}
         decelerationRate="fast"
         getItemLayout={(_, index) => ({ length: cardHeight, offset: cardHeight * index, index })}
-        renderItem={({ item }) => {
-          const author = profiles[item.authorId];
-          if (!author) return null;
-          return (
-            <ReelCard post={item} author={author} onToggleLike={toggleLike} height={cardHeight} />
-          );
-        }}
+        renderItem={({ item }) => (
+          <ReelCard post={item} author={item.author} height={cardHeight} />
+        )}
       />
     </View>
   );

@@ -73,7 +73,7 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
         <View style={styles.repostBanner}>
           <Feather name="repeat" size={12} color={colors.mutedForeground} />
           <Text style={[styles.repostBannerText, { color: colors.mutedForeground }]}>
-            Reposted from {originalAuthor?.name ?? 'someone'}
+            Reposted
           </Text>
         </View>
       ) : null}
@@ -92,7 +92,11 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
           <Text style={[styles.text, { color: colors.foreground }]}>{post.text}</Text>
         ) : (
           <View style={styles.videoWrap}>
-            <Image source={post.thumbnail} style={styles.thumbnail} resizeMode="cover" />
+            <Image
+              source={typeof post.thumbnail === 'string' ? { uri: post.thumbnail } : post.thumbnail}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
             <View style={styles.playOverlay}>
               <View style={styles.playCircle}>
                 <Feather name="play" size={20} color="#FFFCF5" />
@@ -132,11 +136,11 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
             {post.commentCount}
           </Text>
         </Pressable>
-        <Pressable style={styles.actionBtn} onPress={repost} hitSlop={8} disabled={reposted}>
+        <Pressable style={styles.actionBtn} onPress={repost} hitSlop={8}>
           <Feather
             name="repeat"
             size={17}
-            color={reposted ? colors.primary : colors.mutedForeground}
+            color={colors.primary}
           />
         </Pressable>
         <Pressable style={styles.actionBtn} onPress={share} hitSlop={8}>

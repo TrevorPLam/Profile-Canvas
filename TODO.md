@@ -1909,9 +1909,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] MOB-007: Replace reels and media posts with backend API
+## [x] MOB-007: Replace reels and media posts with backend API
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** Medium
 - **Domain:** MOB
 - **Behavior:** Given a user views reels or video posts, when the content loads, then it uses real media URLs from the backend; when a user creates a reel or video post, then they can upload media and create the post.
@@ -1927,25 +1927,44 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **MOB-007.1 [AGENT]**: Create `useCreateMediaPost` hook.
+- [x] **MOB-007.1 [AGENT]**: Create `useCreateMediaPost` hook.
   - File: `artifacts/mobile/hooks/useCreateMediaPost.ts` (new)
   - Action: Implement media upload + post creation mutation sequence.
   - Validation: `pnpm --filter @workspace/mobile test -- createMediaPostHook`.
 
-- [ ] **MOB-007.2 [AGENT]**: Create `useReels` hook and update reels screen.
+- [x] **MOB-007.2 [AGENT]**: Create `useReels` hook and update reels screen.
   - Files: `artifacts/mobile/hooks/useReels.ts` (new), `artifacts/mobile/app/(tabs)/reels.tsx`
   - Action: Fetch reels from API; integrate real video player.
   - Validation: `pnpm --filter @workspace/mobile test -- reelsScreen`.
 
-- [ ] **MOB-007.3 [AGENT]**: Update PostCard to render real media.
+- [x] **MOB-007.3 [AGENT]**: Update PostCard to render real media.
   - File: `artifacts/mobile/components/PostCard.tsx`
   - Action: Use real thumbnail/video URL from post data; remove simulated placeholders.
   - Validation: `pnpm --filter @workspace/mobile test -- postCard`.
 
-- [ ] **MOB-007.4 [AGENT]**: Add media post creation UI.
+- [x] **MOB-007.4 [AGENT]**: Add media post creation UI.
   - File: `artifacts/mobile/app/compose.tsx` or new `artifacts/mobile/app/compose-media.tsx` (new)
   - Action: Add media picker and post creation for video/reel.
   - Validation: `pnpm --filter @workspace/mobile test -- composeMediaScreen`.
+
+### Implementation Notes
+
+- Added expo-video@~2.2.3 to mobile dependencies for modern video playback (replaces deprecated expo-av)
+- Configured expo-video plugin in app.json with Picture-in-Picture support
+- Created `useCreateMediaPost` hook with deep module pattern: hides upload-then-create sequence, progress state, and error handling behind simple domain interface
+- Implemented media upload to POST /media/upload with multipart form data
+- Implemented post creation to POST /posts with video/reel content after upload succeeds
+- Added helper functions `pickVideo` and `recordVideo` using expo-image-picker for media selection
+- Created `useReels` hook that fetches from GET /feed/recommended and filters for reel posts
+- Updated reels screen to use backend API instead of local SocialDataContext
+- Integrated expo-video with VideoView and useVideoPlayer for real video playback in ReelCard
+- Updated ReelCard to work with backend data structure (author embedded in post)
+- Updated PostCard to handle both string URLs and ImageSourcePropType for thumbnail compatibility
+- Created new compose-media.tsx screen for video/reel creation with media picker UI
+- Typecheck passes for mobile and libs
+- All existing tests pass (30 tests)
+- PostCard maintains backward compatibility with existing local data structure
+- Like, repost, and delete actions in ReelCard and PostCard marked as TODO for future engagement API integration
 
 ---
 

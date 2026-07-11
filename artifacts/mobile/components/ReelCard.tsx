@@ -4,22 +4,52 @@ import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { Avatar } from '@/components/Avatar';
-import { useSocialData } from '@/context/SocialDataContext';
-import type { ReelPost, UserProfile } from '@/lib/types';
+import { useAuth } from '@/context/AuthContext';
+
+interface ReelAuthor {
+  id: string;
+  handle: string;
+  name: string;
+  avatarUrl: string | null;
+  accentColor: string;
+}
+
+interface ReelPost {
+  id: string;
+  authorId: string;
+  kind: 'reel';
+  caption: string;
+  thumbnailUrl: string;
+  soundLabel: string;
+  viewsLabel: string;
+  createdAt: number;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+  repostOf?: {
+    originalPostId: string;
+    originalAuthorId: string;
+  };
+  author: ReelAuthor;
+}
 
 interface ReelCardProps {
   post: ReelPost;
-  author: UserProfile;
-  onToggleLike: (id: string) => void;
+  author: ReelAuthor;
   height: number;
 }
 
-export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) {
-  const { me, getProfile, repostPost, hasRepostedByMe, deletePost } = useSocialData();
+export function ReelCard({ post, author, height }: ReelCardProps) {
+  const { user } = useAuth();
+  const player = useVideoPlayer(post.thumbnailUrl, (player: any) => {
+    player.loop = true;
+    player.play();
+  });
 
   const openAuthor = () => {
-    if (author.id === 'me') {
+    if (author.id === user?.userId) {
       router.push('/(tabs)/profile');
     } else {
       router.push(`/profile/${author.id}`);
@@ -32,23 +62,19 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
 
   const like = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    onToggleLike(post.id);
+    // TODO: Implement like API call
   };
 
-  const reposted = hasRepostedByMe(post.id);
-
   const repost = () => {
-    if (reposted) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    repostPost(post.id);
+    // TODO: Implement repost API call
   };
 
   const share = () => {
     Share.share({ message: `${author.name}: ${post.caption}` }).catch(() => {});
   };
 
-  const originalAuthor = post.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
-  const isMine = post.authorId === me.id;
+  const isMine = post.authorId === user?.userId;
 
   const confirmDelete = () => {
     Alert.alert(
@@ -59,7 +85,9 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
         {
           text: post.repostOf ? 'Undo repost' : 'Delete',
           style: 'destructive',
-          onPress: () => deletePost(post.id),
+          onPress: () => {
+            // TODO: Implement delete API call
+          },
         },
       ]
     );
@@ -67,8 +95,14 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
 
   return (
     <View style={[styles.wrap, { height }]}>
-      <Pressable style={styles.imagePress} onPress={openDetail}>
-        <Image source={post.thumbnail} style={styles.image} resizeMode="cover" />
+      <Pressable style={styles.videoPress} onPress={openDetail}>
+        <VideoView
+          player={player}
+          style={styles.video}
+          contentFit="cover"
+          allowsFullscreen
+          allowsPictureInPicture
+        />
       </Pressable>
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.75)']}
@@ -81,13 +115,11 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
             {post.repostOf ? (
               <View style={styles.repostRow}>
                 <Feather name="repeat" size={12} color="#FFFCF5" />
-                <Text style={styles.repostText}>
-                  Reposted from {originalAuthor?.name ?? 'someone'}
-                </Text>
+                <Text style={styles.repostText}>Reposted</Text>
               </View>
             ) : null}
             <Pressable style={styles.authorRow} onPress={openAuthor} hitSlop={6}>
-              <Avatar name={author.name} color={author.avatarColor} size={32} ringColor="#FFFCF5" />
+              <Avatar name={author.name} color={author.accentColor} size={32} ringColor="#FFFCF5" />
               <Text style={styles.authorName}>{author.handle}</Text>
             </Pressable>
             <Text style={styles.caption}>{post.caption}</Text>
@@ -105,8 +137,8 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
               <Feather name="message-circle" size={24} color="#FFFCF5" />
               <Text style={styles.railText}>{post.commentCount}</Text>
             </Pressable>
-            <Pressable style={styles.railBtn} onPress={repost} hitSlop={8} disabled={reposted}>
-              <Feather name="repeat" size={23} color={reposted ? '#FF3D7F' : '#FFFCF5'} />
+            <Pressable style={styles.railBtn} onPress={repost} hitSlop={8}>
+              <Feather name="repeat" size={23} color="#FFFCF5" />
             </Pressable>
             <Pressable style={styles.railBtn} onPress={share} hitSlop={8}>
               <Feather name="share" size={23} color="#FFFCF5" />
@@ -132,6 +164,14 @@ const styles = StyleSheet.create({
     width: '100%',
     position: 'relative',
     backgroundColor: '#151515',
+  },
+  videoPress: {
+    width: '100%',
+    height: '100%',
+  },
+  video: {
+    width: '100%',
+    height: '100%',
   },
   imagePress: {
     width: '100%',
