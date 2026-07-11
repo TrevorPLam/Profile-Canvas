@@ -20,6 +20,8 @@ tags:
     description: Media upload operations
   - name: comments
     description: Comment operations
+  - name: engagement
+    description: Engagement operations (likes, saves)
 paths:
   /healthz:
     get:
@@ -629,6 +631,164 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /posts/{postId}/like:
+    post:
+      operationId: likePost
+      tags: [engagement]
+      summary: Like a post
+      description: Given an authenticated user and a post, when they like the post, then the like is recorded and the post's like count increments. Duplicate like requests are idempotent and return success without incrementing the count again.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to like
+      responses:
+        "200":
+          description: Post liked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngagementSummary"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: unlikePost
+      tags: [engagement]
+      summary: Unlike a post
+      description: Given an authenticated user and a post they have liked, when they unlike the post, then the like is removed and the post's like count decrements. Unlike requests when the user has not liked the post are idempotent and return success without decrementing the count.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to unlike
+      responses:
+        "200":
+          description: Post unliked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngagementSummary"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /posts/{postId}/save:
+    post:
+      operationId: savePost
+      tags: [engagement]
+      summary: Save a post
+      description: Given an authenticated user and a post, when they save the post, then the save is recorded and the post's save count increments. Duplicate save requests are idempotent and return success without incrementing the count again.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to save
+      responses:
+        "200":
+          description: Post saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngagementSummary"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: unsavePost
+      tags: [engagement]
+      summary: Unsave a post
+      description: Given an authenticated user and a post they have saved, when they unsave the post, then the save is removed and the post's save count decrements. Unsave requests when the user has not saved the post are idempotent and return success without decrementing the count.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the post to unsave
+      responses:
+        "200":
+          description: Post unsaved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngagementSummary"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -1029,5 +1189,37 @@ components:
       required:
         - comments
         - total
+    EngagementSummary:
+      type: object
+      properties:
+        postId:
+          type: string
+          description: The ID of the post
+        likeCount:
+          type: integer
+          description: Total number of likes for the post
+        saveCount:
+          type: integer
+          description: Total number of saves for the post
+        repostCount:
+          type: integer
+          description: Total number of reposts for the post (derived from posts table)
+        viewerHasLiked:
+          type: boolean
+          description: Whether the current viewer has liked this post
+        viewerHasSaved:
+          type: boolean
+          description: Whether the current viewer has saved this post
+        viewerHasReposted:
+          type: boolean
+          description: Whether the current viewer has reposted this post
+      required:
+        - postId
+        - likeCount
+        - saveCount
+        - repostCount
+        - viewerHasLiked
+        - viewerHasSaved
+        - viewerHasReposted
 
 
