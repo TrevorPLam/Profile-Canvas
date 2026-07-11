@@ -12,6 +12,7 @@ export interface PostCreateInput {
   kind: 'text' | 'video' | 'reel';
   content: PostContent;
   topics: string[];
+  repostOf?: RepostInfo;
 }
 
 export interface PostUpdateInput {
@@ -52,6 +53,7 @@ export class PostRepository {
         kind: input.kind,
         content: input.content,
         topics: input.topics,
+        repostOf: input.repostOf,
       })
       .returning();
 

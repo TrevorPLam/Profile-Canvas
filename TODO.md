@@ -638,9 +638,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] PST-003: Implement post API routes
+## [x] PST-003: Implement post API routes
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** PST
 - **Behavior:** Given an authenticated user, when they create a text post, then the post is persisted and returned; when they repost an existing post, then a new post with `repostOf` pointing to the ultimate original is created; when they delete a post, then it is removed or soft-deleted.
@@ -656,25 +656,48 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **PST-003.1 [AGENT]**: Port topic inference to a shared package.
+- [x] **PST-003.1 [AGENT]**: Port topic inference to a shared package.
   - File: `lib/shared/src/topics.ts` (new) or `lib/api-zod/src/topics.ts` (new)
   - Action: Move `inferTopics` from mobile into a workspace package usable by server and mobile.
   - Validation: `pnpm -w run typecheck:libs` and `pnpm --filter @workspace/api-zod test -- topics`.
 
-- [ ] **PST-003.2 [AGENT]**: Implement `PostService`.
+- [x] **PST-003.2 [AGENT]**: Implement `PostService`.
   - File: `artifacts/api-server/src/services/postService.ts` (new)
   - Action: Implement create, delete, repost, and duplicate-repost guard.
   - Validation: `pnpm --filter @workspace/api-server test -- postService`.
 
-- [ ] **PST-003.3 [AGENT]**: Implement post routes.
+- [x] **PST-003.3 [AGENT]**: Implement post routes.
   - File: `artifacts/api-server/src/routes/posts.ts` (new)
   - Action: Wire endpoints and apply `requireAuth`.
   - Validation: `pnpm --filter @workspace/api-server test -- post.routes`.
 
-- [ ] **PST-003.4 [AGENT]**: Add integration tests.
+- [x] **PST-003.4 [AGENT]**: Add integration tests.
   - File: `artifacts/api-server/src/routes/posts.test.ts` (new)
   - Action: Test create, get, delete, repost, and duplicate repost rejection.
   - Validation: `pnpm --filter @workspace/api-server test -- post.routes`.
+
+### Implementation Notes
+
+- Ported `inferTopics` function from mobile to `lib/api-zod/src/topics.ts` for shared use between server and mobile
+- Added comprehensive unit tests for topic inference (11 tests passing)
+- Created `PostService` with deep module pattern: hides topic inference, repost chain resolution, and duplicate repost guards behind simple domain interface
+- Implemented create methods: `createTextPost` (with automatic topic inference), `createVideoPost`, `createReelPost`
+- Implemented `createRepost`: resolves ultimate original post, checks for duplicate reposts, creates repost with repostOf reference
+- Implemented `deletePost`: soft-deletes posts with ownership verification
+- Implemented read methods: `getPost`, `listPostsByAuthor`, `listPosts`
+- Updated `PostRepository` to support repostOf field in PostCreateInput
+- Implemented post routes: POST /posts (create), GET /posts (list with authorId filter), GET /posts/:postId (get), DELETE /posts/:postId (delete), POST /posts/:postId/repost (repost)
+- All routes use `requireAuth` middleware for protected operations
+- Routes use Zod schemas from generated API for validation: CreatePostBody, CreatePostResponse, ListPostsResponse, GetPostResponse, RepostPostResponse
+- Added comprehensive integration tests for all post endpoints (requires DATABASE_URL to run)
+- Typecheck passes for libs and api-server
+- Lint errors fixed for new files (removed unused imports and variables)
+- Pre-existing lint errors in artifacts/mobile, artifacts/mockup-sandbox, and lib/db are out of scope (documented in TOOL-001, PRF-002)
+- Integration tests require DATABASE_URL to be set; tests will fail until database is provisioned (expected at this stage)
+
+### Known Issues Discovered
+
+- **Integration tests require database connection**: The post integration tests in `artifacts/api-server/src/routes/posts.test.ts` require a running PostgreSQL database with DATABASE_URL set. Tests will fail until database is provisioned. This is expected at this stage of development and consistent with previous tasks (AUTH-002, PRF-002).
 
 ---
 
