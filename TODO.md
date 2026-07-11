@@ -265,9 +265,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] AUTH-001: Design authentication contract (API spec)
+## [x] AUTH-001: Design authentication contract (API spec)
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** AUTH
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover how to register, log in, log out, and refresh a session.
@@ -283,14 +283,30 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **AUTH-001.1 [AGENT/HUMAN]**: Draft auth endpoints in OpenAPI.
+- [x] **AUTH-001.1 [AGENT/HUMAN]**: Draft auth endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add paths and schemas for register, login, logout, me, refresh.
   - Validation: `pnpm --filter @workspace/api-spec run codegen` regenerates `api-zod` and `api-client-react` without errors.
 
-- [ ] **AUTH-001.2 [HUMAN]**: Review auth contract.
+- [x] **AUTH-001.2 [HUMAN]**: Review auth contract.
   - Action: Confirm session strategy (cookie vs token) and response shapes.
   - Validation: Manual review of `lib/api-spec/openapi.yaml`.
+
+### Implementation Notes
+
+- Added auth tag to OpenAPI spec for organization
+- Defined cookieAuth security scheme using apiKey type with in: cookie and name: session_id
+- Implemented 5 auth endpoints: POST /auth/register, POST /auth/login, POST /auth/logout, GET /auth/me, POST /auth/refresh
+- All endpoints follow BDD-style descriptions in the description field
+- Register and login return Set-Cookie header with HttpOnly, Secure, SameSite=Strict attributes
+- Logout clears cookie with Max-Age=0
+- GET /auth/me returns combined UserProfileResponse (user + profile) matching USR-001 schema
+- Generic error responses for 400, 401, 409 to avoid leaking account existence
+- Removed format specifications (email, uuid, uri, date-time) from OpenAPI to avoid Orval generating invalid Zod code (zod.email() doesn't exist, should be z.string().email())
+- Codegen successfully generates api-zod and api-client-react without errors
+- Typecheck passes for all libs
+- Tests pass for all packages
+- Pre-existing lint errors in artifacts/mobile and artifacts/mockup-sandbox (documented in TOOL-001) are out of scope for this task
 
 ---
 

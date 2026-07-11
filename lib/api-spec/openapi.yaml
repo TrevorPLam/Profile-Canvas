@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
 paths:
   /healthz:
     get:
@@ -24,7 +26,159 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      description: Given a valid email and password, when a user registers, then an account is created and a session is established via HTTP-only cookie.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered successfully
+          headers:
+            Set-Cookie:
+              description: Session cookie (HttpOnly, Secure, SameSite=Strict)
+              schema:
+                type: string
+                example: session_id=abc123; Path=/; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with email and password
+      description: Given valid credentials, when a user logs in, then a session is established via HTTP-only cookie.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Session cookie (HttpOnly, Secure, SameSite=Strict)
+              schema:
+                type: string
+                example: session_id=abc123; Path=/; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Invalid credentials (generic error, does not reveal account existence)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out current session
+      description: Given an authenticated user, when they log out, then the session is terminated and the cookie is cleared.
+      security:
+        - cookieAuth: []
+      responses:
+        "204":
+          description: Logout successful
+          headers:
+            Set-Cookie:
+              description: Session cookie cleared
+              schema:
+                type: string
+                example: session_id=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      description: Given an authenticated user, when they request their profile, then their user and profile information is returned.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/refresh:
+    post:
+      operationId: refreshSession
+      tags: [auth]
+      summary: Refresh session
+      description: Given a valid session cookie, when refreshed, then the session expiration is extended.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Session refreshed
+          headers:
+            Set-Cookie:
+              description: Refreshed session cookie (HttpOnly, Secure, SameSite=Strict)
+              schema:
+                type: string
+                example: session_id=xyz789; Path=/; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Invalid or expired session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +187,121 @@ components:
           type: string
       required:
         - status
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+      required:
+        - email
+        - password
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - email
+        - createdAt
+        - updatedAt
+    ProfileResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        handle:
+          type: string
+        name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        wallpaper:
+          type: string
+          nullable: true
+        accentColor:
+          type: string
+          nullable: true
+        moodLabel:
+          type: string
+          nullable: true
+        moodIcon:
+          type: string
+          nullable: true
+        nowPlaying:
+          type: string
+          nullable: true
+        moduleSettings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileModule"
+        joinedAt:
+          type: string
+      required:
+        - userId
+        - handle
+        - name
+        - moduleSettings
+        - joinedAt
+    ProfileModule:
+      type: object
+      properties:
+        id:
+          type: string
+          enum: [about, topFriends, mood, posts]
+        visible:
+          type: boolean
+        visibility:
+          type: string
+          enum: [everyone, friends, onlyMe]
+        order:
+          type: number
+      required:
+        - id
+        - visible
+        - visibility
+        - order
+    UserProfileResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserResponse"
+        profile:
+          $ref: "#/components/schemas/ProfileResponse"
+      required:
+        - user
+        - profile
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
 
