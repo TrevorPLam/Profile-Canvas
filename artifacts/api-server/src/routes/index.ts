@@ -17,6 +17,7 @@ import liveRouter from './live';
 import audienceRouter from './audience';
 import musicRouter from './music';
 import locationRouter from './location';
+import gamificationRouter from './gamification';
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(liveRouter);
 router.use(audienceRouter);
 router.use(musicRouter);
 router.use(locationRouter);
+router.use(gamificationRouter);
 
 export default router;

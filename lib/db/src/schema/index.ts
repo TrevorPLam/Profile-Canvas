@@ -16,3 +16,6 @@ export * from './mutes';
 export * from './liveStreams';
 export * from './audienceLists';
 export * from './locations';
+export * from './polls';
+export * from './streaks';
+export * from './badges';

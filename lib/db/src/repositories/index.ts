@@ -9,3 +9,6 @@ export * from './messageRepository';
 export * from './storyRepository';
 export * from './audienceRepository';
 export * from './locationRepository';
+export * from './pollRepository';
+export * from './streakRepository';
+export * from './badgeRepository';
