@@ -7,7 +7,10 @@ import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { PostCard } from '@/components/PostCard';
 import { ReelStrip } from '@/components/ReelStrip';
-import { useSocialData } from '@/context/SocialDataContext';
+import { useAuth } from '@/context/AuthContext';
+import { useFeed } from '@/hooks/useFeed';
+import { useRecommended } from '@/hooks/useRecommended';
+import { useIncomingFriendRequests } from '@/hooks/useFriendRequests';
 import { useColors } from '@/hooks/useColors';
 import type { Post, ReelPost } from '@/lib/types';
 
@@ -23,15 +26,27 @@ const MODE_OPTIONS: { id: FeedMode; label: string }[] = [
 ];
 
 export default function FeedScreen() {
-  const { me, posts, profiles, friendIds, requests, toggleLike } = useSocialData();
+  const { user } = useAuth();
+  const { posts: feedPosts, profiles: feedProfiles, isLoading: feedLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
+  const { posts: recommendedPosts, profiles: recommendedProfiles, isLoading: recommendedLoading } = useRecommended();
+  const { data: requestsData } = useIncomingFriendRequests();
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<FeedMode>('friends');
 
+  const requests = requestsData?.requests || [];
+
   const scopedPosts = useMemo(() => {
-    if (mode === 'recommended') return posts;
-    return posts.filter((p) => p.authorId === me.id || friendIds.includes(p.authorId));
-  }, [posts, mode, me.id, friendIds]);
+    if (mode === 'recommended') return recommendedPosts;
+    return feedPosts;
+  }, [feedPosts, recommendedPosts, mode]);
+
+  const scopedProfiles = useMemo(() => {
+    if (mode === 'recommended') return recommendedProfiles;
+    return feedProfiles;
+  }, [feedProfiles, recommendedProfiles, mode]);
+
+  const isLoading = mode === 'recommended' ? recommendedLoading : feedLoading;
 
   const rows = useMemo<FeedRow[]>(() => {
     const sorted = [...scopedPosts].sort((a, b) => b.createdAt - a.createdAt);
@@ -64,7 +79,7 @@ export default function FeedScreen() {
     >
       <View style={styles.topBar}>
         <Pressable onPress={() => router.push('/(tabs)/profile')} hitSlop={8}>
-          <Avatar name={me.name} color={me.avatarColor} size={34} />
+          <Avatar name={user?.name || 'User'} color={user?.accentColor || '#FF0000'} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
         <Pressable
@@ -113,8 +128,14 @@ export default function FeedScreen() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         scrollEnabled={rows.length > 0}
+        onEndReached={() => {
+          if (mode === 'friends' && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={
-          mode === 'friends' ? (
+          isLoading ? null : mode === 'friends' ? (
             <EmptyState
               icon="users"
               title="No posts from friends yet"
@@ -126,9 +147,9 @@ export default function FeedScreen() {
         }
         renderItem={({ item }) => {
           if (item.kind === 'reelStrip') {
-            return <ReelStrip reels={item.reels} authors={profiles} />;
+            return <ReelStrip reels={item.reels} authors={scopedProfiles} />;
           }
-          const author = profiles[item.post.authorId];
+          const author = scopedProfiles[item.post.authorId];
           if (!author) return null;
           return <PostCard post={item.post} author={author} />;
         }}
