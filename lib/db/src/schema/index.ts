@@ -22,3 +22,4 @@ export * from './badges';
 export * from './subscriptions';
 export * from './tips';
 export * from './gifts';
+export * from './topFriends';

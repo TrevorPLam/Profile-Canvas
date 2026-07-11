@@ -16,13 +16,12 @@ import { useMyProfile } from '@/hooks/useProfile';
 import { useUpdateProfile, useUpdateTopFriends } from '@/hooks/useUpdateProfile';
 import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { useColors } from '@/hooks/useColors';
-import { useFriends } from '@/hooks/useFriends';
-import { useTopFriends } from '@/hooks/useFriends';
+import { useFriends, useTopFriends, useTopFriendsHistory } from '@/hooks/useFriends';
 import { useMusicSearch } from '@/hooks/useMusic';
 import { ACCENT_COLORS, MODULE_LABELS, MOOD_OPTIONS, WALLPAPER_PRESETS } from '@/lib/theme';
 import type { ModuleId, Visibility } from '@/lib/types';
 
-type Tab = 'appearance' | 'about' | 'layout' | 'topFriends' | 'music';
+type Tab = 'appearance' | 'about' | 'layout' | 'topFriends' | 'topFriendsHistory' | 'music';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'appearance', label: 'Appearance' },
@@ -30,6 +29,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'music', label: 'Music' },
   { id: 'layout', label: 'Layout' },
   { id: 'topFriends', label: 'Top Friends' },
+  { id: 'topFriendsHistory', label: 'History' },
 ];
 
 const AUDIENCE_OPTIONS: { id: Visibility; label: string }[] = [
@@ -43,6 +43,7 @@ export default function EditProfileScreen() {
   const { data: apiMe, isLoading: profileLoading } = useMyProfile();
   const { data: friendsData } = useFriends();
   const { data: topFriendsData } = useTopFriends();
+  const { data: topFriendsHistoryData } = useTopFriendsHistory();
   const updateProfile = useUpdateProfile();
   const updateTopFriends = useUpdateTopFriends();
   const { pickAndUploadAvatar, isUploading } = useUploadAvatar();
@@ -99,7 +100,7 @@ export default function EditProfileScreen() {
 
   // Use API top friends data
   const topFriendIds = useMemo(() => {
-    return topFriendsData?.topFriendIds || me.topFriendIds;
+    return topFriendsData?.topFriends?.map((tf) => tf.friendId) || me.topFriendIds;
   }, [topFriendsData, me.topFriendIds]);
 
   // Helper to update profile via API
@@ -475,28 +476,21 @@ export default function EditProfileScreen() {
         {tab === 'topFriends' ? (
           <View style={styles.section}>
             <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
-              Tap friends in the order you want them pinned to your profile.
+              Tap friends in the order you want them pinned to your profile. Drag to reorder.
             </Text>
             {friends.length === 0 ? (
               <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
                 Add some friends first.
               </Text>
             ) : (
-              friends.map((friend) => {
-                const rank = topFriendIds.indexOf(friend.id);
-                const selected = rank >= 0;
+              topFriendIds.map((friendId, index) => {
+                const friend = friends.find((f) => f.id === friendId);
+                if (!friend) return null;
                 return (
-                  <Pressable
-                    key={friend.id}
-                    style={styles.friendPickRow}
-                    onPress={() => {
-                      if (selected) {
-                        setTopFriends(topFriendIds.filter((id) => id !== friend.id));
-                      } else {
-                        setTopFriends([...topFriendIds, friend.id]);
-                      }
-                    }}
-                  >
+                  <View key={friend.id} style={styles.topFriendRow}>
+                    <View style={styles.rankBadge}>
+                      <Text style={styles.rankText}>{index + 1}</Text>
+                    </View>
                     <Avatar
                       name={friend.name}
                       color={friend.avatarColor}
@@ -506,16 +500,92 @@ export default function EditProfileScreen() {
                     <Text style={[styles.friendPickName, { color: colors.foreground }]}>
                       {friend.name}
                     </Text>
-                    {selected ? (
-                      <View style={[styles.rankChip, { backgroundColor: colors.primary }]}>
-                        <Text style={styles.rankChipText}>{rank + 1}</Text>
-                      </View>
-                    ) : (
-                      <Feather name="circle" size={18} color={colors.border} />
-                    )}
-                  </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        setTopFriends(topFriendIds.filter((id) => id !== friend.id));
+                      }}
+                      style={styles.removeButton}
+                    >
+                      <Feather name="x" size={18} color={colors.mutedForeground} />
+                    </Pressable>
+                  </View>
                 );
               })
+            )}
+            {friends.filter((f) => !topFriendIds.includes(f.id)).length > 0 && (
+              <>
+                <Text style={[styles.sectionTitle, { color: colors.foreground, marginTop: 20 }]}>
+                  Add Friends
+                </Text>
+                {friends
+                  .filter((f) => !topFriendIds.includes(f.id))
+                  .map((friend) => (
+                    <Pressable
+                      key={friend.id}
+                      style={styles.friendPickRow}
+                      onPress={() => {
+                        if (topFriendIds.length < 8) {
+                          setTopFriends([...topFriendIds, friend.id]);
+                        }
+                      }}
+                    >
+                      <Avatar
+                        name={friend.name}
+                        color={friend.avatarColor}
+                        size={40}
+                        avatarUrl={friend.avatarUrl}
+                      />
+                      <Text style={[styles.friendPickName, { color: colors.foreground }]}>
+                        {friend.name}
+                      </Text>
+                      <Feather name="plus" size={18} color={colors.border} />
+                    </Pressable>
+                  ))}
+              </>
+            )}
+          </View>
+        ) : null}
+
+        {tab === 'topFriendsHistory' ? (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Top Friends History</Text>
+            <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
+              See your top friends changes over time.
+            </Text>
+            {!topFriendsHistoryData?.history || topFriendsHistoryData.history.length === 0 ? (
+              <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
+                No history yet.
+              </Text>
+            ) : (
+              topFriendsHistoryData.history.map((entry) => (
+                <View
+                  key={entry.id}
+                  style={[
+                    styles.historyEntry,
+                    { backgroundColor: colors.card, borderColor: colors.border },
+                  ]}
+                >
+                  <Avatar
+                    name={entry.friend.name}
+                    color="#6366f1"
+                    size={32}
+                    avatarUrl={entry.friend.avatarUrl ?? undefined}
+                  />
+                  <View style={styles.historyInfo}>
+                    <Text style={[styles.historyName, { color: colors.foreground }]}>
+                      {entry.friend.name}
+                    </Text>
+                    <Text style={[styles.historyDate, { color: colors.mutedForeground }]}>
+                      {entry.removedAt ? `Removed ${new Date(entry.removedAt).toLocaleDateString()}` : `Added ${new Date(entry.addedAt).toLocaleDateString()}`}
+                    </Text>
+                  </View>
+                  <View style={[styles.historyBadge, { backgroundColor: entry.removedAt ? colors.secondary : colors.primary }]}>
+                    <Text style={styles.historyBadgeText}>
+                      {entry.removedAt ? 'Removed' : 'Current'}
+                    </Text>
+                  </View>
+                </View>
+              ))
             )}
           </View>
         ) : null}
@@ -727,5 +797,58 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
     textAlign: 'center',
+  },
+  topFriendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 9,
+  },
+  rankBadge: {
+    backgroundColor: '#3B2A1E',
+    borderRadius: 999,
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rankText: {
+    color: '#FFFCF5',
+    fontSize: 10,
+    fontFamily: 'Inter_700Bold',
+  },
+  removeButton: {
+    padding: 4,
+  },
+  historyEntry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  historyInfo: {
+    flex: 1,
+  },
+  historyName: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 14,
+  },
+  historyDate: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  historyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  historyBadgeText: {
+    color: '#FFFCF5',
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 11,
   },
 });

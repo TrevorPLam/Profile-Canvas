@@ -32,10 +32,10 @@ export default function FriendsListScreen() {
   const friends = useMemo(() => friendsData?.friends || [], [friendsData]);
 
   const topFriends = useMemo(() => {
-    if (!topFriendsData?.topFriendIds || !friendsData?.friends) return [];
+    if (!topFriendsData?.topFriends || !friendsData?.friends) return [];
     const friendMap = new Map(friendsData.friends.map((f) => [f.userId, f]));
-    return topFriendsData.topFriendIds
-      .map((id) => friendMap.get(id))
+    return topFriendsData.topFriends
+      .map((tf) => friendMap.get(tf.friendId))
       .filter((p): p is NonNullable<typeof p> => !!p);
   }, [topFriendsData, friendsData]);
 

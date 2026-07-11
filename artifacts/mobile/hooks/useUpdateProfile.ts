@@ -49,15 +49,16 @@ export function useUpdateTopFriends() {
 
   return useMutation({
     mutationFn: async (topFriendIds: string[]) => {
-      const response = await apiFetch<{ topFriendIds: string[] }>('/profiles/me/top-friends', {
-        method: 'PATCH',
+      const response = await apiFetch<{ topFriends: unknown }>('/top-friends', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topFriendIds }),
       });
       return response;
     },
     onSuccess: () => {
-      // Invalidate the profile query to refetch updated data
+      // Invalidate the top friends query to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ['top-friends'] });
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
     },
   });

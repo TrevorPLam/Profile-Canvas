@@ -31,6 +31,30 @@ export function useFriends() {
   });
 }
 
+interface TopFriendWithProfile {
+  id: string;
+  friendId: string;
+  order: number;
+  addedAt: string;
+  removedAt: string | null;
+  friend: {
+    userId: string;
+    handle: string;
+    name: string;
+    avatarUrl: string | null;
+  };
+}
+
+interface TopFriendsResponse {
+  topFriends: TopFriendWithProfile[];
+}
+
+interface TopFriendsHistoryResponse {
+  userId: string;
+  currentTopFriends: TopFriendWithProfile[];
+  history: TopFriendWithProfile[];
+}
+
 /**
  * Query to fetch the current user's top friends
  */
@@ -38,12 +62,29 @@ export function useTopFriends() {
   const { isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: ['profile', 'me', 'top-friends'],
-    queryFn: async (): Promise<{ topFriendIds: string[] }> => {
-      const response = await apiFetch<{ topFriendIds: string[] }>('/profiles/me/top-friends');
+    queryKey: ['top-friends'],
+    queryFn: async (): Promise<TopFriendsResponse> => {
+      const response = await apiFetch<TopFriendsResponse>('/top-friends');
       return response;
     },
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * Query to fetch the current user's top friends history
+ */
+export function useTopFriendsHistory() {
+  const { isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ['top-friends', 'history'],
+    queryFn: async (): Promise<TopFriendsHistoryResponse> => {
+      const response = await apiFetch<TopFriendsHistoryResponse>('/top-friends/history');
+      return response;
+    },
+    enabled: isAuthenticated,
+    staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
