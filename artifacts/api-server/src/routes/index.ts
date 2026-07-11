@@ -9,6 +9,7 @@ import engagementRouter from './engagement';
 import friendsRouter from './friends';
 import feedRouter from './feed';
 import discoverRouter from './discover';
+import notificationsRouter from './notifications';
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(engagementRouter);
 router.use(friendsRouter);
 router.use(feedRouter);
 router.use(discoverRouter);
+router.use(notificationsRouter);
 
 export default router;

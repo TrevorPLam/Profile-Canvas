@@ -6,3 +6,4 @@ export * from './posts';
 export * from './comments';
 export * from './engagement';
 export * from './friendships';
+export * from './notifications';

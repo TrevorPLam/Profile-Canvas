@@ -1,5 +1,6 @@
 import { EngagementRepository, type EngagementSummary } from '@workspace/db';
 import { PostRepository } from '@workspace/db';
+import { notificationService } from './notificationService';
 
 export interface ToggleLikeInput {
   userId: string;
@@ -46,7 +47,17 @@ export class EngagementService {
     }
 
     // Try to create like (idempotent via unique constraint)
-    await this.engagementRepo.createLike(input.userId, input.postId);
+    const like = await this.engagementRepo.createLike(input.userId, input.postId);
+
+    // Create notification if like was created (not duplicate)
+    if (like) {
+      await notificationService.create({
+        recipientId: post.authorId,
+        actorId: input.userId,
+        type: 'like',
+        postId: input.postId,
+      });
+    }
 
     // Return updated engagement summary
     return this.engagementRepo.getEngagementSummary(input.postId, input.userId);
@@ -88,7 +99,17 @@ export class EngagementService {
     }
 
     // Try to create save (idempotent via unique constraint)
-    await this.engagementRepo.createSave(input.userId, input.postId);
+    const save = await this.engagementRepo.createSave(input.userId, input.postId);
+
+    // Create notification if save was created (not duplicate)
+    if (save) {
+      await notificationService.create({
+        recipientId: post.authorId,
+        actorId: input.userId,
+        type: 'save',
+        postId: input.postId,
+      });
+    }
 
     // Return updated engagement summary
     return this.engagementRepo.getEngagementSummary(input.postId, input.userId);

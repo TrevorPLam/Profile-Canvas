@@ -1,5 +1,6 @@
 import { CommentRepository, type CommentWithAuthor } from '@workspace/db';
 import { PostRepository } from '@workspace/db';
+import { notificationService } from './notificationService';
 
 export interface CreateCommentInput {
   postId: string;
@@ -40,11 +41,23 @@ export class CommentService {
     }
 
     // Create the comment
-    return this.commentRepo.create({
+    const comment = await this.commentRepo.create({
       postId: input.postId,
       authorId: input.authorId,
       text: input.text,
     });
+
+    // Create notification if commenter is not the post author
+    if (input.authorId !== post.authorId) {
+      await notificationService.create({
+        recipientId: post.authorId,
+        actorId: input.authorId,
+        type: 'comment',
+        postId: input.postId,
+      });
+    }
+
+    return comment;
   }
 
   /**

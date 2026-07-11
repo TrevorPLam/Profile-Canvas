@@ -1,6 +1,7 @@
 import { friendshipRepository } from '@workspace/db';
 import { profileRepository } from '@workspace/db';
 import type { FriendRequestWithProfile, FriendshipWithProfile } from '@workspace/db';
+import { notificationService } from './notificationService';
 
 /**
  * Maximum number of top friends allowed
@@ -77,6 +78,13 @@ export class FriendshipService {
       return null;
     }
 
+    // Create notification for the receiver
+    await notificationService.create({
+      recipientId: receiverId,
+      actorId: senderId,
+      type: 'friendRequest',
+    });
+
     return this.toFriendRequestResponse(result);
   }
 
@@ -106,6 +114,13 @@ export class FriendshipService {
     if (!result) {
       return null;
     }
+
+    // Create notification for the sender that their request was accepted
+    await notificationService.create({
+      recipientId: request.senderId,
+      actorId: recipientId,
+      type: 'friendAccepted',
+    });
 
     return this.toFriendshipResponse(result);
   }
