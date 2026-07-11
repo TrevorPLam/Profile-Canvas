@@ -14,3 +14,4 @@ export const db = drizzle(pool, { schema });
 export * from './schema';
 export * from './repositories';
 export * from './domain';
+export * from './repositories/engagementRepository';

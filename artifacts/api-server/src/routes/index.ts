@@ -5,6 +5,7 @@ import profileRouter from './profiles';
 import postsRouter from './posts';
 import mediaRouter from './media';
 import commentsRouter from './comments';
+import engagementRouter from './engagement';
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(profileRouter);
 router.use(postsRouter);
 router.use(mediaRouter);
 router.use(commentsRouter);
+router.use(engagementRouter);
 
 export default router;

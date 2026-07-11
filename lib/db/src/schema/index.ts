@@ -4,3 +4,4 @@ export * from './profiles';
 export * from './sessions';
 export * from './posts';
 export * from './comments';
+export * from './engagement';
