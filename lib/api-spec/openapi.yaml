@@ -14,6 +14,8 @@ tags:
     description: Authentication operations
   - name: profiles
     description: Profile operations
+  - name: posts
+    description: Post operations
 paths:
   /healthz:
     get:
@@ -308,6 +310,181 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /posts:
+    post:
+      operationId: createPost
+      tags: [posts]
+      summary: Create a new post
+      description: Given an authenticated user, when they create a post, then the post is persisted with inferred topics and returned. Text posts infer topics from keywords; video and reel posts require media URLs.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostCreateRequest"
+      responses:
+        "201":
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      operationId: listPosts
+      tags: [posts]
+      summary: List posts
+      description: Given a request, when posts are listed, then posts are returned. Supports filtering by authorId for user-specific feeds.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: authorId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter posts by author ID
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Maximum number of posts to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of posts to skip for pagination
+      responses:
+        "200":
+          description: Posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostListResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /posts/{postId}:
+    get:
+      operationId: getPost
+      tags: [posts]
+      summary: Get a single post
+      description: Given a post ID, when requested, then the post is returned with full details including author information.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Post retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deletePost
+      tags: [posts]
+      summary: Delete a post
+      description: Given an authenticated user and their post, when deleted, then the post is removed or soft-deleted according to business rules.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Post deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized to delete this post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /posts/{postId}/repost:
+    post:
+      operationId: repostPost
+      tags: [posts]
+      summary: Repost a post
+      description: Given an authenticated user and an existing post, when they repost, then a new post is created with repostOf pointing to the ultimate original post. Duplicate reposts by the same user for the same original are rejected.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Repost created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Invalid request (validation error or duplicate repost)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Original post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -489,4 +666,137 @@ components:
           description: Array of user IDs to set as top friends
       required:
         - topFriends
+    PostKind:
+      type: string
+      enum: [text, video, reel]
+    RepostInfo:
+      type: object
+      properties:
+        originalPostId:
+          type: string
+        originalAuthorId:
+          type: string
+      required:
+        - originalPostId
+        - originalAuthorId
+    TextPostContent:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [text]
+        text:
+          type: string
+      required:
+        - kind
+        - text
+    VideoPostContent:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [video]
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+        durationLabel:
+          type: string
+        viewsLabel:
+          type: string
+      required:
+        - kind
+        - title
+        - thumbnailUrl
+        - durationLabel
+        - viewsLabel
+    ReelPostContent:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [reel]
+        caption:
+          type: string
+        thumbnailUrl:
+          type: string
+        soundLabel:
+          type: string
+        viewsLabel:
+          type: string
+      required:
+        - kind
+        - caption
+        - thumbnailUrl
+        - soundLabel
+        - viewsLabel
+    PostCreateRequest:
+      oneOf:
+        - $ref: "#/components/schemas/TextPostContent"
+        - $ref: "#/components/schemas/VideoPostContent"
+        - $ref: "#/components/schemas/ReelPostContent"
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        authorId:
+          type: string
+        kind:
+          $ref: "#/components/schemas/PostKind"
+        text:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        caption:
+          type: string
+          nullable: true
+        thumbnailUrl:
+          type: string
+          nullable: true
+        durationLabel:
+          type: string
+          nullable: true
+        viewsLabel:
+          type: string
+          nullable: true
+        soundLabel:
+          type: string
+          nullable: true
+        repostOf:
+          $ref: "#/components/schemas/RepostInfo"
+          nullable: true
+        topics:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        deletedAt:
+          type: string
+          nullable: true
+      required:
+        - id
+        - authorId
+        - kind
+        - topics
+        - createdAt
+        - updatedAt
+    PostListResponse:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PostResponse"
+        total:
+          type: integer
+          description: Total count of posts matching the query
+      required:
+        - posts
+        - total
 

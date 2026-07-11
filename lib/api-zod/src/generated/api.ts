@@ -229,3 +229,157 @@ export const UpdateMyTopFriendsResponse = zod.object({
 })
 
 
+/**
+ * Given an authenticated user, when they create a post, then the post is persisted with inferred topics and returned. Text posts infer topics from keywords; video and reel posts require media URLs.
+ * @summary Create a new post
+ */
+export const CreatePostBody = zod.union([zod.object({
+  "kind": zod.enum(['text']),
+  "text": zod.string()
+}),zod.object({
+  "kind": zod.enum(['video']),
+  "title": zod.string(),
+  "thumbnailUrl": zod.string(),
+  "durationLabel": zod.string(),
+  "viewsLabel": zod.string()
+}),zod.object({
+  "kind": zod.enum(['reel']),
+  "caption": zod.string(),
+  "thumbnailUrl": zod.string(),
+  "soundLabel": zod.string(),
+  "viewsLabel": zod.string()
+})])
+
+export const CreatePostResponse = zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "kind": zod.enum(['text', 'video', 'reel']),
+  "text": zod.string().nullish(),
+  "title": zod.string().nullish(),
+  "caption": zod.string().nullish(),
+  "thumbnailUrl": zod.string().nullish(),
+  "durationLabel": zod.string().nullish(),
+  "viewsLabel": zod.string().nullish(),
+  "soundLabel": zod.string().nullish(),
+  "repostOf": zod.object({
+  "originalPostId": zod.string(),
+  "originalAuthorId": zod.string()
+}).nullish(),
+  "topics": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "deletedAt": zod.string().nullish()
+})
+
+
+/**
+ * Given a request, when posts are listed, then posts are returned. Supports filtering by authorId for user-specific feeds.
+ * @summary List posts
+ */
+export const listPostsQueryLimitDefault = 20;
+export const listPostsQueryLimitMax = 100;
+
+export const listPostsQueryOffsetDefault = 0;
+
+export const ListPostsQueryParams = zod.object({
+  "authorId": zod.coerce.string().optional().describe('Filter posts by author ID'),
+  "limit": zod.coerce.number().max(listPostsQueryLimitMax).default(listPostsQueryLimitDefault).describe('Maximum number of posts to return'),
+  "offset": zod.coerce.number().default(listPostsQueryOffsetDefault).describe('Number of posts to skip for pagination')
+})
+
+export const ListPostsResponse = zod.object({
+  "posts": zod.array(zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "kind": zod.enum(['text', 'video', 'reel']),
+  "text": zod.string().nullish(),
+  "title": zod.string().nullish(),
+  "caption": zod.string().nullish(),
+  "thumbnailUrl": zod.string().nullish(),
+  "durationLabel": zod.string().nullish(),
+  "viewsLabel": zod.string().nullish(),
+  "soundLabel": zod.string().nullish(),
+  "repostOf": zod.object({
+  "originalPostId": zod.string(),
+  "originalAuthorId": zod.string()
+}).nullish(),
+  "topics": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "deletedAt": zod.string().nullish()
+})),
+  "total": zod.number().describe('Total count of posts matching the query')
+})
+
+
+/**
+ * Given a post ID, when requested, then the post is returned with full details including author information.
+ * @summary Get a single post
+ */
+export const GetPostParams = zod.object({
+  "postId": zod.coerce.string()
+})
+
+export const GetPostResponse = zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "kind": zod.enum(['text', 'video', 'reel']),
+  "text": zod.string().nullish(),
+  "title": zod.string().nullish(),
+  "caption": zod.string().nullish(),
+  "thumbnailUrl": zod.string().nullish(),
+  "durationLabel": zod.string().nullish(),
+  "viewsLabel": zod.string().nullish(),
+  "soundLabel": zod.string().nullish(),
+  "repostOf": zod.object({
+  "originalPostId": zod.string(),
+  "originalAuthorId": zod.string()
+}).nullish(),
+  "topics": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "deletedAt": zod.string().nullish()
+})
+
+
+/**
+ * Given an authenticated user and their post, when deleted, then the post is removed or soft-deleted according to business rules.
+ * @summary Delete a post
+ */
+export const DeletePostParams = zod.object({
+  "postId": zod.coerce.string()
+})
+
+export const DeletePostResponse = zod.void()
+
+
+/**
+ * Given an authenticated user and an existing post, when they repost, then a new post is created with repostOf pointing to the ultimate original post. Duplicate reposts by the same user for the same original are rejected.
+ * @summary Repost a post
+ */
+export const RepostPostParams = zod.object({
+  "postId": zod.coerce.string()
+})
+
+export const RepostPostResponse = zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "kind": zod.enum(['text', 'video', 'reel']),
+  "text": zod.string().nullish(),
+  "title": zod.string().nullish(),
+  "caption": zod.string().nullish(),
+  "thumbnailUrl": zod.string().nullish(),
+  "durationLabel": zod.string().nullish(),
+  "viewsLabel": zod.string().nullish(),
+  "soundLabel": zod.string().nullish(),
+  "repostOf": zod.object({
+  "originalPostId": zod.string(),
+  "originalAuthorId": zod.string()
+}).nullish(),
+  "topics": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "deletedAt": zod.string().nullish()
+})
+
+

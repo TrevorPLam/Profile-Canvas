@@ -100,3 +100,101 @@ export interface TopFriendsUpdateRequest {
   topFriends: string[];
 }
 
+export type PostKind = typeof PostKind[keyof typeof PostKind];
+
+
+export const PostKind = {
+  text: 'text',
+  video: 'video',
+  reel: 'reel',
+} as const;
+
+export interface RepostInfo {
+  originalPostId: string;
+  originalAuthorId: string;
+}
+
+export type TextPostContentKind = typeof TextPostContentKind[keyof typeof TextPostContentKind];
+
+
+export const TextPostContentKind = {
+  text: 'text',
+} as const;
+
+export interface TextPostContent {
+  kind: TextPostContentKind;
+  text: string;
+}
+
+export type VideoPostContentKind = typeof VideoPostContentKind[keyof typeof VideoPostContentKind];
+
+
+export const VideoPostContentKind = {
+  video: 'video',
+} as const;
+
+export interface VideoPostContent {
+  kind: VideoPostContentKind;
+  title: string;
+  thumbnailUrl: string;
+  durationLabel: string;
+  viewsLabel: string;
+}
+
+export type ReelPostContentKind = typeof ReelPostContentKind[keyof typeof ReelPostContentKind];
+
+
+export const ReelPostContentKind = {
+  reel: 'reel',
+} as const;
+
+export interface ReelPostContent {
+  kind: ReelPostContentKind;
+  caption: string;
+  thumbnailUrl: string;
+  soundLabel: string;
+  viewsLabel: string;
+}
+
+export type PostCreateRequest = TextPostContent | VideoPostContent | ReelPostContent;
+
+export interface PostResponse {
+  id: string;
+  authorId: string;
+  kind: PostKind;
+  text?: string | null;
+  title?: string | null;
+  caption?: string | null;
+  thumbnailUrl?: string | null;
+  durationLabel?: string | null;
+  viewsLabel?: string | null;
+  soundLabel?: string | null;
+  repostOf?: RepostInfo | null;
+  topics: string[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface PostListResponse {
+  posts: PostResponse[];
+  /** Total count of posts matching the query */
+  total: number;
+}
+
+export type ListPostsParams = {
+/**
+ * Filter posts by author ID
+ */
+authorId?: string;
+/**
+ * Maximum number of posts to return
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * Number of posts to skip for pagination
+ */
+offset?: number;
+};
+

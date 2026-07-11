@@ -535,9 +535,9 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ---
 
-## [ ] PST-001: Design post and content API contract
+## [x] PST-001: Design post and content API contract
 
-- **Status:** Not Started
+- **Status:** Complete
 - **Priority:** High
 - **Domain:** PST
 - **Behavior:** Given a client application, when it reads the OpenAPI spec, then it can discover endpoints for creating, reading, listing, deleting, and reposting posts.
@@ -553,7 +553,7 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 
 ### Subtasks
 
-- [ ] **PST-001.1 [AGENT/HUMAN]**: Draft post schemas and endpoints in OpenAPI.
+- [x] **PST-001.1 [AGENT/HUMAN]**: Draft post schemas and endpoints in OpenAPI.
   - File: `lib/api-spec/openapi.yaml`
   - Action: Add post schemas and CRUD/repost paths.
   - Validation: `pnpm --filter @workspace/api-spec run codegen`.
@@ -561,6 +561,26 @@ A specification-driven, domain-oriented completion plan for the Corkboard social
 - [ ] **PST-001.2 [HUMAN]**: Review post contract.
   - Action: Confirm that text, video, and reel post shapes match product needs.
   - Validation: Manual review of `lib/api-spec/openapi.yaml` post schemas.
+
+### Implementation Notes
+
+- Added `posts` tag to OpenAPI spec for organization
+- Defined PostKind enum: text, video, reel (matches mobile app types)
+- Defined RepostInfo schema with originalPostId and originalAuthorId for repost chain resolution
+- Defined TextPostContent, VideoPostContent, ReelPostContent schemas for create requests using oneOf discriminated union
+- Defined PostCreateRequest as oneOf of the three content types
+- Defined PostResponse with flattened content fields (text, title, caption, thumbnailUrl, durationLabel, viewsLabel, soundLabel) to avoid Orval generating zod.looseObject() which doesn't exist in current Zod version
+- Implemented 5 post endpoints: POST /posts, GET /posts, GET /posts/{postId}, DELETE /posts/{postId}, POST /posts/{postId}/repost
+- All endpoints follow BDD-style descriptions in the description field
+- POST /posts requires authentication and infers topics for text posts
+- GET /posts supports filtering by authorId and pagination (limit, offset)
+- GET /posts/{postId} returns full post details
+- DELETE /posts/{postId} requires authentication and ownership (403 if not authorized)
+- POST /posts/{postId}/repost creates repost with original post reference, rejects duplicate reposts
+- Codegen successfully generates api-zod and api-client-react without errors
+- Typecheck passes for libs
+- Pre-existing lint errors in artifacts/api-server, artifacts/mobile, and artifacts/mockup-sandbox are out of scope (documented in TOOL-001, PRF-002)
+- Pre-existing test failures in api-server (DATABASE_URL not set) are out of scope (documented in AUTH-002)
 
 ---
 
