@@ -14,6 +14,7 @@ import {
   createSeedPosts,
   createSeedProfiles,
 } from '@/lib/mockData';
+import { inferTopics } from '@/lib/topics';
 import type { Comment, FriendRequest, ModuleId, Post, UserProfile, Visibility } from '@/lib/types';
 
 interface StoredState {
@@ -128,6 +129,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
         commentCount: 0,
         likedByMe: false,
         text: trimmed,
+        topics: inferTopics(trimmed),
       };
       persist({ ...state, posts: [newPost, ...state.posts] });
     };

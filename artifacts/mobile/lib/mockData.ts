@@ -141,6 +141,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 3,
       likedByMe: false,
       text: 'Finally reorganized my whole page tonight. corkboard > any of these template feeds tbh',
+      topics: ['lifestyle'],
     },
     {
       id: 'p2',
@@ -154,6 +155,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.music,
       soundLabel: 'original sound — Jules Marchetti',
       viewsLabel: '12.4K',
+      topics: ['music'],
     },
     {
       id: 'p3',
@@ -167,6 +169,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.travel,
       durationLabel: '14:22',
       viewsLabel: '38K views',
+      topics: ['travel'],
     },
     {
       id: 'p4',
@@ -177,6 +180,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 6,
       likedByMe: true,
       text: 'Cast iron skillet finally seasoned right. Six months of babying it and worth every second.',
+      topics: ['cooking'],
     },
     {
       id: 'p5',
@@ -187,6 +191,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 1,
       likedByMe: false,
       text: 'If you need me I will be under a pile of cables and a broken synth.',
+      topics: ['music'],
     },
     {
       id: 'p6',
@@ -200,6 +205,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.music,
       soundLabel: 'original sound — Nova Reyes',
       viewsLabel: '22.1K',
+      topics: ['gaming'],
     },
     {
       id: 'p7',
@@ -210,6 +216,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 4,
       likedByMe: false,
       text: 'Packing list for slow travel: one backpack, two playlists, zero itinerary.',
+      topics: ['travel'],
     },
     {
       id: 'p8',
@@ -223,6 +230,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.music,
       durationLabel: '9:05',
       viewsLabel: '14K views',
+      topics: ['photography'],
     },
     {
       id: 'p9',
@@ -233,6 +241,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 9,
       likedByMe: false,
       text: 'Wrote a poem about waiting rooms. Turns out longing rhymes with almost everything.',
+      topics: ['writing'],
     },
     {
       id: 'p10',
@@ -246,6 +255,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.cooking,
       soundLabel: 'original sound — Theo Fischer',
       viewsLabel: '9.8K',
+      topics: ['cooking'],
     },
     {
       id: 'p11',
@@ -259,6 +269,7 @@ export function createSeedPosts(now: number): Post[] {
       thumbnail: THUMBS.travel,
       durationLabel: '6:40',
       viewsLabel: '5.2K views',
+      topics: ['writing'],
     },
     {
       id: 'p12',
@@ -269,6 +280,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 2,
       likedByMe: false,
       text: 'Current mood: whatever the top-left corner of my profile is set to.',
+      topics: ['lifestyle'],
     },
     {
       id: 'p13',
@@ -279,6 +291,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 5,
       likedByMe: false,
       text: 'Ranked grind starts at midnight tonight, pulling up.',
+      topics: ['gaming'],
     },
     {
       id: 'p14',
@@ -289,6 +302,7 @@ export function createSeedPosts(now: number): Post[] {
       commentCount: 3,
       likedByMe: false,
       text: 'Sold my film scanner and immediately regretted it.',
+      topics: ['photography'],
     },
   ];
 }

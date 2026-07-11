@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
@@ -22,7 +23,7 @@ const MODE_OPTIONS: { id: FeedMode; label: string }[] = [
 ];
 
 export default function FeedScreen() {
-  const { me, posts, profiles, friendIds, toggleLike } = useSocialData();
+  const { me, posts, profiles, friendIds, requests, toggleLike } = useSocialData();
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<FeedMode>('friends');
@@ -64,7 +65,14 @@ export default function FeedScreen() {
           <Avatar name={me.name} color={me.avatarColor} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
-        <View style={styles.spacer} />
+        <Pressable onPress={() => router.push('/friends-list')} hitSlop={8} style={styles.friendsBtn}>
+          <Feather name="users" size={22} color={colors.foreground} />
+          {requests.length > 0 ? (
+            <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
+              <Text style={styles.badgeText}>{requests.length}</Text>
+            </View>
+          ) : null}
+        </Pressable>
       </View>
 
       <View style={styles.modeRow}>
@@ -106,7 +114,7 @@ export default function FeedScreen() {
             <EmptyState
               icon="users"
               title="No posts from friends yet"
-              subtitle="Add friends in Discover, or switch to Recommended to see more."
+              subtitle="Add friends from the people icon above, or switch to Recommended to see more."
             />
           ) : (
             <EmptyState icon="inbox" title="Nothing to show" />
@@ -141,9 +149,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 0.2,
   },
-  spacer: {
+  friendsBtn: {
     width: 34,
     height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    paddingHorizontal: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#FFFCF5',
+    fontFamily: 'Inter_700Bold',
+    fontSize: 10,
   },
   modeRow: {
     flexDirection: 'row',

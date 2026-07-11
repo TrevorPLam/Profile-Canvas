@@ -49,6 +49,7 @@ interface BasePost {
   commentCount: number;
   likedByMe: boolean;
   repostOf?: RepostInfo;
+  topics: string[];
 }
 
 export interface TextPost extends BasePost {
