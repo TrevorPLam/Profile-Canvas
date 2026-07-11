@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { EmptyState } from '@/components/EmptyState';
 import { PinnedCard } from '@/components/PinnedCard';
 import { PostCard } from '@/components/PostCard';
 import { ProfileHeader } from '@/components/ProfileHeader';
-import { TopFriendsGrid } from '@/components/TopFriendsGrid';
 import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
+import { useProfile } from '@/hooks/useProfile';
+import { useIsFriend, useRemoveFriend, useSendFriendRequest } from '@/hooks/useFriendship';
 import { visibleModulesFor } from '@/lib/modules';
 import { MODULE_LABELS } from '@/lib/theme';
 import type { Post } from '@/lib/types';
@@ -17,10 +18,13 @@ export default function OtherProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const router = useRouter();
-  const { profiles, posts, friendIds, isFriend, sendFriendRequest, removeFriend, toggleLike } =
-    useSocialData();
+  const { posts, toggleLike } = useSocialData();
 
-  const profile = id ? profiles[id] : undefined;
+  // Fetch profile from backend by handle (id is actually the handle)
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(id);
+  const { data: isFriend, isLoading: friendLoading } = useIsFriend(profile?.id);
+  const sendFriendRequest = useSendFriendRequest();
+  const removeFriendMutation = useRemoveFriend();
 
   const theirPosts = useMemo(
     () =>
@@ -35,19 +39,21 @@ export default function OtherProfileScreen() {
     [posts, profile]
   );
 
-  const friend = profile ? isFriend(profile.id) : false;
+  const friend = isFriend ?? false;
 
-  const topFriends = useMemo(
-    () =>
-      profile
-        ? profile.topFriendIds
-            .map((fid) => profiles[fid])
-            .filter((p): p is NonNullable<typeof p> => !!p)
-        : [],
-    [profile, profiles]
-  );
+  // For now, skip top friends module since we don't have the profiles loaded
+  // This will be addressed in MOB-010 when we implement the full friends list
+  const showTopFriends = false;
 
-  if (!profile) {
+  if (profileLoading) {
+    return (
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.accent} />
+      </View>
+    );
+  }
+
+  if (profileError || !profile) {
     return (
       <View style={[styles.notFound, { backgroundColor: colors.background }]}>
         <EmptyState icon="user-x" title="Profile not found" />
@@ -80,8 +86,8 @@ export default function OtherProfileScreen() {
           postCount={theirPosts.length}
           isMe={false}
           isFriend={friend}
-          onAddFriend={() => sendFriendRequest(profile.id)}
-          onRemoveFriend={() => removeFriend(profile.id)}
+          onAddFriend={() => sendFriendRequest.mutate(profile.id)}
+          onRemoveFriend={() => removeFriendMutation.mutate(profile.id)}
         />
 
         <View style={styles.body}>
@@ -136,16 +142,9 @@ export default function OtherProfileScreen() {
                   </PinnedCard>
                 );
               }
-              if (module.id === 'topFriends' && topFriends.length > 0) {
-                return (
-                  <PinnedCard
-                    key={module.id}
-                    title={MODULE_LABELS.topFriends}
-                    accentColor={profile.accentColor}
-                  >
-                    <TopFriendsGrid friends={topFriends} />
-                  </PinnedCard>
-                );
+              if (module.id === 'topFriends' && showTopFriends) {
+                // Top friends will be implemented in MOB-010
+                return null;
               }
               if (module.id === 'posts') {
                 return (
@@ -178,6 +177,11 @@ export default function OtherProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   notFound: {
     flex: 1,
   },
