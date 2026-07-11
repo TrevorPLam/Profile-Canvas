@@ -34,6 +34,8 @@ tags:
     description: Messaging and conversation operations
   - name: audience
     description: Audience list operations
+  - name: stories
+    description: Ephemeral stories operations
 paths:
   /healthz:
     get:
@@ -2080,6 +2082,136 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /stories:
+    post:
+      operationId: createStory
+      tags: [stories]
+      summary: Create a new story
+      description: Given an authenticated user, when they create a story, then the story is stored with a 24-hour expiration and optional stickers/polls. The story is visible to the selected audience (everyone, friends, or custom list).
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoryRequest"
+      responses:
+        "201":
+          description: Story created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoryResponse"
+        "400":
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /stories/feed:
+    get:
+      operationId: getStoriesFeed
+      tags: [stories]
+      summary: Get stories feed
+      description: Given an authenticated user, when they request the stories feed, then non-expired stories from people they follow (or from custom audience lists they belong to) are returned grouped by author. Stories expire after 24 hours.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Stories feed retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoriesFeedResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /stories/{userId}:
+    get:
+      operationId: getUserStories
+      tags: [stories]
+      summary: Get stories for a specific user
+      description: Given a user ID, when their stories are requested, then non-expired stories are returned if the viewer is in the audience. The viewer must be authenticated and either the author themselves, a friend, or in a custom audience list.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the user whose stories to fetch
+      responses:
+        "200":
+          description: User stories retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStoriesResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (viewer not in audience)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found or no stories available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /stories/{id}:
+    delete:
+      operationId: deleteStory
+      tags: [stories]
+      summary: Delete a story
+      description: Given an authenticated user and their story, when they delete it, then the story is removed immediately. Only the story author can delete their own stories.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the story to delete
+      responses:
+        "204":
+          description: Story deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not authorized (story belongs to another user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Story not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     cookieAuth:
@@ -3095,6 +3227,200 @@ components:
           description: Total count of audience lists owned by the user
       required:
         - lists
+        - total
+    StoryAudience:
+      type: string
+      enum: [everyone, friends, custom]
+      description: The audience visibility for the story
+    StorySticker:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [emoji, text, mention, location, music]
+          description: The type of sticker
+        x:
+          type: number
+          description: X position as percentage (0-100)
+        y:
+          type: number
+          description: Y position as percentage (0-100)
+        rotation:
+          type: number
+          description: Rotation in degrees
+        scale:
+          type: number
+          description: Scale factor
+        content:
+          type: string
+          description: Sticker content (emoji string, text, mention handle, location name, or music track URL)
+        style:
+          type: object
+          description: Additional style properties (color, font, etc.)
+          additionalProperties: true
+      required:
+        - type
+        - x
+        - y
+    StoryPoll:
+      type: object
+      properties:
+        question:
+          type: string
+          description: The poll question
+          maxLength: 100
+        options:
+          type: array
+          items:
+            type: string
+          description: Poll options (2-4 options)
+          minItems: 2
+          maxItems: 4
+        x:
+          type: number
+          description: X position as percentage (0-100)
+        y:
+          type: number
+          description: Y position as percentage (0-100)
+        endsAt:
+          type: string
+          description: ISO timestamp when the poll ends (must be before story expires)
+      required:
+        - question
+        - options
+        - x
+        - y
+    CreateStoryRequest:
+      type: object
+      properties:
+        mediaUrl:
+          type: string
+          description: The URL of the media (image or video) for the story
+        mediaType:
+          type: string
+          enum: [image, video]
+          description: The type of media
+        stickers:
+          type: array
+          items:
+            $ref: "#/components/schemas/StorySticker"
+          description: Optional stickers to overlay on the story
+        poll:
+          $ref: "#/components/schemas/StoryPoll"
+          description: Optional poll sticker
+        audience:
+          $ref: "#/components/schemas/StoryAudience"
+          description: The audience visibility for the story
+        audienceListId:
+          type: string
+          nullable: true
+          description: Optional custom audience list ID (required if audience is 'custom')
+      required:
+        - mediaUrl
+        - mediaType
+        - audience
+    Story:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the story
+        authorId:
+          type: string
+          description: The ID of the user who created the story
+        mediaUrl:
+          type: string
+          description: The URL of the story media
+        mediaType:
+          type: string
+          enum: [image, video]
+          description: The type of media
+        stickers:
+          type: array
+          items:
+            $ref: "#/components/schemas/StorySticker"
+          description: Stickers on the story
+        poll:
+          $ref: "#/components/schemas/StoryPoll"
+          description: Poll sticker if present
+        audience:
+          $ref: "#/components/schemas/StoryAudience"
+          description: The audience visibility
+        audienceListId:
+          type: string
+          nullable: true
+          description: Custom audience list ID if applicable
+        expiresAt:
+          type: string
+          description: ISO timestamp when the story expires (24 hours after creation)
+        createdAt:
+          type: string
+          description: ISO timestamp when the story was created
+      required:
+        - id
+        - authorId
+        - mediaUrl
+        - mediaType
+        - audience
+        - expiresAt
+        - createdAt
+    StoryResponse:
+      type: object
+      properties:
+        story:
+          $ref: "#/components/schemas/Story"
+          description: The story details
+        author:
+          $ref: "#/components/schemas/AuthorProfile"
+          description: The profile of the story author
+      required:
+        - story
+        - author
+    UserStoriesResponse:
+      type: object
+      properties:
+        stories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Story"
+          description: Array of non-expired stories for the user
+        author:
+          $ref: "#/components/schemas/AuthorProfile"
+          description: The profile of the story author
+      required:
+        - stories
+        - author
+    StoryGroup:
+      type: object
+      properties:
+        author:
+          $ref: "#/components/schemas/AuthorProfile"
+          description: The profile of the story author
+        stories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Story"
+          description: Array of non-expired stories from this author
+        hasUnviewed:
+          type: boolean
+          description: Whether the current user has unviewed stories from this author
+      required:
+        - author
+        - stories
+        - hasUnviewed
+    StoriesFeedResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/StoryGroup"
+          description: Array of story groups, one per author with stories
+        total:
+          type: integer
+          description: Total count of story groups
+      required:
+        - groups
         - total
 
 
