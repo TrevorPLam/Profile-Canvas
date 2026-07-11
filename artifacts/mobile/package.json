@@ -60,5 +60,8 @@
     "vitest": "catalog:",
     "zod": "catalog:",
     "zod-validation-error": "^3.4.0"
+  },
+  "dependencies": {
+    "expo-av": "^16.0.8"
   }
 }

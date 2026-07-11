@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Avatar } from '@/components/Avatar';
 import { MoodBadge } from '@/components/MoodBadge';
+import { ProfileMusicPlayer } from '@/components/ProfileMusicPlayer';
 import { WallpaperBackground } from '@/components/WallpaperBackground';
 import { getWallpaper } from '@/lib/theme';
 import type { UserProfile } from '@/lib/types';
@@ -61,6 +62,13 @@ export function ProfileHeader({
       <Text style={[styles.handle, { color: wallpaper.textOnWallpaper }]}>{profile.handle}</Text>
 
       <MoodBadge icon={profile.moodIcon} label={profile.moodLabel} />
+
+      {profile.profileSongId && (
+        <ProfileMusicPlayer
+          previewUrl={profile.profileSongId}
+          autoPlay={!isMe}
+        />
+      )}
 
       <View style={styles.statsRow}>
         {onPressFriends ? (

@@ -113,6 +113,7 @@ function transformToAuthor(author: FeedPost['author']): UserProfile {
     moodLabel: null,
     moodIcon: null,
     nowPlaying: null,
+    profileSongId: null,
     joinedLabel: '',
     topFriendIds: [],
     friendCount: 0,

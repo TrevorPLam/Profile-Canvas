@@ -18,14 +18,16 @@ import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { useColors } from '@/hooks/useColors';
 import { useFriends } from '@/hooks/useFriends';
 import { useTopFriends } from '@/hooks/useFriends';
+import { useMusicSearch } from '@/hooks/useMusic';
 import { ACCENT_COLORS, MODULE_LABELS, MOOD_OPTIONS, WALLPAPER_PRESETS } from '@/lib/theme';
 import type { ModuleId, Visibility } from '@/lib/types';
 
-type Tab = 'appearance' | 'about' | 'layout' | 'topFriends';
+type Tab = 'appearance' | 'about' | 'layout' | 'topFriends' | 'music';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'appearance', label: 'Appearance' },
   { id: 'about', label: 'About' },
+  { id: 'music', label: 'Music' },
   { id: 'layout', label: 'Layout' },
   { id: 'topFriends', label: 'Top Friends' },
 ];
@@ -66,6 +68,8 @@ export default function EditProfileScreen() {
   const [tab, setTab] = useState<Tab>('appearance');
   const [bio, setBio] = useState(me.bio);
   const [nowPlaying, setNowPlaying] = useState(me.nowPlaying ?? '');
+  const [musicSearchQuery, setMusicSearchQuery] = useState('');
+  const musicSearch = useMusicSearch(musicSearchQuery);
 
   const sortedModules = [...me.modules].sort((a, b) => a.order - b.order);
 
@@ -313,6 +317,80 @@ export default function EditProfileScreen() {
                 },
               ]}
             />
+          </View>
+        ) : null}
+
+        {tab === 'music' ? (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Profile Song</Text>
+            <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
+              Search for a song to auto-play on your profile. The song will play when visitors view your profile (unless they've muted profile music).
+            </Text>
+
+            <TextInput
+              value={musicSearchQuery}
+              onChangeText={setMusicSearchQuery}
+              placeholder="Search for songs..."
+              placeholderTextColor={colors.mutedForeground}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+              ]}
+            />
+
+            {musicSearch.isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : musicSearch.data?.tracks && musicSearch.data.tracks.length > 0 ? (
+              <View style={styles.musicResults}>
+                {musicSearch.data.tracks.map((track) => (
+                  <Pressable
+                    key={track.id}
+                    onPress={() => {
+                      handleUpdateProfile({ profileSongId: track.id });
+                      setMusicSearchQuery('');
+                    }}
+                    style={[
+                      styles.musicTrack,
+                      { backgroundColor: colors.card, borderColor: colors.border },
+                      me.profileSongId === track.id && { borderColor: colors.primary, borderWidth: 2 },
+                    ]}
+                  >
+                    <View style={styles.trackInfo}>
+                      <Text style={[styles.trackName, { color: colors.foreground }]}>
+                        {track.name}
+                      </Text>
+                      <Text style={[styles.trackArtist, { color: colors.mutedForeground }]}>
+                        {track.artist}
+                      </Text>
+                    </View>
+                    {me.profileSongId === track.id && (
+                      <Feather name="check" size={18} color={colors.primary} />
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            ) : musicSearchQuery.length > 2 ? (
+              <Text style={[styles.helperText, { color: colors.mutedForeground }]}>
+                No songs found. Try a different search term.
+              </Text>
+            ) : null}
+
+            {me.profileSongId && (
+              <Pressable
+                onPress={() => handleUpdateProfile({ profileSongId: null })}
+                style={styles.removeSongButton}
+              >
+                <Text style={[styles.removeSongText, { color: colors.mutedForeground }]}>
+                  Remove current profile song
+                </Text>
+              </Pressable>
+            )}
           </View>
         ) : null}
 
@@ -612,5 +690,42 @@ const styles = StyleSheet.create({
     color: '#FFFCF5',
     fontFamily: 'Inter_700Bold',
     fontSize: 11,
+  },
+  loadingContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  musicResults: {
+    gap: 8,
+    marginTop: 8,
+  },
+  musicTrack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  trackInfo: {
+    flex: 1,
+  },
+  trackName: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 14,
+  },
+  trackArtist: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  removeSongButton: {
+    marginTop: 16,
+    paddingVertical: 8,
+  },
+  removeSongText: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 13,
+    textAlign: 'center',
   },
 });

@@ -70,6 +70,7 @@ export default function FriendsListScreen() {
     moodLabel: null,
     moodIcon: null,
     nowPlaying: null,
+    profileSongId: null,
     joinedLabel: '',
     topFriendIds: [],
     friendCount: 0,

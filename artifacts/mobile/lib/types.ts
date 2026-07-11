@@ -23,6 +23,7 @@ export interface UserProfile {
   moodLabel: string | null;
   moodIcon: string | null;
   nowPlaying: string | null;
+  profileSongId: string | null;
   joinedLabel: string;
   topFriendIds: string[];
   friendCount: number;

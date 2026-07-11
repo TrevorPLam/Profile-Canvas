@@ -14,6 +14,7 @@ interface BackendProfile {
   moodLabel: string | null;
   moodIcon: string | null;
   nowPlaying: string | null;
+  profileSongId: string | null;
   moduleSettings: {
     modules: Array<{
       id: string;
@@ -40,6 +41,7 @@ function backendToMobileProfile(backend: BackendProfile): UserProfile {
     moodLabel: backend.moodLabel,
     moodIcon: backend.moodIcon,
     nowPlaying: backend.nowPlaying,
+    profileSongId: backend.profileSongId,
     joinedLabel: new Date(backend.joinedAt).toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
