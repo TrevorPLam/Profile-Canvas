@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,7 +16,7 @@ interface ReelCardProps {
 }
 
 export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) {
-  const { getProfile, repostPost, hasRepostedByMe } = useSocialData();
+  const { me, getProfile, repostPost, hasRepostedByMe, deletePost } = useSocialData();
 
   const openAuthor = () => {
     if (author.id === 'me') {
@@ -48,6 +48,24 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
   };
 
   const originalAuthor = post.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
+  const isMine = post.authorId === me.id;
+
+  const confirmDelete = () => {
+    Alert.alert(
+      post.repostOf ? 'Undo repost?' : 'Delete reel?',
+      post.repostOf
+        ? 'This will remove it from your profile and reels.'
+        : 'This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: post.repostOf ? 'Undo repost' : 'Delete',
+          style: 'destructive',
+          onPress: () => deletePost(post.id),
+        },
+      ],
+    );
+  };
 
   return (
     <View style={[styles.wrap, { height }]}>
@@ -101,6 +119,11 @@ export function ReelCard({ post, author, onToggleLike, height }: ReelCardProps) 
               <Feather name="eye" size={22} color="#FFFCF5" />
               <Text style={styles.railText}>{post.viewsLabel}</Text>
             </View>
+            {isMine ? (
+              <Pressable style={styles.railBtn} onPress={confirmDelete} hitSlop={8}>
+                <Feather name="trash-2" size={21} color="#FFFCF5" />
+              </Pressable>
+            ) : null}
           </View>
         </View>
       </LinearGradient>

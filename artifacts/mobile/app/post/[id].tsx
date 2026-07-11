@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -26,19 +27,39 @@ export default function PostDetailScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { posts, profiles, getProfile, getComments, addComment, me } = useSocialData();
+  const { posts, profiles, getProfile, getComments, addComment, deletePost, me } = useSocialData();
   const [draft, setDraft] = useState('');
 
   const post = useMemo(() => posts.find((p) => p.id === id), [posts, id]);
   const author = post ? profiles[post.authorId] : undefined;
   const comments = useMemo(() => (id ? getComments(id) : []), [id, getComments]);
   const originalAuthor = post?.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
+  const isMine = post?.authorId === me.id;
 
   const submit = () => {
     if (!id || !draft.trim()) return;
     addComment(id, draft);
     setDraft('');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
+
+  const confirmDelete = () => {
+    if (!post) return;
+    Alert.alert(
+      post.repostOf ? 'Undo repost?' : 'Delete post?',
+      post.repostOf ? 'This will remove it from your profile and feed.' : 'This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: post.repostOf ? 'Undo repost' : 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deletePost(post.id);
+            router.back();
+          },
+        },
+      ],
+    );
   };
 
   if (!post || !author) {
@@ -64,6 +85,16 @@ export default function PostDetailScreen() {
               style={{ marginRight: 8 }}
             />
           ),
+          headerRight: isMine
+            ? () => (
+                <Feather
+                  name="trash-2"
+                  size={20}
+                  color={colors.mutedForeground}
+                  onPress={confirmDelete}
+                />
+              )
+            : undefined,
         }}
       />
       <KeyboardAvoidingView

@@ -40,6 +40,7 @@ interface SocialDataContextValue {
   addTextPost: (text: string) => void;
   getComments: (postId: string) => Comment[];
   addComment: (postId: string, text: string) => void;
+  deletePost: (postId: string) => void;
   repostPost: (postId: string) => void;
   hasRepostedByMe: (postId: string) => boolean;
   updateMyProfile: (patch: Partial<UserProfile>) => void;
@@ -202,6 +203,14 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
       persist({ ...state, posts, comments: [...state.comments, comment] });
     };
 
+    const deletePost = (postId: string) => {
+      persist({
+        ...state,
+        posts: state.posts.filter((p) => p.id !== postId),
+        comments: state.comments.filter((c) => c.postId !== postId),
+      });
+    };
+
     const rootRepostId = (postId: string) => {
       const post = state.posts.find((p) => p.id === postId);
       return post?.repostOf?.originalPostId ?? postId;
@@ -256,6 +265,7 @@ export function SocialDataProvider({ children }: { children: React.ReactNode }) 
       addTextPost,
       getComments,
       addComment,
+      deletePost,
       repostPost,
       hasRepostedByMe,
       updateMyProfile,

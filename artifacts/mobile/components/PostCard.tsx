@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -17,7 +17,7 @@ interface PostCardProps {
 
 export function PostCard({ post, author, onToggleLike }: PostCardProps) {
   const colors = useColors();
-  const { getProfile, repostPost, hasRepostedByMe } = useSocialData();
+  const { me, getProfile, repostPost, hasRepostedByMe, deletePost } = useSocialData();
 
   const openAuthor = () => {
     if (author.id === 'me') {
@@ -50,6 +50,24 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
   };
 
   const originalAuthor = post.repostOf ? getProfile(post.repostOf.originalAuthorId) : undefined;
+  const isMine = post.authorId === me.id;
+
+  const confirmDelete = () => {
+    Alert.alert(
+      post.repostOf ? 'Undo repost?' : 'Delete post?',
+      post.repostOf
+        ? 'This will remove it from your profile and feed.'
+        : 'This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: post.repostOf ? 'Undo repost' : 'Delete',
+          style: 'destructive',
+          onPress: () => deletePost(post.id),
+        },
+      ],
+    );
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -122,6 +140,11 @@ export function PostCard({ post, author, onToggleLike }: PostCardProps) {
         <Pressable style={styles.actionBtn} onPress={share} hitSlop={8}>
           <Feather name="share" size={17} color={colors.mutedForeground} />
         </Pressable>
+        {isMine ? (
+          <Pressable style={styles.deleteBtn} onPress={confirmDelete} hitSlop={8}>
+            <Feather name="trash-2" size={16} color={colors.mutedForeground} />
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -220,6 +243,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 22,
     marginTop: 2,
+  },
+  deleteBtn: {
+    marginLeft: 'auto',
   },
   actionBtn: {
     flexDirection: 'row',

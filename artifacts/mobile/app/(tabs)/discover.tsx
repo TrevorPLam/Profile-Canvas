@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
@@ -74,7 +75,11 @@ export default function DiscoverScreen() {
             searchResults.map((person) => {
               const friend = isFriend(person.id);
               return (
-                <View key={person.id} style={styles.requestRow}>
+                <Pressable
+                  key={person.id}
+                  style={styles.requestRow}
+                  onPress={() => router.push(`/profile/${person.id}`)}
+                >
                   <Avatar name={person.name} color={person.avatarColor} size={44} />
                   <View style={styles.requestText}>
                     <Text style={[styles.requestName, { color: colors.foreground }]}>
@@ -106,7 +111,7 @@ export default function DiscoverScreen() {
                       <Text style={[styles.addBtnText, { color: colors.foreground }]}>Add</Text>
                     </Pressable>
                   )}
-                </View>
+                </Pressable>
               );
             })
           )}
@@ -122,7 +127,11 @@ export default function DiscoverScreen() {
                 const requester = profiles[req.fromUserId];
                 if (!requester) return null;
                 return (
-                  <View key={req.id} style={styles.requestRow}>
+                  <Pressable
+                    key={req.id}
+                    style={styles.requestRow}
+                    onPress={() => router.push(`/profile/${requester.id}`)}
+                  >
                     <Avatar name={requester.name} color={requester.avatarColor} size={44} />
                     <View style={styles.requestText}>
                       <Text style={[styles.requestName, { color: colors.foreground }]}>
@@ -147,7 +156,7 @@ export default function DiscoverScreen() {
                     >
                       <Feather name="x" size={16} color={colors.mutedForeground} />
                     </Pressable>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>
@@ -165,7 +174,11 @@ export default function DiscoverScreen() {
               />
             ) : (
               suggested.map((person) => (
-                <View key={person.id} style={styles.requestRow}>
+                <Pressable
+                  key={person.id}
+                  style={styles.requestRow}
+                  onPress={() => router.push(`/profile/${person.id}`)}
+                >
                   <Avatar name={person.name} color={person.avatarColor} size={44} />
                   <View style={styles.requestText}>
                     <Text style={[styles.requestName, { color: colors.foreground }]}>
@@ -188,7 +201,7 @@ export default function DiscoverScreen() {
                     <Feather name="user-plus" size={14} color={colors.foreground} />
                     <Text style={[styles.addBtnText, { color: colors.foreground }]}>Add</Text>
                   </Pressable>
-                </View>
+                </Pressable>
               ))
             )}
           </View>
