@@ -5,6 +5,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { SocialDataProvider } from '@/context/SocialDataContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -21,14 +22,26 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // Keep showing splash screen while loading auth state
+  }
+
   return (
     <Stack screenOptions={{ headerBackTitle: 'Back' }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="profile/[id]" options={{ headerShown: true, headerTitle: '' }} />
-      <Stack.Screen name="post/[id]" options={{ headerShown: true, headerTitle: '' }} />
-      <Stack.Screen name="friends-list" options={{ headerShown: true, headerTitle: '' }} />
-      <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: true }} />
-      <Stack.Screen name="compose" options={{ presentation: 'modal', headerShown: true }} />
+      {!user ? (
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+      ) : (
+        <>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="profile/[id]" options={{ headerShown: true, headerTitle: '' }} />
+          <Stack.Screen name="post/[id]" options={{ headerShown: true, headerTitle: '' }} />
+          <Stack.Screen name="friends-list" options={{ headerShown: true, headerTitle: '' }} />
+          <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: true }} />
+          <Stack.Screen name="compose" options={{ presentation: 'modal', headerShown: true }} />
+        </>
+      )}
     </Stack>
   );
 }
@@ -53,13 +66,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView>
-            <KeyboardProvider>
-              <SocialDataProvider>
-                <RootLayoutNav />
-              </SocialDataProvider>
-            </KeyboardProvider>
-          </GestureHandlerRootView>
+          <AuthProvider>
+            <GestureHandlerRootView>
+              <KeyboardProvider>
+                <SocialDataProvider>
+                  <RootLayoutNav />
+                </SocialDataProvider>
+              </KeyboardProvider>
+            </GestureHandlerRootView>
+          </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
