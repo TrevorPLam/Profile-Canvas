@@ -72,7 +72,7 @@ async function uploadMedia(uri: string, mimeType: string): Promise<MediaUploadRe
     uri,
     type: mimeType,
     name: `upload.${mimeType.split('/')[1]}`,
-  } as any);
+  } as unknown as Blob);
 
   const response = await apiFetch<MediaUploadResponse>('/media/upload', {
     method: 'POST',

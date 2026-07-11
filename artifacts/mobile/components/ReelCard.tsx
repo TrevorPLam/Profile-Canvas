@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,7 +45,7 @@ interface ReelCardProps {
 export function ReelCard({ post, author, height }: ReelCardProps) {
   const { user } = useAuth();
   const { toggleLike, repost, isLiking, isReposting } = useEngagement(post.id);
-  const player = useVideoPlayer(post.thumbnailUrl, (player: any) => {
+  const player = useVideoPlayer(post.thumbnailUrl, (player) => {
     player.loop = true;
     player.play();
   });

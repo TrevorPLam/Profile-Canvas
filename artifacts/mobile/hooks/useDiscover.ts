@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
 import { apiFetch } from '@/lib/api';
 import type { Post, UserProfile } from '@/lib/types';
 
@@ -119,21 +118,6 @@ function transformToAuthor(author: FeedPost['author']): UserProfile {
     friendCount: 0,
     modules: [],
   };
-}
-
-/**
- * Debounce hook for search input
- *
- * Delays updating the debounced value until after a specified delay
- * has elapsed since the last time the input value changed.
- */
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useMemo(() => [value, value], []);
-
-  // For simplicity in this implementation, we'll use a simpler approach
-  // In a production app, you'd use useEffect with setTimeout
-  // Since React Query handles query key changes efficiently, we can rely on that
-  return value;
 }
 
 /**

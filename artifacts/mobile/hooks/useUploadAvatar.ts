@@ -60,7 +60,7 @@ export function useUploadAvatar() {
 
       return { url: response.url };
     },
-    onSuccess: (result) => {
+    onSuccess: () => {
       // Update profile with new avatar URL
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { customFetch, setBaseUrl } from '@workspace/api-client-react';
+import { customFetch } from '@workspace/api-client-react';
 import { apiFetch, getApiBaseUrl } from './api';
 
 // Mock the custom-fetch module
