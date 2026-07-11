@@ -44,6 +44,7 @@ export default function MyProfileScreen() {
         isMe
         isFriend={false}
         onEdit={() => router.push('/edit-profile')}
+        onPressFriends={() => router.push('/friends-list')}
       />
 
       <View style={styles.body}>

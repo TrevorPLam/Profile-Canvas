@@ -16,6 +16,7 @@ interface ProfileHeaderProps {
   onEdit?: () => void;
   onAddFriend?: () => void;
   onRemoveFriend?: () => void;
+  onPressFriends?: () => void;
 }
 
 export function ProfileHeader({
@@ -27,6 +28,7 @@ export function ProfileHeader({
   onEdit,
   onAddFriend,
   onRemoveFriend,
+  onPressFriends,
 }: ProfileHeaderProps) {
   const wallpaper = getWallpaper(profile.wallpaper);
 
@@ -63,12 +65,21 @@ export function ProfileHeader({
       <MoodBadge icon={profile.moodIcon} label={profile.moodLabel} />
 
       <View style={styles.statsRow}>
-        <View style={styles.stat}>
-          <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>
-            {friendCount}
-          </Text>
-          <Text style={[styles.statLabel, { color: wallpaper.textOnWallpaper }]}>Friends</Text>
-        </View>
+        {onPressFriends ? (
+          <Pressable style={styles.stat} onPress={onPressFriends} hitSlop={6}>
+            <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>
+              {friendCount}
+            </Text>
+            <Text style={[styles.statLabel, { color: wallpaper.textOnWallpaper }]}>Friends</Text>
+          </Pressable>
+        ) : (
+          <View style={styles.stat}>
+            <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>
+              {friendCount}
+            </Text>
+            <Text style={[styles.statLabel, { color: wallpaper.textOnWallpaper }]}>Friends</Text>
+          </View>
+        )}
         <View style={styles.stat}>
           <Text style={[styles.statNumber, { color: wallpaper.textOnWallpaper }]}>
             {postCount}

@@ -25,6 +25,7 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: 'Back' }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="profile/[id]" options={{ headerShown: true, headerTitle: '' }} />
+      <Stack.Screen name="friends-list" options={{ headerShown: true, headerTitle: '' }} />
       <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: true }} />
       <Stack.Screen name="compose" options={{ presentation: 'modal', headerShown: true }} />
     </Stack>

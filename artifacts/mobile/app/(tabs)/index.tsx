@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
@@ -11,17 +10,30 @@ import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
 import type { Post, ReelPost } from '@/lib/types';
 
+type FeedMode = 'friends' | 'recommended';
+
 type FeedRow =
   | { kind: 'post'; post: Extract<Post, { kind: 'text' | 'video' }> }
   | { kind: 'reelStrip'; reels: ReelPost[] };
 
+const MODE_OPTIONS: { id: FeedMode; label: string }[] = [
+  { id: 'friends', label: 'Friends' },
+  { id: 'recommended', label: 'Recommended' },
+];
+
 export default function FeedScreen() {
-  const { me, posts, profiles, toggleLike } = useSocialData();
+  const { me, posts, profiles, friendIds, toggleLike } = useSocialData();
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const [mode, setMode] = useState<FeedMode>('friends');
+
+  const scopedPosts = useMemo(() => {
+    if (mode === 'recommended') return posts;
+    return posts.filter((p) => p.authorId === me.id || friendIds.includes(p.authorId));
+  }, [posts, mode, me.id, friendIds]);
 
   const rows = useMemo<FeedRow[]>(() => {
-    const sorted = [...posts].sort((a, b) => b.createdAt - a.createdAt);
+    const sorted = [...scopedPosts].sort((a, b) => b.createdAt - a.createdAt);
     const reelPool = sorted.filter((p): p is ReelPost => p.kind === 'reel');
     const nonReel = sorted.filter(
       (p): p is Extract<Post, { kind: 'text' | 'video' }> => p.kind !== 'reel',
@@ -43,7 +55,7 @@ export default function FeedScreen() {
       result.push({ kind: 'reelStrip', reels: reelPool.slice(reelIndex) });
     }
     return result;
-  }, [posts]);
+  }, [scopedPosts]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -52,9 +64,33 @@ export default function FeedScreen() {
           <Avatar name={me.name} color={me.avatarColor} size={34} />
         </Pressable>
         <Text style={[styles.brand, { color: colors.foreground }]}>Corkboard</Text>
-        <Pressable onPress={() => router.push('/compose')} hitSlop={8} style={styles.composeBtn}>
-          <Feather name="edit-3" size={20} color={colors.primary} />
-        </Pressable>
+        <View style={styles.spacer} />
+      </View>
+
+      <View style={styles.modeRow}>
+        {MODE_OPTIONS.map((opt) => {
+          const active = mode === opt.id;
+          return (
+            <Pressable
+              key={opt.id}
+              onPress={() => setMode(opt.id)}
+              style={[
+                styles.modeChip,
+                { borderColor: colors.border },
+                active && { backgroundColor: colors.primary, borderColor: colors.primary },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modeChipText,
+                  { color: active ? '#FFFCF5' : colors.mutedForeground },
+                ]}
+              >
+                {opt.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <FlatList
@@ -66,11 +102,15 @@ export default function FeedScreen() {
         showsVerticalScrollIndicator={false}
         scrollEnabled={rows.length > 0}
         ListEmptyComponent={
-          <EmptyState
-            icon="inbox"
-            title="Your feed is quiet"
-            subtitle="Posts from you and your friends will show up here."
-          />
+          mode === 'friends' ? (
+            <EmptyState
+              icon="users"
+              title="No posts from friends yet"
+              subtitle="Add friends in Discover, or switch to Recommended to see more."
+            />
+          ) : (
+            <EmptyState icon="inbox" title="Nothing to show" />
+          )
         }
         renderItem={({ item }) => {
           if (item.kind === 'reelStrip') {
@@ -101,11 +141,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 0.2,
   },
-  composeBtn: {
+  spacer: {
     width: 34,
     height: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  modeRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  modeChip: {
+    borderWidth: 1.5,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  modeChipText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 13,
   },
   list: {
     paddingHorizontal: 14,

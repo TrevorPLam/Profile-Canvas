@@ -5,33 +5,21 @@ import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
-import { FriendRow } from '@/components/FriendRow';
 import { useSocialData } from '@/context/SocialDataContext';
 import { useColors } from '@/hooks/useColors';
 import { ME_ID } from '@/lib/mockData';
 
-export default function FriendsScreen() {
+export default function DiscoverScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const {
-    me,
-    profiles,
-    friendIds,
-    requests,
-    acceptFriendRequest,
-    declineFriendRequest,
-    sendFriendRequest,
-  } = useSocialData();
-
-  const friends = useMemo(
-    () => friendIds.map((id) => profiles[id]).filter((p): p is NonNullable<typeof p> => !!p),
-    [friendIds, profiles],
-  );
+  const { profiles, friendIds, requests, acceptFriendRequest, declineFriendRequest, sendFriendRequest } =
+    useSocialData();
 
   const suggested = useMemo(
     () =>
       Object.values(profiles).filter(
-        (p) => p.id !== ME_ID && !friendIds.includes(p.id) && !requests.some((r) => r.fromUserId === p.id),
+        (p) =>
+          p.id !== ME_ID && !friendIds.includes(p.id) && !requests.some((r) => r.fromUserId === p.id),
       ),
     [profiles, friendIds, requests],
   );
@@ -42,7 +30,7 @@ export default function FriendsScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.pageTitle, { color: colors.foreground }]}>Friends</Text>
+      <Text style={[styles.pageTitle, { color: colors.foreground }]}>Discover</Text>
 
       {requests.length > 0 ? (
         <View style={styles.section}>
@@ -84,34 +72,18 @@ export default function FriendsScreen() {
         </View>
       ) : null}
 
-      {me.topFriendIds.length > 0 ? (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Your top friends</Text>
-          {me.topFriendIds.map((id) => {
-            const friend = profiles[id];
-            if (!friend) return null;
-            return <FriendRow key={id} user={friend} />;
-          })}
-        </View>
-      ) : null}
-
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-          All friends ({friends.length})
+          People you may know
         </Text>
-        {friends.length === 0 ? (
-          <EmptyState icon="users" title="No friends yet" subtitle="People you add will show up here." />
+        {suggested.length === 0 ? (
+          <EmptyState
+            icon="compass"
+            title="You're all caught up"
+            subtitle="Check back later for more people to discover."
+          />
         ) : (
-          friends.map((friend) => <FriendRow key={friend.id} user={friend} />)
-        )}
-      </View>
-
-      {suggested.length > 0 ? (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            People you may know
-          </Text>
-          {suggested.map((person) => (
+          suggested.map((person) => (
             <View key={person.id} style={styles.requestRow}>
               <Avatar name={person.name} color={person.avatarColor} size={44} />
               <View style={styles.requestText}>
@@ -122,7 +94,7 @@ export default function FriendsScreen() {
                   style={[styles.requestHandle, { color: colors.mutedForeground }]}
                   numberOfLines={1}
                 >
-                  {person.handle}
+                  {person.bio}
                 </Text>
               </View>
               <Pressable
@@ -136,9 +108,9 @@ export default function FriendsScreen() {
                 <Text style={[styles.addBtnText, { color: colors.foreground }]}>Add</Text>
               </Pressable>
             </View>
-          ))}
-        </View>
-      ) : null}
+          ))
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -146,7 +118,7 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 18,
-    paddingBottom: 120,
+    paddingBottom: 140,
     gap: 26,
   },
   pageTitle: {
